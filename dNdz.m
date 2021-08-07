@@ -1,12 +1,6 @@
 
-% plot_a_processed_qso.m : plot sample of spectrum with model dla
-% and the sample likelihoods
-%
-% Usage:
-% ----
-% % first load the catalogues and spectra
-% addpath dr16q/
-% load_processed_catalogsset_parameters;
+% Comparing column density and redshift 
+% from our MAP analysis to C13 measurements
 clc
 clear
 set_parameters;

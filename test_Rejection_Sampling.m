@@ -1,3 +1,4 @@
+% A sanity check for rejection sampling
 clc
 clear
 num_xy_samples =1000;
