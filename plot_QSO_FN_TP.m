@@ -78,7 +78,7 @@ dir = sprintf('FN-Posterior-N-sigma-%s',training_set_name);
 % dir = sprintf('TP-Posterior-N-sigma-%s',training_set_name);
 mkdir(dir);
 count =0;
-for quasar_ind=1:11780
+for quasar_ind=1:1000
     
     % fprintf('quasar_ind:%d\n',quasar_ind);
     this_wavelengths    =    all_wavelengths{quasar_ind};
@@ -143,9 +143,9 @@ for quasar_ind=1:11780
     if(num_systems>0 & p_c4s(quasar_ind)<0.5) % FN
         % if(num_systems>0 & p_c4s(quasar_ind)>0.8 & filter_flags(quasar_ind)==0) % TP
         count=count+1;
-        % if count>20
-        %     break
-        % end
+        if count>20
+            break
+        end
         
         % fprintf('TP:%d\n',count);
         fprintf('FN:%d\n',count);

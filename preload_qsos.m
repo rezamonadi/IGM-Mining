@@ -15,6 +15,7 @@ all_wavelengths    =  cell(num_quasars, 1);
 all_flux           =  cell(num_quasars, 1);
 all_noise_variance =  cell(num_quasars, 1);
 all_pixel_mask     =  cell(num_quasars, 1);
+all_sigma_pixel     =  cell(num_quasars, 1);
 all_normalizers    = zeros(num_quasars, 1);
 
 for i = 1:num_quasars
@@ -24,20 +25,22 @@ for i = 1:num_quasars
     continue;
   end
   
-  [this_wavelengths, this_flux, this_noise_variance, this_pixel_mask] ...
+  [this_wavelengths, this_flux, this_noise_variance, this_pixel_mask, this_sigma_pixel] ...
       = file_loader(all_mjd_dr7(i), all_plate_dr7(i),all_fiber_dr7(i));
+  
+  this_sigma_pixel = this_sigma_pixel';
 	% Here file_loader uses dr7 spectrum reader function and given mpf to read
 	% spectrum 
   
-  % Masking Sky lines 
-  this_pixel_mask((abs(this_wavelengths-5579)<5) & (abs(this_wavelengths-6302)<5))=1;
+  % % Masking Sky lines 
+  % this_pixel_mask((abs(this_wavelengths-5579)<5) & (abs(this_wavelengths-6302)<5))=1;
 
   this_rest_wavelengths = emitted_wavelengths(this_wavelengths, all_zqso(i));
   % normalize flux
   
   ind = (this_rest_wavelengths >= normalization_min_lambda) & ...
         (this_rest_wavelengths <= normalization_max_lambda) & ...
-        (~this_pixel_mask);
+        (~this_pixel_mask) & (this_sigma_pixel>0);
 
   this_median = nanmedian(this_flux(ind));
   
@@ -49,7 +52,7 @@ for i = 1:num_quasars
   
   ind = (this_rest_wavelengths >= min_lambda) & ...
         (this_rest_wavelengths <= max_lambda) & ...
-        (~this_pixel_mask);
+        (~this_pixel_mask) & (this_sigma_pixel>0);
         
   % bit 3: not enough pixels available
   if (nnz(ind) < min_num_pixels)
@@ -71,7 +74,7 @@ for i = 1:num_quasars
   all_flux{i}           =           this_flux(ind);
   all_noise_variance{i} = this_noise_variance(ind);
   all_pixel_mask{i}     =     this_pixel_mask(ind);
-
+  all_sigma_pixel{i}    =     this_sigma_pixel(ind); 
   fprintf('loaded quasar %i of %i (%i/%i/%04i)\n', ...
           i, num_quasars, all_plate_dr7(i), all_mjd_dr7(i), all_fiber_dr7(i));
 end
@@ -80,8 +83,8 @@ variables_to_save = {'loading_min_lambda', 'loading_max_lambda', ...
                      'normalization_min_lambda', 'normalization_max_lambda', ...
                      'min_num_pixels', 'all_wavelengths', 'all_flux', ...
                      'all_noise_variance', 'all_pixel_mask', ...
-                     'all_normalizers'};
-save(sprintf('%s/preloaded_qsos', processed_directory(release)), ...
+                     'all_normalizers', 'all_sigma_pixel'};
+save(sprintf('%s/preloaded_qsos-dl-%d', processed_directory(release),fix(dlambda*100)), ...
      variables_to_save{:});
 
 % write new filter flags to catalog

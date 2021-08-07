@@ -14,12 +14,12 @@
 % Remember that these are vacuum wavelengths.
 %
 
-function [wavelengths, flux, noise_variance, pixel_mask] = read_spec_dr7(filename)
+function [wavelengths, flux, noise_variance, pixel_mask, sigma_pixel] = read_spec_dr7(filename)
 
 	measurements = fitsread(filename);
-	%           'binarytable',  1, ...
-	%           'tablecolumns', 1:4);
-
+	hdu6 = fitsread(filename, 'binarytable',  6, ...
+	           'tablecolumns', 3);
+    sigma_pixel = hdu6{1};
 	% the Primary table contains spectra
 
 	% acquire un-continuum subtracted spectrum
@@ -49,11 +49,12 @@ function [wavelengths, flux, noise_variance, pixel_mask] = read_spec_dr7(filenam
 	    end
 	end
 	%coef0 = header.PrimaryData.Keywords{208,2} % Center wavelength (log10) of first pi
-	%coef1 = header.PrimaryData.Keywords{209,2} % Log10 dispersion per pixel
+	% coef1 = header.PrimaryData.Keywords{209,2} % Log10 dispersion per pixel
 
 	length = numel(flux);
 
 	wavelengths = 10.^(linspace(coeff0, coeff0 + coeff1*(length + 1), length));
 	
 	pixel_mask =  (noise_ratio>=4) | (and_mask==hex2dec('0x800000')) | (noise == 0); 
+	% resolution = 
 end

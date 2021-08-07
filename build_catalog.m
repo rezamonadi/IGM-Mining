@@ -7,19 +7,28 @@ c4_detcted_mjd_dr7           = Cooksey_C4_detected{2};
 c4_detcted_plate_dr7         = Cooksey_C4_detected{3};
 c4_detcted_fiber_dr7         = Cooksey_C4_detected{4};
 Z_abs_ORG                    = Cooksey_C4_detected{17};
+EW                           = Cooksey_C4_detected{22};
+SigmaEW                      = Cooksey_C4_detected{23};
+flagEW                       = Cooksey_C4_detected{24};
 NCIV_ORG                     = Cooksey_C4_detected{27};
 SigmaNCIV_ORG                = Cooksey_C4_detected{28};
 NCOLMFLG                     = Cooksey_C4_detected{29};
 RATING                       = Cooksey_C4_detected{30};
 % % filtering out those column densities with not good measurements
-ind = NCOLMFLG(:,1)==1 & NCOLMFLG(:,2)==1 & NCIV_ORG(:,1)>0 & NCIV_ORG(:,2)>0;
+% ind = NCOLMFLG(:,1)==1 & NCOLMFLG(:,2)==1 & NCIV_ORG(:,1)>0 & NCIV_ORG(:,2)>0;
+
+% Filtering out those measurments with low S/N for EW and flagEW/=1
+snEW1 = EW(:,1)./SigmaEW(:,1);
+snEW2 = EW(:,2)./SigmaEW(:,2);
+ind = (flagEW(:,1)==1) & (flagEW(:,2)==1) & snEW1>2 & snEW2>2;
 c4_detcted_mjd_dr7           = c4_detcted_mjd_dr7(ind);
 c4_detcted_plate_dr7         = c4_detcted_plate_dr7(ind);
 c4_detcted_fiber_dr7         = c4_detcted_fiber_dr7(ind);
 Z_abs_ORG                    = Z_abs_ORG(ind,:);
 NCIV_ORG                     = NCIV_ORG(ind,:);
 SigmaNCIV_ORG                = SigmaNCIV_ORG(ind,:);
-
+EW1                          = EW(ind,1);
+EW2                          = EW(ind,2);
 [nSys,dd]=size(c4_detcted_fiber_dr7);
 NCIV=zeros(nSys,1);
 Z_c4=zeros(nSys,1);
@@ -92,9 +101,12 @@ all_ind_c4 = (all_ind_c4==1) & (all_RATING==3);
 release = 'dr7';
 variables_to_save = {'all_plate_dr7', 'all_mjd_dr7', 'all_fiber_dr7', ...
  'all_QSO_ID', 'all_RA', 'all_DEC', 'all_zqso',...
-'all_z_c4', 'all_ind_c4', 'all_c4_NCIV'};
+'all_z_c4', 'all_ind_c4', 'all_c4_NCIV', 'EW1', 'EW2'};
 save(sprintf('%s/catalog', processed_directory(release)), ...
     variables_to_save{:}, '-v7.3');
+
+save(sprintf('%s/PMF', processed_directory(release)), ...
+'all_plate_dr7', 'all_mjd_dr7', 'all_fiber_dr7', 'all_zqso');
 % because QSO_IDs are cell arrays (character) we need to match them in this
 % way  if(all(all_QSO_ID{1}==c4_QSO_ID{2})==true)
 
@@ -110,4 +122,19 @@ filter_flags(ind) = bitset(filter_flags(ind), 1, true);
 % filtering bit 1: Column density are good measrements 
 % filter_flags(ind) = bitset(filter_flags(ind), 2, true);
 
-save(sprintf('%s/filter_flags', processed_directory(training_release)));   
+save(sprintf('%s/filter_flags', processed_directory(training_release)),...
+                                'filter_flags');   
+
+% figure()                                
+% histogram(EW(EW>0))
+% hold on
+% histogram(EW(snEW1>1 & snEW2>1))
+% hold on
+% histogram(EW(snEW1>2 & snEW2>2))
+% hold on
+% histogram(EW(snEW1>3 & snEW2>3))
+% legend('W_r>0', 'S/N>1', 'S/N>2', 'S/N>3')
+% alpha(0.4)
+% set(get(gca, 'XLabel'), 'String', 'W_r');
+% set(get(gca, 'YLabel'), 'String', 'Abundance');
+% hold off

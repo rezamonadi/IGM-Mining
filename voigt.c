@@ -6,13 +6,13 @@
 #include <math.h>
 #include <stdio.h>
 
-#define LAMBDAS_ARG    prhs[0]
-#define Z_ARG          prhs[1]
-#define N_ARG          prhs[2]
-#define NUM_LINES_ARG  prhs[3]
-#define sigma_ARG      prhs[4]
-
-#define PROFILE_ARG    plhs[0]
+#define LAMBDAS_ARG          prhs[0]
+#define Z_ARG                prhs[1]
+#define N_ARG                prhs[2]
+#define NUM_LINES_ARG        prhs[3]
+#define sigma_ARG            prhs[4]
+#define pixel_sigma_ARG      prhs[5]
+#define PROFILE_ARG          plhs[0]
 
 /* number of lines in CIV doublet */
 #define NUM_LINES 2
@@ -98,41 +98,52 @@ static const int width = 3;                      /* width of convolution     dim
     instrument_profile[i] /= total;
 */
 
-static const double instrument_profile[] =
-  {
-   0.002174609921381,
-   0.041162305958045,
-   0.240309364651847,
-   0.432707438937454,
-   0.240309364651847,
-   0.041162305958045,
-   0.002174609921381
-  };
+// static const double instrument_profile[] =
+//   {
+//    0.002174609921381,
+//    0.041162305958045,
+//    0.240309364651847,
+//    0.432707438937454,
+//    0.240309364651847,
+//    0.041162305958045,
+//    0.002174609921381
+//   };
 
 void mexFunction(int nlhs,       mxArray *plhs[],
 		 int nrhs, const mxArray *prhs[]) {
 
-  double *lambdas, *profile, *multipliers, *raw_profile;
-  double z, N, velocity, total, sigma;
-  int num_lines, i, j, k;
+  double *lambdas;
+  double *profile;
+  double *multipliers;
+  double *raw_profile;
+  double *instrument_profile;
+  double *pixel_sigma;
+  double z;
+  double N;
+  double velocity;
+  double total;
+  double sigma;
+  int num_lines, i, j, k, ii, jj;
   mwSize num_points;
 
   /* get input */
-  lambdas = mxGetPr(LAMBDAS_ARG);                /* wavelengths             Å             */
-  z       = mxGetScalar(Z_ARG);                  /* redshift                dimensionless */
-  N       = mxGetScalar(N_ARG);                  /* column density          cm⁻²          */
-  sigma       = mxGetScalar(sigma_ARG);
+  lambdas     = mxGetPr(LAMBDAS_ARG);                /* wavelengths             Å             */
+  z           = mxGetScalar(Z_ARG);                  /* redshift                dimensionless */
+  N           = mxGetScalar(N_ARG);                  /* column density          cm⁻²          */
+  sigma       = mxGetScalar(sigma_ARG);              /* Doppler broadening  paramberter   km/s*/
+  pixel_sigma = mxGetPr(pixel_sigma_ARG);             /* pixel sigma from spSpec                */
+
   num_lines = (nrhs > 3) ? (int)(mxGetScalar(NUM_LINES_ARG)) : NUM_LINES;
   num_points = mxGetNumberOfElements(LAMBDAS_ARG);
-
   /* initialize output */
   PROFILE_ARG = mxCreateDoubleMatrix(num_points - 2 * width, 1, mxREAL);
   profile = mxGetPr(PROFILE_ARG);                /* absorption profile      dimensionless */
 
   /* to hold the profile before instrumental broadening */
   raw_profile = mxMalloc(num_points * sizeof(double));
-
   multipliers = mxMalloc(num_lines * sizeof(double));
+  instrument_profile = mxMalloc((2*width+1)* sizeof(double));
+
   for (i = 0; i < num_lines; i++)
     multipliers[i] = c / (transition_wavelengths[i] * (1 + z)) / 1e8;
 
@@ -152,10 +163,28 @@ void mexFunction(int nlhs,       mxArray *plhs[],
   num_points = mxGetNumberOfElements(PROFILE_ARG);
 
   /* instrumental broadening */
-  for (i = 0; i < num_points; i++)
-    for (j = i, k = 0; j <= i + 2 * width; j++, k++)
-      profile[i] += raw_profile[j] * instrument_profile[k];
+  for (i = 0; i < num_points; i++){
+    if (i>=width && i<=num_points-width ){
+      total = 0;
+      for (ii = -width, jj = 0; ii <= width; ii++, jj++) {
+      
+        instrument_profile[jj] = exp(-0.5 * ii * ii / (pixel_sigma[i] * pixel_sigma[i]));
+        total += instrument_profile[jj];
+      }
+    
+      for (ii = 0; ii < 2 * width + 1; ii++)
+        instrument_profile[ii] /= total;
+    
 
+      for (j = i, k = 0; j <= i + 2 * width; j++, k++){
+        profile[i] += raw_profile[j] * instrument_profile[k];
+      }
+    }
+    else {
+       profile[i] = raw_profile[i];
+    }
+
+  }
   mxFree(raw_profile);
   mxFree(multipliers);
 
