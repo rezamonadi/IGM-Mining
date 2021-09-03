@@ -3,24 +3,29 @@
 Cooksey_C4_detected = fitsread(...
 'data/C4_catalogs/Cooksey_C4_cat/distfiles/sdss_civ_cookseyetal13_update1.fit',...
 'binarytable');
-c4_detcted_mjd_dr7           = Cooksey_C4_detected{2};
-c4_detcted_plate_dr7         = Cooksey_C4_detected{3};
-c4_detcted_fiber_dr7         = Cooksey_C4_detected{4};
+
+% Cooksey_C4_detected = fitsread(...
+% '/home/reza/Desktop/sdss_civrate_hyb_all_update1.fit',...
+% 'binarytable');
+c4_QSO_ID                   = Cooksey_C4_detected{1};
+% c4_detcted_mjd_dr7           = Cooksey_C4_detected{2};
+% c4_detcted_plate_dr7         = Cooksey_C4_detected{3};
+% c4_detcted_fiber_dr7         = Cooksey_C4_detected{4};
 Z_abs_ORG                    = Cooksey_C4_detected{17};
+EW                           = Cooksey_C4_detected{22};
+SigmaEW                      = Cooksey_C4_detected{23};
+flagEW                       = Cooksey_C4_detected{24};
 NCIV_ORG                     = Cooksey_C4_detected{27};
 SigmaNCIV_ORG                = Cooksey_C4_detected{28};
 NCOLMFLG                     = Cooksey_C4_detected{29};
-RATING                       = Cooksey_C4_detected{30};
+dummy                        = Cooksey_C4_detected{30};
+RATING                       = dummy(:,1);
 % % filtering out those column densities with not good measurements
-ind = NCOLMFLG(:,1)==1 & NCOLMFLG(:,2)==1 & NCIV_ORG(:,1)>0 & NCIV_ORG(:,2)>0;
-c4_detcted_mjd_dr7           = c4_detcted_mjd_dr7(ind);
-c4_detcted_plate_dr7         = c4_detcted_plate_dr7(ind);
-c4_detcted_fiber_dr7         = c4_detcted_fiber_dr7(ind);
-Z_abs_ORG                    = Z_abs_ORG(ind,:);
-NCIV_ORG                     = NCIV_ORG(ind,:);
-SigmaNCIV_ORG                = SigmaNCIV_ORG(ind,:);
+% ind = NCOLMFLG(:,1)==1 & NCOLMFLG(:,2)==1 & NCIV_ORG(:,1)>0 & NCIV_ORG(:,2)>0;
 
-[nSys,dd]=size(c4_detcted_fiber_dr7);
+EW1                          = EW(:,1);
+EW2                          = EW(:,2);
+[nSys,dd]=size(c4_QSO_ID);
 NCIV=zeros(nSys,1);
 Z_c4=zeros(nSys,1);
 for i=1:nSys
@@ -29,23 +34,14 @@ for i=1:nSys
     Z_c4(i) = (Z_abs_ORG(i,1)+Z_abs_ORG(i,2))/2;
 end
 
-c4_QSO_ID=cell(nSys,1);
-f = fopen('data/C4_catalogs/Cooksey_C4_cat/processed/los_catalog','w');
-for i=1:nSys
-
-    fprintf(f,'%05i-%04i-%03i\n', c4_detcted_mjd_dr7(i), ...
-    c4_detcted_plate_dr7(i), c4_detcted_fiber_dr7(i));
-    c4_QSO_ID{i}=sprintf('%05i-%04i-%04i', (c4_detcted_mjd_dr7(i)), ...
-    (c4_detcted_plate_dr7(i)), (c4_detcted_fiber_dr7(i)));
-end
 
 
 
-f = fopen('data/C4_catalogs/Cooksey_C4_cat/processed/c4_catalog','w');
-for i=1:nSys
-      fprintf(f,'%05i-%04i-%03i  %f %f\n', c4_detcted_mjd_dr7(i), ...
-      c4_detcted_plate_dr7(i), c4_detcted_fiber_dr7(i), Z_c4(i), NCIV(i));
-end
+% f = fopen('data/C4_catalogs/Cooksey_C4_cat/processed/c4_catalog','w');
+% for i=1:nSys
+%       fprintf(f,'%05i-%04i-%03i  %f %f\n', c4_detcted_mjd_dr7(i), ...
+%       c4_detcted_plate_dr7(i), c4_detcted_fiber_dr7(i), Z_c4(i), NCIV(i));
+% end
 
 save('data/C4_catalogs/Cooksey_C4_cat/processed/CIV-cat.mat','c4_QSO_ID','Z_c4','NCIV');
 
@@ -70,21 +66,10 @@ all_c4_NCIV =zeros(num_quasars,1)-1;
 all_QSO_ID=cell(num_quasars,1);
 all_RATING=zeros(num_quasars,1)-1;
 for i=1:num_quasars
-    all_QSO_ID{i}=sprintf('%05i-%04i-%04i', (all_mjd_dr7(i)), ...
+    all_QSO_ID{i}=sprintf('%05i-%04i-%03i', (all_mjd_dr7(i)), ...
     (all_plate_dr7(i)), (all_fiber_dr7(i)));
 end
 %  adding a cloumn for c4 col density if there is a c4 for a sight line
-all_ind_c4 = ismember(all_QSO_ID, c4_QSO_ID);
-j=0;
-for i=1:num_quasars
-    if all_ind_c4(i)==1
-        j=j+1;
-        all_z_c4(i)=Z_c4(j);
-        all_c4_NCIV(i) = NCIV(j);
-        all_RATING(i)=RATING(j);
-    end
-end
-all_ind_c4 = (all_ind_c4==1) & (all_RATING==3);
 
 
 
@@ -92,22 +77,7 @@ all_ind_c4 = (all_ind_c4==1) & (all_RATING==3);
 release = 'dr7';
 variables_to_save = {'all_plate_dr7', 'all_mjd_dr7', 'all_fiber_dr7', ...
  'all_QSO_ID', 'all_RA', 'all_DEC', 'all_zqso',...
-'all_z_c4', 'all_ind_c4', 'all_c4_NCIV'};
+  'EW1', 'EW2'};
 save(sprintf('%s/catalog', processed_directory(release)), ...
     variables_to_save{:}, '-v7.3');
-% because QSO_IDs are cell arrays (character) we need to match them in this
-% way  if(all(all_QSO_ID{1}==c4_QSO_ID{2})==true)
 
-
-
-% to track reasons for filtering out QSOs
-filter_flags = zeros(num_quasars, 1, 'uint8');
-% 
-% filtering bit 0: z_QSO < 1.5
-ind = (all_zqso < z_qso_cut);
-filter_flags(ind) = bitset(filter_flags(ind), 1, true);
-
-% filtering bit 1: Column density are good measrements 
-% filter_flags(ind) = bitset(filter_flags(ind), 2, true);
-
-save(sprintf('%s/filter_flags', processed_directory(training_release)));   

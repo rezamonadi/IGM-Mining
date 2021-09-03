@@ -31,12 +31,11 @@ load('data/C4_catalogs/Cooksey_C4_cat/processed/CIV-cat.mat','c4_QSO_ID','Z_c4',
 
 % load QSO model from training release
 variables_to_load = {'rest_wavelengths', 'mu', 'M'};
-load(sprintf('%s/learned_model_%s_norm_%d-%d',...
-processed_directory(processed.training_release), training_set_name,...
-normalization_min_lambda, normalization_max_lambda),variables_to_load{:});
+load(sprintf('%s/learned_model',...
+processed_directory(processed.training_release)), variables_to_load{:});
 
 % load C4 samples from training release
-variables_to_load = {'offset_sigma_samples', 'offset_z_samples', 'log_nciv_samples', 'nciv_samples'};
+variables_to_load = {'sigma_samples', 'offset_z_samples', 'log_nciv_samples', 'nciv_samples'};
 load(sprintf('%s/civ_samples-%s', processed_directory(processed.training_release), training_set_name), ...
      variables_to_load{:});
      
@@ -47,7 +46,7 @@ load(sprintf('%s/preloaded_qsos', processed_directory(release)), ...
      variables_to_load{:});
 
 % building samples-> Z and sigma
-sample_sigma_c4 = min_sigma + (max_sigma-min_sigma)*offset_sigma_samples;
+% sample_sigma_c4 = min_sigma + (max_sigma-min_sigma)*offset_sigma_samples;
 
 
 
@@ -74,13 +73,13 @@ map_N_c4L1s = processed.map_N_c4L1;
 map_sigma_c4L1s = processed.map_sigma_c4L1;
 
         % Testing Voigt profile 
-dir = sprintf('FN-Posterior-N-sigma-%s',training_set_name);
+dir = 'VoigtTest';
 % dir = sprintf('TP-Posterior-N-sigma-%s',training_set_name);
 mkdir(dir);
 count =0;
-for quasar_ind=1:1000
+for quasar_ind=1:10000
     
-    % fprintf('quasar_ind:%d\n',quasar_ind);
+    %fprintf('quasar_ind:%d\n',quasar_ind);
     this_wavelengths    =    all_wavelengths{quasar_ind};
     this_wavelengths    =              this_wavelengths';
     this_flux           =           all_flux{quasar_ind}; 
@@ -154,12 +153,15 @@ for quasar_ind=1:1000
         % subplot('position', [0.05 0.49 0.90 0.45]);
 % construct dla_mu_map
         num_lines=2;
-        absorptionL2 = voigt(padded_wavelengths, map_z_c4L2s(quasar_ind), ...
+        absorptionL2R2000 = voigt(padded_wavelengths, map_z_c4L2s(quasar_ind), ...
             10^map_N_c4L2s(quasar_ind), num_lines, map_sigma_c4L2s(quasar_ind));
         
-        num_lines = 1;
-        absorptionL1 = voigt(padded_wavelengths, map_z_c4L1s(quasar_ind), ...
-            10^map_N_c4L1s(quasar_ind), num_lines, map_sigma_c4L1s(quasar_ind));
+       
+
+        absorptionL2R1800 = voigtR1800(padded_wavelengths, map_z_c4L2s(quasar_ind), ...
+            10^map_N_c4L2s(quasar_ind), num_lines, map_sigma_c4L2s(quasar_ind));
+        
+       
         % Testing Voigt profile 
         
         all_c4_NCIV_test=all_c4_NCIV(test_ind);
@@ -173,119 +175,43 @@ for quasar_ind=1:1000
         matched_Z_c4L2= this_Zs(abs(this_Zs -map_z_c4L2s(quasar_ind))==min(abs(this_Zs-map_z_c4L2s(quasar_ind))));
         matched_N_c4L2= this_c4s(abs(this_Zs -map_z_c4L2s(quasar_ind))==min(abs(this_Zs-map_z_c4L2s(quasar_ind))));
         
-        absorptionL1 = absorptionL1(ind);
-        absorptionL2 = absorptionL2(ind);
-        c4_muL1 = this_mu.* absorptionL1;
-        c4_muL2 = this_mu.* absorptionL2;
-        c4_Cooksey=this_mu; 
-        for jj=1:num_systems
-            c4_Cooksey = c4_Cooksey.*voigt(padded_wavelengths, this_Zs(jj), ...
-            10^this_c4s(jj), 2, map_sigma_c4L1s(quasar_ind));
-        end
-        this_z_c4 = (this_wavelengths / 1550) - 1;
+        absorptionL2R2000 = absorptionL2R2000(ind);
+        c4_muL2R2000 = this_mu.* absorptionL2R2000;
 
+        absorptionL2R1800 = absorptionL2R1800(ind);
+        c4_muL2R1800 = this_mu.* absorptionL2R1800;
+        this_z_c4 = (this_wavelengths / 1550) - 1;
         % xlim([]);
         % ylim([-0.1   5]);
-        subplot(3,1,1);
         xlabel('(observed wavelengths $\lambda$ (\AA) / 1549 (\AA)) - 1', 'FontSize', 14, 'Interpreter','latex');
         ylabel('normalized flux $\mathbf{y}$',                            'FontSize', 14, 'Interpreter','latex');
-        plot(this_z_c4, c4_muL1, 'Color', 'b');
+        % plot(this_z_c4, c4_muL1R1800);
+        % hold on
+        plot(this_z_c4, c4_muL2R1800);
         hold on
-        plot(this_z_c4, c4_muL2, 'Color', 'g');
-        hold on
-        plot(this_z_c4, c4_Cooksey+1, 'Color', 'k');
-        hold on
-        plot(this_z_c4, this_flux, 'Color', 'r');
-        legend( 'L1', 'L2', 'Raw')
-        hold on
-
-
+        % plot(this_z_c4, c4_muL1R2000);
+        % hold on
+        plot(this_z_c4, c4_muL2R2000);
+        % hold on
+        % plot(this_z_c4, this_flux);
+        legend( 'L2R1800', 'L2R2000')
         test_ind_c4 = all_z_c4>0;
         test_ind_c4= test_ind_c4(test_ind);
         
-        sub_title = sprintf('MAP(NL1):%.2f NL1C13:%.2f MAP(NL2):%.2f NL2C13:%.2f\nMAP(ZL1):%.2f ZL1C13:%.2f MAP(ZL2):%.2f ZL2C13:%.2f\nPL2:%.2f, PL1:%.2f\n',...
-           map_N_c4L1s(quasar_ind), matched_N_c4L1, ...
-           map_N_c4L2s(quasar_ind), matched_N_c4L2,...
-           map_z_c4L1s(quasar_ind),matched_Z_c4L1,...
-           map_z_c4L2s(quasar_ind),matched_Z_c4L2,...
-           p_c4s(quasar_ind), p_L1(quasar_ind));
+        % sub_title = sprintf('MAP(NL1):%.2f NL1C13:%.2f MAP(NL2):%.2f NL2C13:%.2f\nMAP(ZL1):%.2f ZL1C13:%.2f MAP(ZL2):%.2f ZL2C13:%.2f\nPL2:%.2f, PL1:%.2f\n',...
+        %    map_N_c4L1s(quasar_ind), matched_N_c4L1, ...
+        %    map_N_c4L2s(quasar_ind), matched_N_c4L2,...
+        %    map_z_c4L1s(quasar_ind),matched_Z_c4L1,...
+        %    map_z_c4L2s(quasar_ind),matched_Z_c4L2,...
+        %    p_c4s(quasar_ind), p_L1(quasar_ind));
                   
-        [t,s] = title(sprintf('ID:%s Zqso:%.2f', ID{quasar_ind}, z_qsos(quasar_ind)), sub_title); 
-        t.FontSize=12;
-        s.FontSize=10;
-        
-        % text(1.7,2.5,tit)
-        % ylim([-1 3]);
-        % fid = num2str(quasar_ind);
+        % [t,s] = title(sprintf('ID:%s Zqso:%.2f', ID{quasar_ind}, z_qsos(quasar_ind)), sub_title); 
+        % t.FontSize=12;
+        % s.FontSize=10;
         xlim([min(this_z_c4), max(this_z_c4)])
-
         xlabel('Z')
         ylabel('Normalized Flux')
-        hold on 
-
-
-
-        subplot(3,1,2);
-        hold on
-        norm_sample_log_likelihoods = processed.sample_log_likelihoods_c4L2(quasar_ind, :);
-        norm_sample_log_likelihoods = norm_sample_log_likelihoods - max(norm_sample_log_likelihoods);
-        norm_sample_log_likelihoods = norm_sample_log_likelihoods - log(sum(exp(norm_sample_log_likelihoods)));
-
-        s=scatter(log_nciv_samples, sample_sigma_c4,20,...
-                     norm_sample_log_likelihoods, 'filled', 'DisplayName', 'sample likelihoods');
-        s.MarkerFaceAlpha = 0.4;
-        hcb = colorbar('southoutside');
-        hcb.Label.String= 'Likelihood L2';
-        % s2 = scatter(map_z_c4L2s(quasar_ind),0, 50, 'r', 'filled', 'DisplayName', 'C13');
-
-        % title(sprintf('thingID = %d, zQSO = %.2f', selected_thing_ids, z_qso), 'FontSize', 20, 'Interpreter','latex');
-        % xlim([min(sample_z_dlas) max(sample_z_dlas)]);
-        % xlabel('$z_{CIV}$', 'FontSize', 20, 'Interpreter','latex');
-        xlabel('$\log N_{CIV}$', 'FontSize', 20, 'Interpreter','latex');
-        ylabel('$\sigma$', 'FontSize', 20, 'Interpreter','latex');
-        % xlim([min(this_z_c4), max(this_z_c4)])
-        % xlim([14, max(log_nciv_samples)])
-        % caxis([-100 0]);
-        hold on
-        
-        subplot(3,1,3);
-        hold on
-        norm_sample_log_likelihoods = processed.sample_log_likelihoods_c4L1(quasar_ind, :);
-        norm_sample_log_likelihoods = norm_sample_log_likelihoods - max(norm_sample_log_likelihoods);
-        norm_sample_log_likelihoods = norm_sample_log_likelihoods - log(sum(exp(norm_sample_log_likelihoods)));
-
-        % s=scatter(sample_z_c4, log_nciv_samples,20,...
-                    %  norm_sample_log_likelihoods, 'filled', 'DisplayName', 'sample likelihoods');
-        s=scatter(log_nciv_samples, sample_sigma_c4,20,...
-                     norm_sample_log_likelihoods, 'filled', 'DisplayName', 'sample likelihoods');
-        s.MarkerFaceAlpha = 0.4;
-        hcb = colorbar('southoutside');
-        hcb.Label.String= 'Likelihood L1';
-        % title(sprintf('thingID = %d, zQSO = %.2f', selected_thing_ids, z_qso), 'FontSize', 20, 'Interpreter','latex');
-        % xlim([min(sample_z_dlas) max(sample_z_dlas)]);
-        % xlabel('$z_{CIV}$', 'FontSize', 20, 'Interpreter','latex');
-        % xlabel('$z_{CIV}$', 'FontSize', 20, 'Interpreter','latex');
-        ylabel('$\sigma$', 'FontSize', 20, 'Interpreter','latex');
-        xlabel('$\log N_{CIV}$', 'FontSize', 20, 'Interpreter','latex');
-        hold on
-        % s2 = scatter(this_Zs, this_c4s, 50, 'r', 'filled', 'DisplayName', 'C13');
-        
-        % s2 = scatter(this_Zs, zeros(num_systems,1), 50, 'r', 'filled', 'DisplayName', 'C13');
-        % s2 = scatter(map_z_c4L1s(quasar_ind),0, 50, 'r', 'filled', 'DisplayName', 'C13');
-        s2.MarkerFaceAlpha=1;
-        s2.Marker= 'X';
-        s2.MarkerEdgeColor='k';
-        % legend('L?', 'GP', 'C13')
-        % xlim([14, max(log_nciv_samples)])
-        % xlim([min(this_z_c4), max(this_z_c4)])
-        hold on
-        % caxis([-100 0]);
-     
-  
-        % fid = sprintf('TP-Posterior-N-sigma-%s/TP-ID%s.pdf', training_set_name,  ID{quasar_ind});
-        fid = sprintf('FN-Posterior-N-sigma-%s/FN-ID%s.pdf', training_set_name,  ID{quasar_ind});
-        % saveas(fig, fid, 'jpg');
-        % fidpdf = sprintf('FP/%s.pdf',fid);
+        fid = sprintf('VoigtTest/%s.pdf', ID{quasar_ind});
         exportgraphics(fig, fid,'ContentType','vector')
     end
 end
