@@ -5,12 +5,15 @@ Cooksey_C4_detected = fitsread(...
 'binarytable');
 
 % Cooksey_C4_detected = fitsread(...
-% '/home/reza/Desktop/sdss_civrate_hyb_all_update1.fit',...
+% 'data/C4_catalogs/Cooksey_C4_cat/distfiles/sdss_civrate_hyb_all_update1.fit',...
 % 'binarytable');
+
+
 c4_QSO_ID                   = Cooksey_C4_detected{1};
 % c4_detcted_mjd_dr7           = Cooksey_C4_detected{2};
 % c4_detcted_plate_dr7         = Cooksey_C4_detected{3};
 % c4_detcted_fiber_dr7         = Cooksey_C4_detected{4};
+z_qso_system                 = Cooksey_C4_detected{10};
 Z_abs_ORG                    = Cooksey_C4_detected{17};
 EW                           = Cooksey_C4_detected{22};
 SigmaEW                      = Cooksey_C4_detected{23};
@@ -55,29 +58,51 @@ all_fiber_dr7             = cooksey_catalog{49};
 all_RA                = cooksey_catalog{2};
 all_DEC               = cooksey_catalog{3};
 all_zqso                = cooksey_catalog{4};
-% all_snrs                = cooksey_catalog{172};
-% all_bal_flag        = cooksey_catalog{131};
 num_quasars             = numel(all_zqso);
-
-all_z_c4 = zeros(num_quasars,1);
-all_z_c4 = all_z_c4 -1;
-all_NCIV = zeros(num_quasars,1);
-all_c4_NCIV =zeros(num_quasars,1)-1;
 all_QSO_ID=cell(num_quasars,1);
-all_RATING=zeros(num_quasars,1)-1;
+
+all_z_civ = zeros(num_quasars, 17)-1;
+all_N_civ = zeros(num_quasars, 17)-1;
+all_RATING = zeros(num_quasars, 17)-1;
 for i=1:num_quasars
     all_QSO_ID{i}=sprintf('%05i-%04i-%03i', (all_mjd_dr7(i)), ...
     (all_plate_dr7(i)), (all_fiber_dr7(i)));
+    ThisSystems = ismember(c4_QSO_ID, all_QSO_ID{i});
+    thisZ_c4s = Z_c4(ThisSystems);
+    thisN_c4s = NCIV(ThisSystems);
+    this_RATING = RATING(ThisSystems);
+    nSys = nnz(ThisSystems);
+    
+    for j=1:nSys
+        all_z_civ(i,j) = thisZ_c4s(j);
+        all_N_civ(i,j) = thisN_c4s(j);
+        all_RATING(i,j) = this_RATING(j);
+    end
 end
-%  adding a cloumn for c4 col density if there is a c4 for a sight line
 
+
+% dla catalog 
+dla_catalog = ...
+fitsread('data/dr7/distfiles/match-dla-civ.fits', 'binarytable');
+dla_plate  = dla_catalog{48};
+dla_mjd    = dla_catalog{47};
+dla_fiber  = dla_catalog{49};
+num_dlas   = length(dla_plate);
+log_posteriors_dla = dla_catalog{77};
+log_posteriors_no_dla = dla_catalog{78};
+dla_QSO_ID = cell(num_dlas,1);
+
+for i=1:num_dlas
+    dla_QSO_ID{i}=sprintf('%05i-%04i-%03i', (dla_mjd(i)), ...
+    (dla_plate(i)), (dla_fiber(i)));
+end
 
 
 % save catalog 
 release = 'dr7';
 variables_to_save = {'all_plate_dr7', 'all_mjd_dr7', 'all_fiber_dr7', ...
- 'all_QSO_ID', 'all_RA', 'all_DEC', 'all_zqso',...
-  'EW1', 'EW2'};
+ 'all_QSO_ID', 'all_RA', 'all_DEC', 'all_zqso', 'EW1', 'EW2',...
+ 'all_N_civ','all_z_civ', 'all_RATING', 'dla_QSO_ID','log_posteriors_dla',...
+  'log_posteriors_no_dla','c4_QSO_ID'};
 save(sprintf('%s/catalog', processed_directory(release)), ...
     variables_to_save{:}, '-v7.3');
-

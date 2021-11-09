@@ -2,6 +2,8 @@
 % catalog
 
 % since we don't have hash tables in catalog.mat, we load the ascii file directly
+set_parameters;
+
 training_set_name = 'Cooksey_C4_cat';
 
 c4_catalog = load(sprintf('%s/c4_catalog', c4_catalog_directory(training_set_name)));
@@ -67,9 +69,13 @@ cdf = @(nciv) (integral(normalized_pdf, fit_min_log_nciv, nciv));
 % use inverse transform sampling to convert the quasirandom samples on
 % [0, 1] to appropriate values
 log_nciv_samples = zeros(1, num_C4_samples);
+
+f = waitbar(0, 'Starting');
 for i = 1:num_C4_samples
-  log_nciv_samples(i) = ...
-      fzero(@(nciv) (cdf(nciv) - sequence(i, 2)), 14.4);
+     log_nciv_samples(i) = ...
+          fzero(@(nciv) (cdf(nciv) - sequence(i, 2)), 14.4);
+     waitbar(i/num_C4_samples, f, sprintf('Progress: %d %%',...
+      floor(i/num_C4_samples*100)));
 end
 
 % precompute N_CIV samples for convenience

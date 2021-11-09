@@ -22,14 +22,16 @@ emitted_wavelengths = ...
 observed_wavelengths = ...
     @(emitted_wavelengths,  z) ( emitted_wavelengths * (1 + z));
 
-release = 'dr7';
-% download Cooksey's dr7 spectra from this page: 
-% http://www.guavanator.uhh.hawaii.edu/~kcooksey/SDSS/CIV/index.html 
-% go to table: "SDSS spectra of the sightlines surveyed for C IV."
-file_loader = @(mjd, plate, fiber_id) ...
-  (read_spec_dr7(sprintf('data/dr7/spectro/1d_26/%04i/1d/spSpec-%05i-%04i-%03i.fit',...
-  plate, mjd, plate, fiber_id)));
-training_release  = 'dr7';
+% %-------dr7
+% release = 'dr7';
+% % download Cooksey's dr7 spectra from this page: 
+% % http://www.guavanator.uhh.hawaii.edu/~kcooksey/SDSS/CIV/index.html 
+% % go to table: "SDSS spectra of the sightlines surveyed for C IV."
+% file_loader = @(mjd, plate, fiber_id) ...
+%   (read_spec_dr7(sprintf('data/dr7/spectro/1d_26/%04i/1d/spSpec-%05i-%04i-%03i.fit',...
+%   plate, mjd, plate, fiber_id)));
+release='dr12';
+
 
 % file loading parameters
 loading_min_lambda = 1310;          % range of rest wavelengths to load  Å
@@ -47,30 +49,32 @@ min_num_pixels = 400;                         % minimum number of non-masked pix
 %normalization_min_lambda = 1216 - 40;              % range of rest wavelengths to use   Å
 normalization_min_lambda = 1420; 
 %normalization_max_lambda = 1216 + 40;              %   for flux normalization
-normalization_max_lambda = 1470; 
+normalization_max_lambda = 1500; 
 % null model parameters
-min_lambda         =  1315;                    % range of rest wavelengths to       Å
+min_lambda         =  1315;                   % range of rest wavelengths to       Å
 max_lambda         = 1550;                    %   model
 dlambda            = 0.05;                    % separation of wavelength grid      Å
 k                  = 20;                      % rank of non-diagonal contribution
-max_noise_variance = 0.5^2;                     % maximum pixel noise allowed during model training
-
+max_noise_variance = 0.5^2;                   % maximum pixel noise allowed during model training
+h                  = 2;                     % masking par to remove CIV region 
+nAVG               = 0;                     % number of points added between two 
+                                            % observed wavelengths to make the Voigt finer
 % optimization parameters
 minFunc_options =               ...           % optimization options for model fitting
     struct('MaxIter',     10000, ...
            'MaxFunEvals', 10000);
 
 % C4 model parameters: parameter samples (for Quasi-Monte Carlo)
-num_C4_samples           = 10000;                  % number of parameter samples
-alpha_1                   = 0.9;                    % weight of KDE component in mixture
-uniform_min_log_nciv     = 13.0189;                   % range of column density samples    [cm⁻²]
-uniform_max_log_nciv     = 16;                   % from uniform distribution
-fit_min_log_nciv         = 13.0189;                   % range of column density samples    [cm⁻²]
+num_C4_samples           = 50000;                  % number of parameter samples
+alpha                    = 0.9;                    % weight of KDE component in mixture
+uniform_min_log_nciv     = 14.0;                   % range of column density samples    [cm⁻²]
+uniform_max_log_nciv     = 15.8;                   % from uniform distribution
+fit_min_log_nciv         = 14.0;                   % range of column density samples    [cm⁻²]
 fit_max_log_nciv         = 15.8;                   % from fit to log PDF
-extrapolate_min_log_nciv = 13.0189;  
+extrapolate_min_log_nciv = 14.0;  
 
-min_sigma                = 5e5;                   % cm/s -> b/sqrt(2) -> min Doppler par from Cooksey
-max_sigma                = 40e5;                   % cm/s -> b/sqrt(2) -> max Doppler par from Cooksey
+min_sigma                = 20e5;                   % cm/s -> b/sqrt(2) -> min Doppler par from Cooksey
+max_sigma                = 65e5;                   % cm/s -> b/sqrt(2) -> max Doppler par from Cooksey
 vCut                     = 3000;                    % maximum cut velocity for CIV system 
 % model prior parameters
 prior_z_qso_increase = kms_to_z(30000);       % use QSOs with z < (z_QSO + x) for prior
@@ -94,15 +98,16 @@ min_z_cut = kms_to_z(vCut);                   % min z_DLA = z_Ly∞ + min_z_cut
 %         min_z_cut);
 min_z_c4 = @(wavelengths, z_qso) ...         % determines minimum z_DLA to search
      min(wavelengths) / civ_1548_wavelength - 1;
-train_ratio =0.8;
-training_set_name = 'Rvoigt-10000Smp0-tr-80-20-vCutReza-5000';
+train_ratio =0.95;
+training_set_name = sprintf('no-c4rm-train-95-h-%d', h*100);
 % base directory for all data
 base_directory = 'data';
 % utility functions for identifying various directories
 distfiles_directory = @(release) ...
    sprintf('%s/%s/distfiles', base_directory, release);
 
-% spectra_directory   = 'data/dr16/spectra';
+spectra_directory   = @(release)...
+   sprintf('%s/%s/spectra', base_directory, release);
 
 processed_directory = @(release) ...
    sprintf('%s/%s/processed', base_directory, release);
@@ -110,9 +115,15 @@ processed_directory = @(release) ...
 c4_catalog_directory = @(name) ...
    sprintf('%s/C4_catalogs/%s/processed', base_directory, name);
 
-save(sprintf('%s/parameters-%s.mat', processed_directory(release),training_set_name));
    
 % replace with @(varargin) (fprintf(varargin{:})) to show debug statements
 % fprintf_debug = @(varargin) (fprintf(varargin{:}));
 % fprintf_debug = @(varargin) ([]);
 
+%---------dr12-------------
+file_loader = @(plate, mjd, fiber_id) ...
+  (read_spec(sprintf("/media/reza/eHard/dr12Spec/spectra/%i/spec-%i-%i-%04i.fits", ...
+    plate,                                       ...
+    plate,                                       ...
+    mjd,                                         ...
+    fiber_id)));

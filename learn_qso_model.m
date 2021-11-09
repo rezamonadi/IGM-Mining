@@ -3,7 +3,7 @@
 rng('default');
 
 % load catalog
-catalog = load(sprintf('%s/catalog', processed_directory(training_release)));
+catalog = load(sprintf('%s/catalog', processed_directory(release)));
 
 % load preprocessed QSOs
 variables_to_load = {'all_wavelengths', 'all_flux', 'all_noise_variance', ...
@@ -54,8 +54,22 @@ for i = 1:num_quasars
 
   this_flux(this_pixel_mask)           = nan;
   this_noise_variance(this_pixel_mask) = nan;
-
-  fprintf('processing quasar %i with lambda_size = %i %i ...\n', i, size(this_wavelengths))
+  % % masking CIV absorption 
+  % l1 = 1548.2040;
+  % l2 = 1550.7810;
+  % maskC4 = this_pixel_mask;
+  % nMasked=0;
+  % for Sys=1:17 
+  %   if(all_z_civ(i,Sys)>0)
+  %     maskC4 = this_wavelengths>(1+all_z_civ(i,Sys))*(l1-h) & this_wavelengths<(1+all_z_civ(i,Sys))*(l2+h);
+  %     this_flux(maskC4)=nan;
+  %     this_noise_variance(maskC4)=nan; 
+  %     nMasked =nMasked+sum(maskC4);
+      
+  %   end
+  % end
+  % fprintf('processing quasar %i with lambda_size = %i %i, CIV-Masked:%d...\n', i, size(this_wavelengths), nMasked);
+  fprintf('processing quasar %i with lambda_size = %i \n', i, size(this_wavelengths));
   
   if all(size(this_wavelengths) == [0 0])
     is_empty(i, 1) = 1;
@@ -66,9 +80,17 @@ for i = 1:num_quasars
       interp1(this_rest_wavelengths, this_flux,           rest_wavelengths);
 
   % normalizing here
-  ind = (this_rest_wavelengths >= normalization_min_lambda) & ...
-        (this_rest_wavelengths <= normalization_max_lambda) & ...
-        (~this_pixel_mask);
+  % following Zhou-Menard-2013
+  if(z_qso<2.5)
+
+    ind = (this_rest_wavelengths >= 2150) & ...
+          (this_rest_wavelengths <= 2250) & ...
+          (~this_pixel_mask);
+  else
+    ind = (this_rest_wavelengths >= normalization_min_lambda) & ...
+          (this_rest_wavelengths <= normalization_max_lambda) & ...
+          (~this_pixel_mask);
+  end
 
 this_median = nanmedian(this_flux(ind));
   rest_fluxes(i, :) = rest_fluxes(i, :) / this_median;
@@ -97,6 +119,9 @@ fprintf("Masking %g of pixels\n", nnz(ind) * 1 ./ numel(ind));
 
 rest_fluxes(ind)          = nan;
 rest_noise_variances(ind) = nan;
+
+
+
 
 % Filter out spectra which have too many NaN pixels
 ind = sum(isnan(rest_fluxes),2) < num_rest_pixels-min_num_pixels;
@@ -152,11 +177,11 @@ objective_function = @(x) objective(x, centered_rest_fluxes, rest_noise_variance
 ind = (1:(num_rest_pixels * k));
 M = reshape(x(ind), [num_rest_pixels, k]);
 
-variables_to_save = {'training_release', 'train_ind', 'max_noise_variance', ...
+variables_to_save = {'release', 'train_ind', 'max_noise_variance', ...
                      'minFunc_options', 'rest_wavelengths', 'mu', ...
                      'initial_M', 'M',  'log_likelihood', ...
                      'minFunc_output', 'test_ind', 'prior_ind'};
 
-save(sprintf('%s/learned_model-tr-%s', processed_directory(training_release), ...
+save(sprintf('%s/learned_model-%s', processed_directory(release), ...
                                       training_set_name),...
             variables_to_save{:}, '-v7.3');
