@@ -1,5 +1,11 @@
 % set_parameters: sets various parameters for the CIV detection 
 % pipeline
+% Desined for using DR16 spectra  
+%flags for changes
+extrapolate_subdla = 0; %0 = off, 1 = on
+add_proximity_zone = 0;
+integrate          = 1;
+optTag = [num2str(integrate), num2str(extrapolate_subdla), num2str(add_proximity_zone)];
 
 % physical constants
 civ_1548_wavelength = 1548.2049;		 % CIV transition wavelength  Å
@@ -26,8 +32,8 @@ file_loader = @(mjd, plate, fiber_id) ...
 
 
 % file loading parameters
-loading_min_lambda = 1315;          % range of rest wavelengths to load  Å
-loading_max_lambda = 1550;                    
+loading_min_lambda = 1310;          % range of rest wavelengths to load  Å
+loading_max_lambda = 1555;                    
 % The maximum allowed is set so that even if the peak is redshifted off the end, the
 % quasar still has data in the range
 
@@ -37,28 +43,28 @@ z_qso_cut      = 1.7;                      % according to Cooksey z>1.7
 min_num_pixels = 200;                         % minimum number of non-masked pixels
 
 % normalization parameters
-% range of rest wavelengths to use   Å
-normalization_min_lambda = 1417; 
-normalization_max_lambda = 1486; 
+% I use 1216 is basically because I want integer in my saved filenames%
+%normalization_min_lambda = 1216 - 40;              % range of rest wavelengths to use   Å
+normalization_min_lambda = 1420; 
+%normalization_max_lambda = 1216 + 40;              %   for flux normalization
+normalization_max_lambda = 1470; 
 % null model parameters
-min_lambda         =  1295;                   % range of rest wavelengths to       Å
-max_lambda         = 1570;                    %   model
-dlambda            = 0.9;                    % separation of wavelength grid      Å
+min_lambda         =  1315;                   % range of rest wavelengths to       Å
+max_lambda         = 1550;                    %   model
+dlambda            = 0.05;                    % separation of wavelength grid      Å
 k                  = 20;                      % rank of non-diagonal contribution
-max_noise_variance = 1^2;                    % maximum pixel noise allowed during model training
+max_noise_variance = 1^2;                     % maximum pixel noise allowed during model training
 masking_CIV_region = 0;                       % handel to mask CIV absorption to increase the training sample size
 h                  = 2;                       % masking par to remove CIV region 
-nAVG               = 0;                       % number of points added between two 
+nAVG               = 2;                       % number of points added between two 
                                              % observed wavelengths to make the Voigt finer
-SkyLine            = 0;                       % Handel for removing/not removing sky lines as indicated in C13                                             
-                                        
+                                            
 % optimization parameters
 minFunc_options =               ...           % optimization options for model fitting
     struct('MaxIter',     10000, ...
            'MaxFunEvals', 10000);
 
 % C4 model parameters: parameter samples (for Quasi-Monte Carlo)
-RejectionSampling        = 0;                      % Rejection Sampling handle 
 num_C4_samples           = 50000;                  % number of parameter samples
 alpha                    = 0.9;                    % weight of KDE component in mixture
 uniform_min_log_nciv     = 14.0;                   % range of column density samples    [cm⁻²]
@@ -76,11 +82,9 @@ prior_z_qso_increase = kms_to_z(30000);       % use QSOs with z < (z_QSO + x) fo
 
 % instrumental broadening parameters
 width = 3;                                    % width of Gaussian broadening (# pixels)
-pixel_spacing = 1e-4; 
+pixel_spacing = 1e-4;                         % wavelength spacing of pixels in dex
 
-% wavelength spacing of pixels in dex
-
-% CIV model parameters: absorber range and model
+% DLA model parameters: absorber range and model
 num_lines = 2;                                % number of members of CIV series to use
 
 max_z_cut = kms_to_z(vCut);                   % max z_DLA = z_QSO - max_z_cut
@@ -96,8 +100,7 @@ min_z_cut = kms_to_z(vCut);                   % min z_DLA = z_Ly∞ + min_z_cut
 min_z_c4 = @(wavelengths, z_qso) ...         % determines minimum z_civ to search
      min(wavelengths) / civ_1548_wavelength - 1;
 train_ratio =0.95;
-training_set_name =sprintf('lmin-%d-lmax-%d-Skyline-%d-norm-%d-%d-k-%d-dl-%d-civ-%d',... 
-min_lambda, max_lambda, SkyLine, normalization_min_lambda,...
+training_set_name =sprintf('norm-%d-%d-k-%d-dl-%d-civ-%d', normalization_min_lambda,...
 normalization_max_lambda, k, floor(dlambda*100), masking_CIV_region);
 % base directory for all data
 base_directory = 'data';

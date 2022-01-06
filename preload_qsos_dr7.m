@@ -5,17 +5,7 @@
 % load QSO catalog
 tic;
 
-% ----------dr7----------------------------------------
-variables_to_load = {'all_plate_dr7', 'all_mjd_dr7', 'all_fiber_dr7',...
-'all_QSO_ID','all_zqso'};
-
-
-
-load(sprintf('%s/catalog', processed_directory(release)), ...
-    variables_to_load{:});
-
-num_quasars = numel(all_zqso);
-
+num_quasars = numel(all_zqso_dr7);
 all_wavelengths    =  cell(num_quasars, 1);
 all_flux           =  cell(num_quasars, 1);
 all_noise_variance =  cell(num_quasars, 1);
@@ -27,8 +17,8 @@ all_normalizers    = zeros(num_quasars, 1);
 % to track reasons for filtering out QSOs
 filter_flags = zeros(num_quasars, 1, 'uint8');
 % 
-% filtering bit 0: z_QSO < 1.5
-ind = (all_zqso < z_qso_cut);
+% filtering bit 0: z_QSO < 1.7
+ind = (all_zqso_dr7 < z_qso_cut);
 filter_flags(ind) = bitset(filter_flags(ind), 1, true);
 
 
@@ -50,26 +40,37 @@ for i = 1:num_quasars
 	% Here file_loader uses dr7 spectrum reader function and given mpf to read
 	% spectrum 
   
-  % % % Masking Sky lines 
+  % bit 1: the spectrum with median SN<4 should be filtered
+  if (nanmedian(this_flux./sqrt(this_noise_variance))<4)
+    filter_flags(i) = bitset(filter_flags(i), 2, true);
+    continue;
+  end
+  % CIV removal region
+  % if (civ_rmove_in_train =true)
+    
+  %   maskCIV = 
+  %   this_pixel_mask()
+  % % Masking Sky lines 
+  if SkyLine==1
+    this_pixel_mask((abs(this_wavelengths-5579)<5) & (abs(this_wavelengths-6302)<5))=1;
+    this_pixel_mask((this_wavelengths>6868) & (this_wavelengths<6932))=1;
+    this_pixel_mask((this_wavelengths>7594) & (this_wavelengths<7700))=1;
+  end
 
-  % this_pixel_mask((abs(this_wavelengths-5579)<5) & (abs(this_wavelengths-6302)<5))=1;
-  % this_pixel_mask((this_wavelengths>6868) & (this_wavelengths<6932))=1;
-  % this_pixel_mask((this_wavelengths>7594) & (this_wavelengths<7700))=1;
-  this_rest_wavelengths = emitted_wavelengths(this_wavelengths, all_zqso(i));
+  % masking pixels with SN<4
+  this_pixel_mask(this_flux./sqrt(this_noise_variance)<4)=1;
+  
+  this_rest_wavelengths = emitted_wavelengths(this_wavelengths, all_zqso_dr7(i));
   % normalizing here
-  % following Zhou-Menard-2013
-  if(all_zqso(i)<2.5)
-
-    ind = (this_rest_wavelengths >= 2150) & ...
-          (this_rest_wavelengths <= 2250) & ...
-          (~this_pixel_mask);
-  else
-    ind = (this_rest_wavelengths >= normalization_min_lambda) & ...
+ 
+  ind = (this_rest_wavelengths >= normalization_min_lambda) & ...
           (this_rest_wavelengths <= normalization_max_lambda) & ...
           (~this_pixel_mask);
-  end
+ 
   this_median = nanmedian(this_flux(ind));
   
+
+
   % bit 2: cannot normalize (all normalizing pixels are masked)
   if (isnan(this_median))
     filter_flags(i) = bitset(filter_flags(i), 3, true);
@@ -78,7 +79,7 @@ for i = 1:num_quasars
   
   ind = (this_rest_wavelengths >= min_lambda) & ...
         (this_rest_wavelengths <= max_lambda) & ...
-        (~this_pixel_mask) & (this_sigma_pixel>0);
+        (~this_pixel_mask);
         
   % bit 3: not enough pixels available
   if (nnz(ind) < min_num_pixels)
@@ -87,10 +88,14 @@ for i = 1:num_quasars
   end
 
   all_normalizers(i) = this_median;
-
+ 
   this_flux           = this_flux           / this_median;
   this_noise_variance = this_noise_variance / this_median^2;
  
+
+  % ind = (this_rest_wavelengths >= loading_min_lambda) & ...
+  %       (this_rest_wavelengths <= loading_max_lambda);
+
   % add one pixel on either side
   available_ind = find(~ind & ~this_pixel_mask);
   ind(min(available_ind(available_ind > find(ind, 1, 'last' )))) = true;
@@ -107,17 +112,17 @@ for i = 1:num_quasars
   
 end
 
-variables_to_save = {'loading_min_lambda', 'loading_max_lambda', ...
-                     'normalization_min_lambda', 'normalization_max_lambda', ...
+variables_to_save = {'normalization_min_lambda', 'normalization_max_lambda', ...
                      'min_num_pixels', 'all_wavelengths', 'all_flux', ...
                      'all_noise_variance', 'all_pixel_mask', ...
                      'all_normalizers', 'all_sigma_pixel', 'filter_flags'};
-save(sprintf('%s/preloaded_qsos_no_sky_mask', processed_directory(release)), ...
+save(sprintf('%s/preloaded_qsos-mnp-%d', processed_directory(release),...
+               min_num_pixels), ...
      variables_to_save{:});
 
-% write new filter flags to catalog
-save(sprintf('%s/filter_flags', processed_directory(release)), ...
-     'filter_flags');
+% % write new filter flags to catalog
+% save(sprintf('%s/filter_flags', processed_directory(release)), ...
+%      'filter_flags');
 
 toc;
 

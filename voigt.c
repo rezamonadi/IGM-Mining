@@ -177,7 +177,7 @@ void mexFunction(int nlhs,       mxArray *plhs[],
     
 
       for (j = i, k = 0; j <= i + 2 * width; j++, k++){
-        profile[i] += raw_profile[j] * instrument_profile[k];
+        profile[i] += raw_profile[j] *instrument_profile[k];
       }
     }
     else {

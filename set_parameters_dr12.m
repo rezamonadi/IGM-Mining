@@ -22,15 +22,13 @@ emitted_wavelengths = ...
 observed_wavelengths = ...
     @(emitted_wavelengths,  z) ( emitted_wavelengths * (1 + z));
 
-% %-------dr7
-% release = 'dr7';
-% % download Cooksey's dr7 spectra from this page: 
-% % http://www.guavanator.uhh.hawaii.edu/~kcooksey/SDSS/CIV/index.html 
-% % go to table: "SDSS spectra of the sightlines surveyed for C IV."
-% file_loader = @(mjd, plate, fiber_id) ...
-%   (read_spec_dr7(sprintf('data/dr7/spectro/1d_26/%04i/1d/spSpec-%05i-%04i-%03i.fit',...
-%   plate, mjd, plate, fiber_id)));
 release='dr12';
+file_loader = @(plate, mjd, fiber_id) ...
+  (read_spec(sprintf("/media/reza/eHard/gpc4/dr12Spec/spectra/%i/spec-%i-%i-%04i.fits", ...
+    plate,                                       ...
+    plate,                                       ...
+    mjd,                                         ...
+    fiber_id)));
 
 
 % file loading parameters
@@ -42,23 +40,24 @@ loading_max_lambda = 1555;
 % preprocessing parameters
 %z_qso_cut      = 2.15;                   % filter out QSOs with z less than this threshold
 z_qso_cut      = 1.7;                      % according to Cooksey z>1.7                      
-min_num_pixels = 400;                         % minimum number of non-masked pixels
+min_num_pixels = 200;                         % minimum number of non-masked pixels
 
 % normalization parameters
 % I use 1216 is basically because I want integer in my saved filenames%
 %normalization_min_lambda = 1216 - 40;              % range of rest wavelengths to use   Å
 normalization_min_lambda = 1420; 
 %normalization_max_lambda = 1216 + 40;              %   for flux normalization
-normalization_max_lambda = 1500; 
+normalization_max_lambda = 1470; 
 % null model parameters
 min_lambda         =  1315;                   % range of rest wavelengths to       Å
 max_lambda         = 1550;                    %   model
-dlambda            = 0.05;                    % separation of wavelength grid      Å
+dlambda            = 0.25;                    % separation of wavelength grid      Å
 k                  = 20;                      % rank of non-diagonal contribution
-max_noise_variance = 0.5^2;                   % maximum pixel noise allowed during model training
+max_noise_variance = 1^2;                   % maximum pixel noise allowed during model training
 h                  = 2;                     % masking par to remove CIV region 
-nAVG               = 0;                     % number of points added between two 
+nAVG               = 2;                     % number of points added between two 
                                             % observed wavelengths to make the Voigt finer
+masking_CIV_region =0;                                            
 % optimization parameters
 minFunc_options =               ...           % optimization options for model fitting
     struct('MaxIter',     10000, ...
@@ -99,7 +98,7 @@ min_z_cut = kms_to_z(vCut);                   % min z_DLA = z_Ly∞ + min_z_cut
 min_z_c4 = @(wavelengths, z_qso) ...         % determines minimum z_DLA to search
      min(wavelengths) / civ_1548_wavelength - 1;
 train_ratio =0.95;
-training_set_name = sprintf('no-c4rm-train-95-h-%d', h*100);
+training_set_name = 'dr12-p_c4-60-dl-25';
 % base directory for all data
 base_directory = 'data';
 % utility functions for identifying various directories
@@ -119,11 +118,3 @@ c4_catalog_directory = @(name) ...
 % replace with @(varargin) (fprintf(varargin{:})) to show debug statements
 % fprintf_debug = @(varargin) (fprintf(varargin{:}));
 % fprintf_debug = @(varargin) ([]);
-
-%---------dr12-------------
-file_loader = @(plate, mjd, fiber_id) ...
-  (read_spec(sprintf("/media/reza/eHard/dr12Spec/spectra/%i/spec-%i-%i-%04i.fits", ...
-    plate,                                       ...
-    plate,                                       ...
-    mjd,                                         ...
-    fiber_id)));

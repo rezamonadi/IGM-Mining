@@ -10,15 +10,10 @@ end
 
 % select training vectors
 all_wavelengths    =    all_wavelengths(train_ind, :);
-all_wavelengths    =          all_wavelengths(mask_c4);
 all_flux           =           all_flux(train_ind, :);
-all_flux           =                all_flux(mask_c4);
 all_noise_variance = all_noise_variance(train_ind, :);
-all_noise_variance =       all_noise_variance(mask_c4);
 all_pixel_mask     =     all_pixel_mask(train_ind, :);
-all_pixel_mask     =           all_pixel_mask(mask_c4);
-% z_qsos             =        all_zqso(train_ind);
-z_qsos             = z_qsos(mask_c4);
+z_qsos             =        all_zqso_dr7(train_ind);
 
 num_quasars = numel(z_qsos);
 fprintf('#QSOs %i\n', num_quasars);
@@ -46,26 +41,32 @@ for i = 1:num_quasars
 
   this_rest_wavelengths = emitted_wavelengths(this_wavelengths, z_qso);
 
-  this_flux(this_pixel_mask)           = nan;
-  this_noise_variance(this_pixel_mask) = nan;
-  if (masking_CIV_region == 1)
+  % Masking Sky lines 
+  if SkyLine==1
+
+    maskSky = (abs(this_wavelengths-5579)<5) | (abs(this_wavelengths-6302)<5);
+    fprintf('%d pixels were masked for sky lines\n',nnz(maskSky));
+    this_pixel_mask = this_pixel_mask | maskSky; 
+  end
+  this_flux(this_pixel_mask) = nan;
+  this_noise_variance(this_pixel_mask ) = nan;
+  if (masking_CIV_region == 1) 
     % masking CIV absorption 
     l1 = 1548.2040;
     l2 = 1550.7810;
-    maskC4 = this_pixel_mask;
     nMasked=0;
     for Sys=1:17 
-      if(all_z_civ(i,Sys)>0)
-        maskC4 = this_wavelengths>(1+all_z_civ(i,Sys))*(l1-h) & this_wavelengths<(1+all_z_civ(i,Sys))*(l2+h);
+      if(all_z_civ_c13(i,Sys)>0)
+        maskC4 = this_wavelengths>(1+all_z_civ_c13(i,Sys))*(l1-h) & this_wavelengths<(1+all_z_civ_c13(i,Sys))*(l2+h);
         this_flux(maskC4)=nan;
         this_noise_variance(maskC4)=nan; 
         nMasked =nMasked+sum(maskC4);
         
       end
     end
-      fprintf('processing quasar %i with lambda_size = %i %i, CIV-Masked:%d...\n', i, size(this_wavelengths), nMasked);
+      fprintf('processing quasar %i with lambda_size = %i %i, CIV-Masked:%d...\n', i, length(this_wavelengths), nMasked);
   else
-    fprintf('processing quasar %i with lambda_size = %i %i \n', i, size(this_wavelengths));
+    fprintf('processing quasar %i with lambda_size = %i %i \n', i, length(this_wavelengths));
   
 
   
@@ -183,8 +184,8 @@ variables_to_save = {'release', 'train_ind', 'max_noise_variance', ...
                      'minFunc_options', 'rest_wavelengths', 'mu', ...
                      'initial_M', 'M',  'log_likelihood', ...
                      'minFunc_output',   'restSN', 'coefficients',...
-                     'latent'};
+                     'latent', 'test_ind', 'prior_ind'};
 
-save(sprintf('%s/learned_model-%s', processed_directory(release), ...
+save(sprintf('%s/learned_model-%s.mat', processed_directory(release), ...
                                       training_set_name),...
             variables_to_save{:}, '-v7.3');

@@ -2,16 +2,11 @@
 % catalog
 
 % since we don't have hash tables in catalog.mat, we load the ascii file directly
-set_parameters;
 
-training_set_name = 'Cooksey_C4_cat';
+training_cat_name = 'Cooksey_C4_cat';
 
-c4_catalog = load(sprintf('%s/c4_catalog', c4_catalog_directory(training_set_name)));
+c4_catalog = load(sprintf('%s/c4_catalog', c4_catalog_directory(training_cat_name)));
 c4_catalog =c4_catalog(c4_catalog(:,3)>0,:); % removing some null column densities
-% training_set_name = 'UVES';
-
-% c4_catalog = load(sprintf('%s/c4_catalog', c4_catalog_directory(training_set_name)));
-% c4_catalog = fitsread('data/C4_catalogs/UVES_C4_cat/tab2.fits', 'binarytable');
 
 % generate quasirandom samples from p(normalized offset, log₁₀(N_CIV))
 rng('default');
@@ -70,12 +65,12 @@ cdf = @(nciv) (integral(normalized_pdf, fit_min_log_nciv, nciv));
 % [0, 1] to appropriate values
 log_nciv_samples = zeros(1, num_C4_samples);
 
-f = waitbar(0, 'Starting');
+% f = waitbar(0, 'Starting');
 for i = 1:num_C4_samples
      log_nciv_samples(i) = ...
           fzero(@(nciv) (cdf(nciv) - sequence(i, 2)), 14.4);
-     waitbar(i/num_C4_samples, f, sprintf('Progress: %d %%',...
-      floor(i/num_C4_samples*100)));
+     % waitbar(i/num_C4_samples, f, sprintf('Progress: %d %%',...
+     %  floor(i/num_C4_samples*100)));
 end
 
 % precompute N_CIV samples for convenience
@@ -85,6 +80,6 @@ variables_to_save = {'uniform_min_log_nciv', 'uniform_max_log_nciv', ...
                      'fit_min_log_nciv', 'fit_max_log_nciv', 'alpha', ...
                      'extrapolate_min_log_nciv', ...
                      'offset_z_samples', 'offset_sigma_samples', 'log_nciv_samples', 'nciv_samples'};
-save(sprintf('%s/civ_samples', processed_directory(training_release)), ...
+
+save(sprintf('%s/civ_samples', processed_directory(release)), ...
      variables_to_save{:}, '-v7.3');
-histogram(log_nciv_samples)
