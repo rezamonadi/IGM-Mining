@@ -50,24 +50,16 @@ for i = 1:num_quasars
 	% Here file_loader uses dr7 spectrum reader function and given mpf to read
 	% spectrum 
   
-  % % % Masking Sky lines 
+  % % % Masking Sky lines  (Cooksey+2013)
 
-  % this_pixel_mask((abs(this_wavelengths-5579)<5) & (abs(this_wavelengths-6302)<5))=1;
-  % this_pixel_mask((this_wavelengths>6868) & (this_wavelengths<6932))=1;
-  % this_pixel_mask((this_wavelengths>7594) & (this_wavelengths<7700))=1;
+  this_pixel_mask((abs(this_wavelengths-5579)<5) | (abs(this_wavelengths-6302)<5))=1;
   this_rest_wavelengths = emitted_wavelengths(this_wavelengths, all_zqso(i));
   % normalizing here
-  % following Zhou-Menard-2013
-  if(all_zqso(i)<2.5)
-
-    ind = (this_rest_wavelengths >= 2150) & ...
-          (this_rest_wavelengths <= 2250) & ...
-          (~this_pixel_mask);
-  else
-    ind = (this_rest_wavelengths >= normalization_min_lambda) & ...
+ 
+  ind = (this_rest_wavelengths >= normalization_min_lambda) & ...
           (this_rest_wavelengths <= normalization_max_lambda) & ...
           (~this_pixel_mask);
-  end
+ 
   this_median = nanmedian(this_flux(ind));
   
   % bit 2: cannot normalize (all normalizing pixels are masked)
@@ -112,7 +104,7 @@ variables_to_save = {'loading_min_lambda', 'loading_max_lambda', ...
                      'min_num_pixels', 'all_wavelengths', 'all_flux', ...
                      'all_noise_variance', 'all_pixel_mask', ...
                      'all_normalizers', 'all_sigma_pixel', 'filter_flags'};
-save(sprintf('%s/preloaded_qsos_no_sky_mask', processed_directory(release)), ...
+save(sprintf('%s/preloaded_qsos_%s.mat', processed_directory(release), training_set_name), ...
      variables_to_save{:});
 
 % write new filter flags to catalog

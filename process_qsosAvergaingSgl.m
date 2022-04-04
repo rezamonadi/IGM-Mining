@@ -58,18 +58,18 @@ max_z_c4s                   = nan(num_quasars, 1);
 log_priors_no_c4            = nan(num_quasars, 1);
 log_priors_c4               = nan(num_quasars, 1);
 log_likelihoods_no_c4       = nan(num_quasars, 1);
-% sample_log_likelihoods_c4L1 = nan(num_quasars, num_C4_samples);
+sample_log_likelihoods_c4L1 = nan(num_quasars, num_C4_samples);
 sample_log_likelihoods_c4L2 = nan(num_quasars, num_C4_samples);
 log_likelihoods_c4L1        = nan(num_quasars, 1);
 log_likelihoods_c4L2        = nan(num_quasars, 1);
 log_posteriors_no_c4        = nan(num_quasars, 1);
 log_posteriors_c4L1         = nan(num_quasars, 1);
 log_posteriors_c4L2         = nan(num_quasars, 1);
-map_N_c4L1                  = nan(num_quasars, 1);
-map_N_c4L2                  = nan(num_quasars, 1);
-map_z_c4L1                  = nan(num_quasars, 1);
-map_z_c4L2                  = nan(num_quasars, 1);
-map_sigma_c4L1              = nan(num_quasars, 1);
+% map_N_c4L1                  = nan(num_quasars, 1);
+% map_N_c4L2                  = nan(num_quasars, 1);
+% map_z_c4L1                  = nan(num_quasars, 1);
+% map_z_c4L2                  = nan(num_quasars, 1);
+% map_sigma_c4L1              = nan(num_quasars, 1);
 map_sigma_c4L2              = nan(num_quasars, 1);
 sample_sigma_c4 = min_sigma + (max_sigma-min_sigma)*offset_sigma_samples;
 % sample_sigma_c4 = sigma_samples;
@@ -259,25 +259,55 @@ for quasar_ind = 1:num_quasars
     %       plot(this_unmasked_wavelengths, absorptionL2, '-o', 'Color', 'r')
     %       hold on
     %       plot(fine_wavelengths, absorptionL2_fine, '-o', 'Color', 'k')
+
+
+    if SingleLineModel==1
+        num_lines=1;
+        absorptionL1_fine = voigt0(padded_fine_wavelengths, sample_z_c4(i), ...
+        nciv_samples(i)*fL1_N,num_lines , sample_sigma_c4(i)*fL1_sigma);
+        
+        % average fine absorption and shrink it to the size of original array
+        % as large as the unmasked_wavelengths
+        
+        absorptionL1 = zeros(lenW_unmasked, 1);
+        absorptionL1(1,1) = absorptionL1_fine(1);
+        absorptionL1(end,1) = absorptionL1_fine(end);
+        for ii=2:lenW_unmasked-1
+            s=0;
+            for j=0:2*nAVG
+                s=s+absorptionL1_fine((nAVG+1)*ii-j);
+            end
+                absorptionL1(ii,1) = s*fAVG;
+        end
+
+        absorptionL1 = absorptionL1(ind);
+        c4_muL2     = this_mu     .* absorptionL1;
+        c4_ML2      = this_M      .* absorptionL1;
+        %     dla_omega2 = this_omega2 .* absorption.^2;
+        sample_log_likelihoods_c4L1(quasar_ind, i) = ...
+        log_mvnpdf_low_rank(this_flux, c4_muL2, c4_ML2, ...
+        this_noise_variance);
+    end
     end
        
     % compute sample probabilities and log likelihood of DLA model in
     % numerically safe manner for one line
-    % % max_log_likelihoodL1 = max(sample_log_likelihoods_c4L1(quasar_ind, :));
-    % % sample_probabilitiesL1 = ...
-    % %     exp(sample_log_likelihoods_c4L1(quasar_ind, :) - ...
-    % %     max_log_likelihoodL1);
-    % % log_likelihoods_c4L1(quasar_ind) = ...
-    % %     max_log_likelihoodL1 + log(mean(sample_probabilitiesL1));
-    
-    % % log_posteriors_c4L1(quasar_ind) = ...
-    % %     log_priors_c4(quasar_ind) + log_likelihoods_c4L1(quasar_ind);
-    
-    % fprintf(' ... log p(D | z_QSO,    L1)     : %0.2f\n', ...
-    %     log_likelihoods_c4L1(quasar_ind));
-    % fprintf(' ... log p(L1 | D, z_QSO)        : %0.2f\n', ...
-    %     log_posteriors_c4L1(quasar_ind));
-
+    if SingleLineModel==1
+        max_log_likelihoodL1 = max(sample_log_likelihoods_c4L1(quasar_ind, :));
+        sample_probabilitiesL1 = ...
+            exp(sample_log_likelihoods_c4L1(quasar_ind, :) - ...
+            max_log_likelihoodL1);
+        log_likelihoods_c4L1(quasar_ind) = ...
+            max_log_likelihoodL1 + log(mean(sample_probabilitiesL1));
+        
+        log_posteriors_c4L1(quasar_ind) = ...
+            log_priors_c4(quasar_ind) + log_likelihoods_c4L1(quasar_ind);
+        
+        fprintf(' ... log p(D | z_QSO,    L1)     : %0.2f\n', ...
+            log_likelihoods_c4L1(quasar_ind));
+        fprintf(' ... log p(L1 | D, z_QSO)        : %0.2f\n', ...
+            log_posteriors_c4L1(quasar_ind));
+    end
        
     % compute sample probabilities and log likelihood of DLA model in
     % numerically safe manner for  doublet 
@@ -298,13 +328,14 @@ for quasar_ind = 1:num_quasars
     %  fprintf(' ... Num_CIV                      : %d\n ', ...
     %    Full_catalog.all_Num_c4_sys(quasar_ind))
     % fprintf('... FilterFlag                    : %d\n ', filter)
-    
-    % [~, maxindL1] = nanmax(sample_log_likelihoods_c4L1(quasar_ind, :));
-    % map_z_c4L1(quasar_ind)    = sample_z_c4(maxindL1);        
-    % map_N_c4L1(quasar_ind)  = log_nciv_samples(maxindL1);
-    % map_sigma_c4L1(quasar_ind)  = sample_sigma_c4(maxindL1);
-    % fprintf('L1\nmap(N): %.2f, map(z_c4): %.2f, map(b/1e5): %.2f\n',map_N_c4L1(quasar_ind),...
-    %  map_z_c4L1(quasar_ind), map_sigma_c4L1(quasar_ind)/1e5);
+    % if SingleLineModel==1
+    %     [~, maxindL1] = nanmax(sample_log_likelihoods_c4L1(quasar_ind, :));
+    %     map_z_c4L1(quasar_ind)    = sample_z_c4(maxindL1);        
+    %     map_N_c4L1(quasar_ind)  = log_nciv_samples(maxindL1);
+    %     map_sigma_c4L1(quasar_ind)  = sample_sigma_c4(maxindL1);
+    %     fprintf('L1\nmap(N): %.2f, map(z_c4): %.2f, map(b/1e5): %.2f\n',map_N_c4L1(quasar_ind),...
+    %      map_z_c4L1(quasar_ind), map_sigma_c4L1(quasar_ind)/1e5);
+    % end
 
     [~, maxindL2] = nanmax(sample_log_likelihoods_c4L2(quasar_ind, :));
     map_z_c4L2(quasar_ind)    = sample_z_c4(maxindL2);        
@@ -317,17 +348,33 @@ for quasar_ind = 1:num_quasars
 end
 
 % compute model posteriors in numerically safe manner
-max_log_posteriors = ...
-    max([log_posteriors_no_c4,  log_posteriors_c4L2], [], 2);
+if SingleLineModel ==0
+    max_log_posteriors = ...
+        max([log_posteriors_no_c4,  log_posteriors_c4L2], [], 2);
 
-model_posteriors = ...
-    exp([log_posteriors_no_c4,  log_posteriors_c4L2] - max_log_posteriors);
+    model_posteriors = ...
+        exp([log_posteriors_no_c4,  log_posteriors_c4L2] - max_log_posteriors);
 
-model_posteriors = model_posteriors ./ sum(model_posteriors, 2);
+    model_posteriors = model_posteriors ./ sum(model_posteriors, 2);
 
-p_no_c4 = model_posteriors(:, 1);
+    p_no_c4 = model_posteriors(:, 1);
 
-p_c4    = 1 - p_no_c4;
+    p_c4    = 1 - p_no_c4;
+else
+    max_log_posteriors = ...
+        max([log_posteriors_no_c4,  log_posteriors_c4L1, log_posteriors_c4L2], [], 2);
+
+    model_posteriors = ...
+        exp([log_posteriors_no_c4,  log_posteriors_c4L1, log_posteriors_c4L2] - max_log_posteriors);
+
+    model_posteriors = model_posteriors ./ sum(model_posteriors, 2);
+
+    p_no_c4 = model_posteriors(:, 1);
+    p_L1 = model_posteriors(:, 2);
+
+    p_c4    = 1  - p_L1 - p_no_c4;
+end
+
 
 % save results
 variables_to_save = {'release', 'training_set_name', ...

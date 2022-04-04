@@ -81,28 +81,27 @@ for i=1:num_quasars
 end
 
 
-% dla catalog 
-dla_catalog = ...
-fitsread('data/dr7/distfiles/match-dla-civ.fits', 'binarytable');
-dla_plate  = dla_catalog{48};
-dla_mjd    = dla_catalog{47};
-dla_fiber  = dla_catalog{49};
-num_dlas   = length(dla_plate);
-log_posteriors_dla = dla_catalog{77};
-log_posteriors_no_dla = dla_catalog{78};
-dla_QSO_ID = cell(num_dlas,1);
+% % dla catalog 
+% dla_catalog = ...
+% fitsread('data/dr7/distfiles/match-dla-civ.fits', 'binarytable');
+% dla_plate  = dla_catalog{48};
+% dla_mjd    = dla_catalog{47};
+% dla_fiber  = dla_catalog{49};
+% num_dlas   = length(dla_plate);
+% log_posteriors_dla = dla_catalog{77};
+% log_posteriors_no_dla = dla_catalog{78};
+% dla_QSO_ID = cell(num_dlas,1);
 
-for i=1:num_dlas
-    dla_QSO_ID{i}=sprintf('%05i-%04i-%03i', (dla_mjd(i)), ...
-    (dla_plate(i)), (dla_fiber(i)));
-end
+% for i=1:num_dlas
+%     dla_QSO_ID{i}=sprintf('%05i-%04i-%03i', (dla_mjd(i)), ...
+%     (dla_plate(i)), (dla_fiber(i)));
+% end
 
 
 % save catalog 
 release = 'dr7';
 variables_to_save = {'all_plate_dr7', 'all_mjd_dr7', 'all_fiber_dr7', ...
  'all_QSO_ID', 'all_RA', 'all_DEC', 'all_zqso', 'EW1', 'EW2',...
- 'all_N_civ','all_z_civ', 'all_RATING', 'dla_QSO_ID','log_posteriors_dla',...
-  'log_posteriors_no_dla','c4_QSO_ID'};
+ 'all_N_civ','all_z_civ', 'all_RATING', 'c4_QSO_ID'};
 save(sprintf('%s/catalog', processed_directory(release)), ...
     variables_to_save{:}, '-v7.3');

@@ -1,15 +1,12 @@
 % Confusion matrix builder 
 
-clear
 set_parameters_dr7;
 build_catalog_dr7;
-% testing_set_name = 'IntPol';
-testing_set_name = 'norm_2p';
+
 % 
-filename = sprintf('data/dr7/processed/processed_qsos_R%s.mat', testing_set_name);   
+filename = sprintf('data/dr7/processed/processed_qsos_tst_%s.mat', testing_set_name);   
 % filename ='data/dr7/processed/processed_qsos_Rprior-fixed.mat';
-variables_to_load = { 'training_set_name', ...
-    'c4_catalog_name', 'prior_ind', 'release', ...
+variables_to_load = { 'c4_catalog_name', 'prior_ind', 'release', ...
     'test_ind', 'prior_z_qso_increase', ...
     'max_z_cut', 'min_z_c4s', 'max_z_c4s', ...
     'log_priors_no_c4', 'log_priors_c4', ...
@@ -21,7 +18,7 @@ variables_to_load = { 'training_set_name', ...
 load(filename, variables_to_load{:});
 cooksey_catalog = ...
 fitsread('data/dr7/distfiles/dr7qso_CIV_noBAL.fit', 'binarytable');
-load(sprintf('%s/preloaded_qsos', processed_directory(release)));
+% load(sprintf('%s/preloaded_qsos', processed_directory(release)));
 all_zqso          = cooksey_catalog{4};
 ind_has_c4 =ismember(all_QSO_ID, c4_QSO_ID);
 
@@ -71,13 +68,14 @@ fig= figure();
 y_score = p_c4;
 y_true = ind_has_c4(test_ind);
 [X,Y,T,AUC] =perfcurve(y_true, y_score, 'true');
+fprintf('AUC:%.4f', AUC);
 plot(X,Y)
 legend(sprintf('AUC=%.5f',AUC))
 set(get(gca, 'YLabel'), 'String', 'TPR');
 set(get(gca, 'XLabel'), 'String', 'FPR');
-set(get(gca, 'Title'), 'String', sprintf('%s\np:%.2f, FP:%d\nCM:[%.4f, %.4f; %.4f, %.4f]\nAccuracy:%.4f, Error Rate:%.4f\n',...
-testing_set_name ,tr, FP, TP/P, FN/P, FP/N,TN/N,Accuracy,ErrorRate));
-exportgraphics(fig, sprintf('ROC-%s.pdf', testing_set_name)...
+set(get(gca, 'Title'), 'String', sprintf('%s\n%s\np:%.2f, FP:%d\nCM:[%.4f, %.4f; %.4f, %.4f]\nAccuracy:%.4f, Error Rate:%.4f\n',...
+ training_set_name, testing_set_name ,tr, FP, TP/P, FN/P, FP/N,TN/N,Accuracy,ErrorRate));
+exportgraphics(fig, sprintf('ROC/ROC-trn-%s-tst-%s.pdf', training_set_name, testing_set_name)...
                 ,'ContentType','vector')
 
 % % % % Checking if our FPs are intrinsic

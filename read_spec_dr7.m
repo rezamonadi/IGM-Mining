@@ -29,7 +29,7 @@ function [wavelengths, flux, noise_variance, pixel_mask, sigma_pixel] = read_spe
 
 	% noise (standard deviation)
 
-	noise_ratio = noise./flux;
+	%noise_ratio = noise./flux;
 	noise_variance = noise.^2;
 	% mask array
 	and_mask = measurements(4,:);
@@ -55,6 +55,6 @@ function [wavelengths, flux, noise_variance, pixel_mask, sigma_pixel] = read_spe
 
 	wavelengths = 10.^(linspace(coeff0, coeff0 + coeff1*(length + 1), length));
 	
-	pixel_mask =  (noise_ratio>=4) | (and_mask==hex2dec('0x800000')) | (noise == 0); 
+	pixel_mask =  (and_mask==hex2dec('0x800000')) | (noise == 0); 
 	% resolution = 
 end
