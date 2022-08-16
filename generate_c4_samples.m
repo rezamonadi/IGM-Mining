@@ -2,11 +2,11 @@
 % catalog
 
 % since we don't have hash tables in catalog.mat, we load the ascii file directly
-set_parameters;
 
-training_set_name = 'Cooksey_C4_cat';
 
-c4_catalog = load(sprintf('%s/c4_catalog', c4_catalog_directory(training_set_name)));
+
+
+c4_catalog = load(sprintf('%s/c4_catalog', c4_catalog_directory('Cooksey_C4_cat')));
 c4_catalog =c4_catalog(c4_catalog(:,3)>0,:); % removing some null column densities
 % training_set_name = 'UVES';
 
@@ -85,6 +85,7 @@ variables_to_save = {'uniform_min_log_nciv', 'uniform_max_log_nciv', ...
                      'fit_min_log_nciv', 'fit_max_log_nciv', 'alpha', ...
                      'extrapolate_min_log_nciv', ...
                      'offset_z_samples', 'offset_sigma_samples', 'log_nciv_samples', 'nciv_samples'};
-save(sprintf('%s/civ_samples', processed_directory(training_release)), ...
-     variables_to_save{:}, '-v7.3');
+save(sprintf('%s/civ_samples_N_%d_%d_Sigma_%d_%d_num_%d.mat',...
+processed_directory(release), uniform_min_log_nciv*100, uniform_max_log_nciv*100,...
+ min_sigma, max_sigma, num_C4_samples),  variables_to_save{:}, '-v7.3');
 histogram(log_nciv_samples)

@@ -32,7 +32,7 @@ file_loader = @(mjd, plate, fiber_id) ...
   plate, mjd, plate, fiber_id)));
 
 
-% file loading parameters
+% % file loading parameters
 loading_min_lambda = 1310;          % range of rest wavelengths to load  Å
 loading_max_lambda = 1555;                    
 % The maximum allowed is set so that even if the peak is redshifted off the end, the
@@ -45,43 +45,48 @@ min_num_pixels = 400;                         % minimum number of non-masked pix
 
 % normalization parameters
 % I use 1216 is basically because I want integer in my saved filenames%
-%normalization_min_lambda = 1216 - 40;              % range of rest wavelengths to use   Å
+% normalization_min_lambda = 1216 - 40;              % range of rest wavelengths to use   Å
 normalization_min_lambda = 1420; 
 %normalization_max_lambda = 1216 + 40;              %   for flux normalization
-normalization_max_lambda = 1500; 
+normalization_max_lambda = 1475; 
+
 % null model parameters
-min_lambda         =  1315;                   % range of rest wavelengths to       Å
-max_lambda         = 1550;                    %   model
-dlambda            = 0.05;                    % separation of wavelength grid      Å
+min_lambda         =  loading_min_lambda+1;                   % range of rest wavelengths to       Å
+max_lambda         = loading_max_lambda-1;                    %   model
+dlambda            = 0.5;                    % separation of wavelength grid      Å
 k                  = 20;                      % rank of non-diagonal contribution
 max_noise_variance = 0.5^2;                   % maximum pixel noise allowed during model training
 h                  = 2;                     % masking par to remove CIV region 
-nAVG               = 0;                     % number of points added between two 
-                                            % observed wavelengths to make the Voigt finer
+
+
+
 % optimization parameters
 minFunc_options =               ...           % optimization options for model fitting
     struct('MaxIter',     10000, ...
            'MaxFunEvals', 10000);
 
 % C4 model parameters: parameter samples (for Quasi-Monte Carlo)
-num_C4_samples           = 50000;                  % number of parameter samples
+nAVG               = 20;                     % number of points added between two 
+                                            % observed wavelengths to make the Voigt finer
+% num_C4_samples           = 50000;                  % number of parameter samples
 alpha                    = 0.9;                    % weight of KDE component in mixture
-uniform_min_log_nciv     = 14.0;                   % range of column density samples    [cm⁻²]
+uniform_min_log_nciv     = 12.88;                   % range of column density samples    [cm⁻²]
 uniform_max_log_nciv     = 15.8;                   % from uniform distribution
-fit_min_log_nciv         = 14.0;                   % range of column density samples    [cm⁻²]
-fit_max_log_nciv         = 15.8;                   % from fit to log PDF
-extrapolate_min_log_nciv = 14.0;  
+fit_min_log_nciv         = uniform_min_log_nciv;                   % range of column density samples    [cm⁻²]
+fit_max_log_nciv         = uniform_max_log_nciv;                   % from fit to log PDF
+extrapolate_min_log_nciv = uniform_min_log_nciv;  
 
-min_sigma                = 20e5;                   % cm/s -> b/sqrt(2) -> min Doppler par from Cooksey
-max_sigma                = 65e5;                   % cm/s -> b/sqrt(2) -> max Doppler par from Cooksey
+min_sigma                = 5e5;                   % cm/s -> b/sqrt(2) -> min Doppler par from Cooksey
+max_sigma                = 40e5;                   % cm/s -> b/sqrt(2) -> max Doppler par from Cooksey
 vCut                     = 3000;                    % maximum cut velocity for CIV system 
+RejectionSampling        = 0;
 % model prior parameters
 prior_z_qso_increase = kms_to_z(30000);       % use QSOs with z < (z_QSO + x) for prior
+
 
 % instrumental broadening parameters
 width = 3;                                    % width of Gaussian broadening (# pixels)
 pixel_spacing = 1e-4;                         % wavelength spacing of pixels in dex
-
 % DLA model parameters: absorber range and model
 num_lines = 2;                                % number of members of CIV series to use
 
@@ -91,15 +96,32 @@ max_z_cut = kms_to_z(vCut);                   % max z_DLA = z_QSO - max_z_cut
 max_z_c4 = @(z_qso, max_z_cut) ...         % determines maximum z_DLA to search
      z_qso - max_z_cut*(1+z_qso);
 min_z_cut = kms_to_z(vCut);                   % min z_DLA = z_Ly∞ + min_z_cut
-% min_z_c4 = @(wavelengths, z_qso) ...         % determines minimum z_DLA to search
-%     max(min(wavelengths) / civ_1548_wavelength - 1,                          ...
-%         observed_wavelengths(min_lambda, z_qso) / civ_1548_wavelength - 1 + ...
-%         min_z_cut);
 min_z_c4 = @(wavelengths, z_qso) ...         % determines minimum z_DLA to search
-     min(wavelengths) / civ_1548_wavelength - 1;
+    max(min(wavelengths) / civ_1548_wavelength - 1,                          ...
+        observed_wavelengths(1310, z_qso) / civ_1548_wavelength - 1);
+% min_z_c4 = @(wavelengths, z_qso) ...         % determines minimum z_DLA to search
+%      min(wavelengths) / civ_1548_wavelength - 1;
 train_ratio =0.95;
-training_set_name = 'norm_2p';
+a_L1 =0.7;
+
+% training_set_name = sprintf('tr-%d-L-%d-%d-mnp-%d-normL-%d-%d-dlambda-%.2f-k-%d-mnv-%.2f', ...
+%                               train_ratio*100,loading_min_lambda, loading_max_lambda, min_num_pixels, normalization_min_lambda,...
+                              % normalization_max_lambda, dlambda, k, max_noise_variance);
+
+training_set_name = sprintf('L-%d-%d-mnp-%d-normL-%d-%d-dlambda-%.2f-k-%d-mnv-%.2f', ...
+                              loading_min_lambda, loading_max_lambda, min_num_pixels, normalization_min_lambda,...
+                              normalization_max_lambda, dlambda, k, max_noise_variance);
+
+                                                
+max_civ = 7;
+fL1_N = 1;
+fL1_sigma =1;
+% dv_mask = 250; % (km/s)
+
+testing_set_name = sprintf("voigt-%d-mask-%d-prior-%d-OccamRazor-%d-nC4-%d",...
+                         voigtType, maskType, priorType, OccamRazor, num_C4_samples);
 % base directory for all data
+
 base_directory = 'data';
 % utility functions for identifying various directories
 distfiles_directory = @(release) ...
@@ -113,8 +135,3 @@ processed_directory = @(release) ...
 
 c4_catalog_directory = @(name) ...
    sprintf('%s/C4_catalogs/%s/processed', base_directory, name);
-
-   
-% replace with @(varargin) (fprintf(varargin{:})) to show debug statements
-% fprintf_debug = @(varargin) (fprintf(varargin{:}));
-% fprintf_debug = @(varargin) ([]);
