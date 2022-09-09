@@ -12,12 +12,17 @@ preqsos = matfile(preloaded_qsos_cat_name);
 
 % determine which spectra to use for training; allow string value for
 % train_ind
-if (ischar(train_ind))
-  train_ind = eval(train_ind);
-end
 
+if learning ~= 2
+  if (ischar(train_ind))
+    train_ind = eval(train_ind);
+  end
+end
 % select training vectors
 all_wavelengths    =          preqsos.all_wavelengths;
+if learning ==2 
+  train_ind = true(size(all_wavelengths));
+end
 all_wavelengths    =    all_wavelengths(train_ind, :);
 all_flux           =                 preqsos.all_flux;
 all_flux           =           all_flux(train_ind, :);
@@ -177,11 +182,23 @@ objective_function = @(x) objective(x, centered_rest_fluxes, rest_noise_variance
 ind = (1:(num_rest_pixels * k));
 M = reshape(x(ind), [num_rest_pixels, k]);
 
-variables_to_save = {'release', 'train_ind', 'max_noise_variance', ...
-                     'minFunc_options', 'rest_wavelengths', 'mu', ...
-                     'initial_M', 'M',  'log_likelihood', ...
-                     'minFunc_output', 'test_ind', 'prior_ind'};
+if learning==1
+  variables_to_save = {'release', 'train_ind', 'max_noise_variance', ...
+                      'minFunc_options', 'rest_wavelengths', 'mu', ...
+                      'initial_M', 'M',  'log_likelihood', ...
+                      'minFunc_output', 'test_ind', 'prior_ind'};
+  save(sprintf('%s/learned_model-%s.mat', processed_directory(release), ...
+                      training_set_name),...
+  variables_to_save{:}, '-v7.3');
+end
 
-save(sprintf('%s/learned_model-%s.mat', processed_directory(release), ...
-                                      training_set_name),...
+if learning == 2
+  variables_to_save = {'release', 'max_noise_variance', ...
+  'minFunc_options', 'rest_wavelengths', 'mu', ...
+  'initial_M', 'M',  'log_likelihood', ...
+  'minFunc_output'};
+
+
+  save(sprintf('%s/learned_model-C13-full.mat', processed_directory(release)),...
             variables_to_save{:}, '-v7.3');
+end

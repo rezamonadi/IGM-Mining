@@ -118,8 +118,10 @@ fL1_N = 1;
 fL1_sigma =1;
 % dv_mask = 250; % (km/s)
 
-testing_set_name = sprintf("voigt-%d-mask-%d-prior-%d-OccamRazor-%d-nC4-%d",...
-                         voigtType, maskType, priorType, OccamRazor, num_C4_samples);
+testing_set_name = sprintf("mask-%d-prior-%d-OccamRazor-%d-nC4-%d-plt-%d-MaskinP-%d-fixedPr2",...
+                         maskType, priorType, OccamRazor, num_C4_samples, plotting,...
+                         MaskingProb);
+                 
 % base directory for all data
 
 base_directory = 'data';

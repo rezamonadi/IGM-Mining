@@ -18,37 +18,36 @@ if preloading==1
     preload_qsos_dr7
 end
 load(sprintf('%s/preloaded_qsos_%s.mat', processed_directory(release), training_set_name));
+
 fprintf('preparing voigt.c ...\n')
 
-% if voigtPrep == 1 
-%     cd minFunc_2012
-%     addpath(genpath(pwd))
-%     mexAll
-%     cd ..
-%     if HPCC == 1
-%         mex voigt_iP.c -lcerf -I/rhome/rmona003/bin/include/ -L/rhome/rmona003/bin/lib64/ 
-%         mex voigt0.c -lcerf -I/rhome/rmona003/bin/include/ -L/rhome/rmona003/bin/lib64/ 
-%     else 
-%         mex voigt_iP.c -lcerf
-%         mex voigt0.c -lcerf
-%     end
-% end
+if voigtPrep == 1 
+    cd minFunc_2012
+    addpath(genpath(pwd))
+    mexAll
+    cd ..
+    if HPCC == 1
+        mex voigt_iP.c -lcerf -I/rhome/rmona003/bin/include/ -L/rhome/rmona003/bin/lib64/ 
+        % mex voigt0.c -lcerf -I/rhome/rmona003/bin/include/ -L/rhome/rmona003/bin/lib64/ 
+    else 
+        mex voigt_iP.c -lcerf
+        % mex voigt0.c -lcerf
+    end
+end
 fprintf('preparing testing, training, and prior indeces ...\n')
 if learning==1
     half_ID = randsample(all_QSO_ID, int32(train_ratio*numel(all_QSO_ID)));
     test_ind = (~ismember(all_QSO_ID, half_ID)) & (filter_flags==0);
-
-    prior_ind = ((ismember(all_QSO_ID, c4_QSO_ID)) & (filter_flags==0) & ...
-        (ismember(all_QSO_ID, half_ID)));
-    ind_RATING = filter_flags>10; % initializing with a all false array 
-    for i=1:length(ind_RATING)
-        if ~any(all_RATING(i,:)>=0)
-            ind_RATING(i)=true;
-        end
-    end
+    prior_ind = ismember(all_QSO_ID, half_ID) & (filter_flags==0);
+        
+    % ind_RATING = filter_flags>10; % initializing with a all false array 
+    % for i=1:length(ind_RATING)
+        % if ~any(all_RATING(i,:)>=0)
+            % ind_RATING(i)=true;
+        % end
+    % end
     train_ind = (~ismember(all_QSO_ID, c4_QSO_ID) & (filter_flags==0) & ...
-    ismember(all_QSO_ID, half_ID) ) & ind_RATING;
-% % % train_ind = (filter_flags==0) & ismember(all_QSO_ID, half_ID);
+    ismember(all_QSO_ID, half_ID) );
 
     fprintf('Learning model ...\n')
 % load preprocessed QSOs
@@ -56,6 +55,14 @@ if learning==1
                                processed_directory(release), training_set_name);
     learn_qso_model
 end
+
+if learning == 2 % --> full learning 
+    fprintf('Learning model on the full catalog ...\n')
+    preloaded_qsos_cat_name= sprintf('%s/preloaded_qsos_%s.mat',... 
+                               processed_directory(release), training_set_name);
+    learn_qso_model
+end
+
 variables_to_load = {'release', 'train_ind', 'max_noise_variance', ...
                    'minFunc_options', 'rest_wavelengths', 'mu', ...
                     'initial_M', 'M',  'log_likelihood', 'test_ind',...
@@ -67,41 +74,19 @@ load(sprintf('%s/learned_model-%s.mat', processed_directory(release), ...
 fprintf('Generating samples for integrating out parameters in the model...\n');
 
 if sampling==1
-    if RejectionSampling==0
-        generate_c4_samples
-    else
-        RejSampling
-    end
-else
-    % WrSampL2_w_proposal_q
-    if RejectionSampling==1
-        variables_to_load = {'offset_z_samples', 'sigma_samples',...
-        'log_nciv_samples', 'nciv_samples'};
-        load(sprintf('%s/civ_samples_WR-tst-%dk.mat', processed_directory(release),...
-        num_C4_samples/1000), variables_to_load{:});
-        sigma_samples = sigma_samples(1:num_C4_samples);
-        sample_sigma_civ = sigma_samples';
-        log_nciv_samples = log_nciv_samples';
-        nciv_samples = nciv_samples';
-    else
-        variables_to_load = {'uniform_min_log_nciv', 'uniform_max_log_nciv', ...
-                        'fit_min_log_nciv', 'fit_max_log_nciv', 'alpha', ...
-                        'extrapolate_min_log_nciv', 'offset_z_samples',...
-                        'offset_sigma_samples', 'log_nciv_samples', 'nciv_samples'};
-
-    load(sprintf('%s/civ_samples_N_%d_%d_Sigma_%d_%d_num_%d.mat', processed_directory(release),...
-    uniform_min_log_nciv*100, uniform_max_log_nciv*100, min_sigma, max_sigma, ...
-    num_C4_samples), variables_to_load{:});
-    end
-    fprintf(sprintf('%d Samples are generated\n', num_C4_samples));
+    generate_c4_samples
 end
-% % c4_catalog_name = 'cooksey';
-% % fprintf('Processing ...\n')
-% % % parpool('local', 32)
 
+variables_to_load = {'uniform_min_log_nciv', 'uniform_max_log_nciv', ...
+                    'fit_min_log_nciv', 'fit_max_log_nciv', 'alpha', ...
+                    'extrapolate_min_log_nciv', 'offset_z_samples',...
+                    'offset_sigma_samples', 'log_nciv_samples', 'nciv_samples'};
 
-% % % load('/home/reza/gpC4/data/dr7/processed/civ_samples-cooksey-sample-tr-50.mat', variables_to_load{:});
-% % % load redshifts from catalog to process
+load(sprintf('%s/civ_samples_N_%d_%d_Sigma_%d_%d_num_%d.mat', processed_directory(release),...
+uniform_min_log_nciv*100, uniform_max_log_nciv*100, min_sigma, max_sigma, ...
+num_C4_samples), variables_to_load{:});
+
+fprintf(sprintf('%d Samples are generated\n', num_C4_samples));
 
 % load preprocessed QSOs
 variables_to_load = {'all_wavelengths', 'all_flux', 'all_noise_variance', ...
@@ -109,8 +94,6 @@ variables_to_load = {'all_wavelengths', 'all_flux', 'all_noise_variance', ...
 load(sprintf('%s/preloaded_qsos_%s.mat', processed_directory(release), training_set_name), ...
     variables_to_load{:});
 
-
-% % % testing_set_name = sprintf('sigma-%d-%d-N-%d-%d', min_sigma/1e5, max_sigma/1e5, uniform_min_log_nciv*10 , uniform_max_log_nciv*10)
 
 % % % 
 if processing==1
@@ -157,7 +140,7 @@ if processing==1
     SingleLineModel = 1;
     plotting = 0; 
 
-    process_qsos
+    process_qsos_dr7
     % -----Run-2-----------------------
     % voigtType = 0 -->  Roman Broadeing 
     % maskType = 0 --> mask S and D each run 
@@ -173,6 +156,10 @@ if processing==1
 
 
     
-    statTest
+  
     % Does the purity/completeness test...
+end
+
+if statTesting == 1
+    statTest
 end
