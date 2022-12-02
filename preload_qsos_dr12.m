@@ -9,7 +9,7 @@ tic;
 % variables_to_load = {'all_plate_dr7', 'all_mjd_dr7', 'all_fiber_dr7',...
 % 'all_QSO_ID','all_zqso_dr12'};
 
-% ----------dr12----------------------------------------
+%  ----------dr12----------------------------------------
 % variables_to_load = {'all_plate_dr12', 'all_mjd_dr12', 'all_fiber_dr12',...
 % 'all_QSO_ID_dr12','all_zqso_dr12'};
 
@@ -17,7 +17,7 @@ tic;
 % load(sprintf('%s/catalog', processed_directory(releaseTest)), ...
 %     variables_to_load{:});
 
-% num_quasars = numel(all_zqso_dr12);
+num_quasars = numel(all_zqso_dr12);
 
 all_wavelengths    =  cell(num_quasars, 1);
 all_flux           =  cell(num_quasars, 1);
@@ -103,11 +103,11 @@ variables_to_save = {'loading_min_lambda', 'loading_max_lambda', ...
                      'all_noise_variance', 'all_pixel_mask', ...
                      'all_normalizers', 'all_sigma_pixel', 'filter_flags'};
 save(sprintf('%s/preloaded_qsos_%s', processed_directory(releaseTest), training_set_name), ...
-     variables_to_save{:});
+     variables_to_save{:}, '-v7.3');
 
 % write new filter flags to catalog
 save(sprintf('%s/filter_flags', processed_directory(releaseTest)), ...
-     'filter_flags');
+     'filter_flags', '-v7.3');
 
 toc;
 

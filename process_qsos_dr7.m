@@ -100,8 +100,9 @@ z_PM_prior = all_z_civ(prior_ind,:);
 
   
     
-for quasar_ind = 1:num_quasars
-% for quasar_ind = 1:20
+% for quasar_ind = [547, 474, 972, 1091, 334, 969, 334]
+   
+for quasar_ind = 8
     tic;
     z_qso = z_qsos(quasar_ind);
     fprintf('processing quasar %i/%i (z_QSO = %0.4f) ...', ...
@@ -144,11 +145,14 @@ for quasar_ind = 1:num_quasars
     less_systems = z_PM_prior(less_ind,:);
 
     this_num_quasars = nnz(less_ind);
-    this_p_c4(1) = nnz(less_systems(:,1)>0 & less_systems(:,2)==-1)/this_num_quasars; 
+    this_p_c4(1) = nnz(less_systems(:,1)>0 )/this_num_quasars; 
     for i=2:max_civ
-        this_p_c4(i) = nnz(less_systems(:,i)>0 & less_systems(:, i+1)==-1)/nnz(less_systems(:,i-1)>0);
+        this_p_c4(i) = nnz(less_systems(:,i)>0 )/nnz(less_systems(:,i-1)>0);
         if (this_p_c4(i-1)==0)
         this_p_c4(i) = 0;
+        end
+        if (this_p_c4(i)>=0.90)
+            this_p_c4(i)=0.90;
         end
     end
 
@@ -298,125 +302,125 @@ for quasar_ind = 1:num_quasars
         log_likelihoods_no_c4(quasar_ind, num_c4));
         fprintf(' ... log p(no CIV | D, z_QSO)     : %0.2f\n', ...
         log_posteriors_no_c4(quasar_ind, num_c4));
-        parfor i = 1:num_C4_samples
-            % Limitting red-shift in the samples
-            % absorption corresponding to this sample with one absorption line as a noise model 
+        % parfor i = 1:num_C4_samples
+        %     % Limitting red-shift in the samples
+        %     % absorption corresponding to this sample with one absorption line as a noise model 
 
-            % absorption corresponding to this sample with two absorption lines as a doublet 
-            % compute fine absorption 
-            num_lines=2;
-            absorptionL2_fine = voigt_iP(finer(padded_wavelengths, nAVG), sample_z_c4(i), ...
-            nciv_samples(i),num_lines , sample_sigma_c4(i), finer(this_sigma_pixel, nAVG));
+        %     % absorption corresponding to this sample with two absorption lines as a doublet 
+        %     % compute fine absorption 
+        %     num_lines=2;
+        %     absorptionL2_fine = voigt_iP(finer(padded_wavelengths, nAVG), sample_z_c4(i), ...
+        %     nciv_samples(i),num_lines , sample_sigma_c4(i), finer(this_sigma_pixel, nAVG));
             
-            % average fine absorption and shrink it to the size of original array
-            % as large as the unmasked_wavelengths
+        %     % average fine absorption and shrink it to the size of original array
+        %     % as large as the unmasked_wavelengths
             
-            absorptionL2 = Averager(absorptionL2_fine, nAVG, lenW_unmasked);
-            absorptionL2 = absorptionL2(ind);
-            c4_muL2     = this_mu     .* absorptionL2;
-            c4_ML2      = this_M      .* absorptionL2;
+        %     absorptionL2 = Averager(absorptionL2_fine, nAVG, lenW_unmasked);
+        %     absorptionL2 = absorptionL2(ind);
+        %     c4_muL2     = this_mu     .* absorptionL2;
+        %     c4_ML2      = this_M      .* absorptionL2;
 
-            sample_log_likelihoods_c4L2(quasar_ind, i, num_c4) = ...
-            log_mvnpdf_low_rank(this_flux(ind_not_remove),...
-                                c4_muL2(ind_not_remove),...
-                                c4_ML2(ind_not_remove, :), ...
-                                this_noise_variance(ind_not_remove));
-            if SingleLineModel==1
-                num_lines=1;
-                absorptionL1_fine = voigt_iP(finer(padded_wavelengths, nAVG), sample_z_c4(i), ...
-                nciv_samples(i),num_lines , sample_sigma_c4(i), finer(this_sigma_pixel, nAVG));
+        %     sample_log_likelihoods_c4L2(quasar_ind, i, num_c4) = ...
+        %     log_mvnpdf_low_rank(this_flux(ind_not_remove),...
+        %                         c4_muL2(ind_not_remove),...
+        %                         c4_ML2(ind_not_remove, :), ...
+        %                         this_noise_variance(ind_not_remove));
+        %     if SingleLineModel==1
+        %         num_lines=1;
+        %         absorptionL1_fine = voigt_iP(finer(padded_wavelengths, nAVG), sample_z_c4(i), ...
+        %         nciv_samples(i),num_lines , sample_sigma_c4(i), finer(this_sigma_pixel, nAVG));
                 
-                % average fine absorption and shrink it to the size of original array
-                % as large as the unmasked_wavelengths
+        %         % average fine absorption and shrink it to the size of original array
+        %         % as large as the unmasked_wavelengths
                 
-                absorptionL1 = Averager(absorptionL1_fine, nAVG, lenW_unmasked);
-                absorptionL1 = absorptionL1(ind);
-                c4_muL1     = this_mu     .* absorptionL1;
-                c4_ML1      = this_M      .* absorptionL1;
-                sample_log_likelihoods_c4L1(quasar_ind, i) = ...
-                log_mvnpdf_low_rank(this_flux(ind_not_remove),...
-                c4_muL1(ind_not_remove), c4_ML1(ind_not_remove, :), ...
-                this_noise_variance(ind_not_remove));
+        %         absorptionL1 = Averager(absorptionL1_fine, nAVG, lenW_unmasked);
+        %         absorptionL1 = absorptionL1(ind);
+        %         c4_muL1     = this_mu     .* absorptionL1;
+        %         c4_ML1      = this_M      .* absorptionL1;
+        %         sample_log_likelihoods_c4L1(quasar_ind, i) = ...
+        %         log_mvnpdf_low_rank(this_flux(ind_not_remove),...
+        %         c4_muL1(ind_not_remove), c4_ML1(ind_not_remove, :), ...
+        %         this_noise_variance(ind_not_remove));
             
-            end
-        end
+        %     end
+        % end
             
-        % compute sample probabilities and log likelihood of DLA model in
-        % numerically safe manner for one line
-        max_log_likelihoodL1 = max(sample_log_likelihoods_c4L1(quasar_ind, :));
-        sample_probabilitiesL1 = ...
-            exp(sample_log_likelihoods_c4L1(quasar_ind, :) - ...
-            max_log_likelihoodL1);
-        log_likelihoods_c4L1(quasar_ind, num_c4) = ...
-            max_log_likelihoodL1 + log(mean(sample_probabilitiesL1)) ...
-            - log(num_C4_samples)*(num_c4-1);
+        % % compute sample probabilities and log likelihood of DLA model in
+        % % numerically safe manner for one line
+        % max_log_likelihoodL1 = max(sample_log_likelihoods_c4L1(quasar_ind, :));
+        % sample_probabilitiesL1 = ...
+        %     exp(sample_log_likelihoods_c4L1(quasar_ind, :) - ...
+        %     max_log_likelihoodL1);
+        % log_likelihoods_c4L1(quasar_ind, num_c4) = ...
+        %     max_log_likelihoodL1 + log(mean(sample_probabilitiesL1)) ...
+        %     - log(num_C4_samples)*(num_c4-1);
             
-        log_posteriors_c4L1(quasar_ind, num_c4) = ...
-        log_priors_c4(quasar_ind, num_c4) + log_likelihoods_c4L1(quasar_ind, num_c4);
+        % log_posteriors_c4L1(quasar_ind, num_c4) = ...
+        % log_priors_c4(quasar_ind, num_c4) + log_likelihoods_c4L1(quasar_ind, num_c4);
         
-        fprintf(' ... log p(D | z_QSO,    L1)     : %0.2f\n', ...
-            log_likelihoods_c4L1(quasar_ind, num_c4));
-        fprintf(' ... log p(L1 | D, z_QSO)        : %0.2f\n', ...
-            log_posteriors_c4L1(quasar_ind, num_c4));
+        % fprintf(' ... log p(D | z_QSO,    L1)     : %0.2f\n', ...
+        %     log_likelihoods_c4L1(quasar_ind, num_c4));
+        % fprintf(' ... log p(L1 | D, z_QSO)        : %0.2f\n', ...
+        %     log_posteriors_c4L1(quasar_ind, num_c4));
         
-        % compute sample probabilities and log likelihood of DLA model in
-        % numerically safe manner for  doublet 
-        max_log_likelihoodL2 = max(sample_log_likelihoods_c4L2(quasar_ind, :, num_c4));
-        sample_probabilitiesL2 = ...
-            exp(sample_log_likelihoods_c4L2(quasar_ind, :, num_c4)  ... 
-            - max_log_likelihoodL2);
-        log_likelihoods_c4L2(quasar_ind, num_c4) = ...
-            max_log_likelihoodL2 + log(mean(sample_probabilitiesL2))...
-            - log(OccamRazor)*(num_c4-1);
+        % % compute sample probabilities and log likelihood of DLA model in
+        % % numerically safe manner for  doublet 
+        % max_log_likelihoodL2 = max(sample_log_likelihoods_c4L2(quasar_ind, :, num_c4));
+        % sample_probabilitiesL2 = ...
+        %     exp(sample_log_likelihoods_c4L2(quasar_ind, :, num_c4)  ... 
+        %     - max_log_likelihoodL2);
+        % log_likelihoods_c4L2(quasar_ind, num_c4) = ...
+        %     max_log_likelihoodL2 + log(mean(sample_probabilitiesL2))...
+        %     - log(OccamRazor)*(num_c4-1);
             
         
-        log_posteriors_c4L2(quasar_ind, num_c4) = ...
-            log_priors_c4(quasar_ind, num_c4) + log_likelihoods_c4L2(quasar_ind, num_c4);
+        % log_posteriors_c4L2(quasar_ind, num_c4) = ...
+        %     log_priors_c4(quasar_ind, num_c4) + log_likelihoods_c4L2(quasar_ind, num_c4);
         
-        fprintf(' ... log p(D | z_QSO,    CIV)     : %0.2f\n', ...
-            log_likelihoods_c4L2(quasar_ind, num_c4));
-        fprintf(' ... log p(CIV | D, z_QSO)        : %0.2f\n', ...
-            log_posteriors_c4L2(quasar_ind, num_c4));
-        [~, maxindL1] = nanmax(sample_log_likelihoods_c4L1(quasar_ind, :));
-        map_z_c4L1(quasar_ind, num_c4 )    = sample_z_c4(maxindL1);        
-        map_N_c4L1(quasar_ind, num_c4)  = log_nciv_samples(maxindL1);
-        map_sigma_c4L1(quasar_ind, num_c4)  = sample_sigma_c4(maxindL1);
-        fprintf('L1\nmap(N): %.2f, map(z_c4): %.2f, map(b/1e5): %.2f\n',map_N_c4L1(quasar_ind, num_c4),...
-            map_z_c4L1(quasar_ind, num_c4), map_sigma_c4L1(quasar_ind, num_c4)/1e5);
+        % fprintf(' ... log p(D | z_QSO,    CIV)     : %0.2f\n', ...
+        %     log_likelihoods_c4L2(quasar_ind, num_c4));
+        % fprintf(' ... log p(CIV | D, z_QSO)        : %0.2f\n', ...
+        %     log_posteriors_c4L2(quasar_ind, num_c4));
+        % [~, maxindL1] = nanmax(sample_log_likelihoods_c4L1(quasar_ind, :));
+        % map_z_c4L1(quasar_ind, num_c4 )    = sample_z_c4(maxindL1);        
+        % map_N_c4L1(quasar_ind, num_c4)  = log_nciv_samples(maxindL1);
+        % map_sigma_c4L1(quasar_ind, num_c4)  = sample_sigma_c4(maxindL1);
+        % fprintf('L1\nmap(N): %.2f, map(z_c4): %.2f, map(b/1e5): %.2f\n',map_N_c4L1(quasar_ind, num_c4),...
+        %     map_z_c4L1(quasar_ind, num_c4), map_sigma_c4L1(quasar_ind, num_c4)/1e5);
 
-        [~, maxindL2] = nanmax(sample_log_likelihoods_c4L2(quasar_ind, :, num_c4));
-        map_z_c4L2(quasar_ind, num_c4)    = sample_z_c4(maxindL2);        
-        map_N_c4L2(quasar_ind, num_c4)  = log_nciv_samples(maxindL2);
-        map_sigma_c4L2(quasar_ind, num_c4)  = sample_sigma_c4(maxindL2);
-        fprintf('L2\nmap(N): %.2f, map(z_c4): %.2f, map(b/1e5): %.2f\n',...
-        map_N_c4L2(quasar_ind, num_c4), map_z_c4L2(quasar_ind, num_c4),...
-        map_sigma_c4L2(quasar_ind, num_c4)/1e5);
+        % [~, maxindL2] = nanmax(sample_log_likelihoods_c4L2(quasar_ind, :, num_c4));
+        % map_z_c4L2(quasar_ind, num_c4)    = sample_z_c4(maxindL2);        
+        % map_N_c4L2(quasar_ind, num_c4)  = log_nciv_samples(maxindL2);
+        % map_sigma_c4L2(quasar_ind, num_c4)  = sample_sigma_c4(maxindL2);
+        % fprintf('L2\nmap(N): %.2f, map(z_c4): %.2f, map(b/1e5): %.2f\n',...
+        % map_N_c4L2(quasar_ind, num_c4), map_z_c4L2(quasar_ind, num_c4),...
+        % map_sigma_c4L2(quasar_ind, num_c4)/1e5);
 
-        max_log_posteriors = max([log_posteriors_no_c4(quasar_ind, num_c4), log_posteriors_c4L1(quasar_ind, num_c4), log_posteriors_c4L2(quasar_ind,num_c4)], [], 2);
+        % max_log_posteriors = max([log_posteriors_no_c4(quasar_ind, num_c4), log_posteriors_c4L1(quasar_ind, num_c4), log_posteriors_c4L2(quasar_ind,num_c4)], [], 2);
 
-        model_posteriors = ...
-                exp(bsxfun(@minus, ...           
-                [log_posteriors_no_c4(quasar_ind, num_c4), log_posteriors_c4L1(quasar_ind, num_c4), log_posteriors_c4L2(quasar_ind, num_c4)], ...
-                max_log_posteriors));
-        model_posteriors = ...
-        bsxfun(@times, model_posteriors, 1 ./ sum(model_posteriors, 2));
+        % model_posteriors = ...
+        %         exp(bsxfun(@minus, ...           
+        %         [log_posteriors_no_c4(quasar_ind, num_c4), log_posteriors_c4L1(quasar_ind, num_c4), log_posteriors_c4L2(quasar_ind, num_c4)], ...
+        %         max_log_posteriors));
+        % model_posteriors = ...
+        % bsxfun(@times, model_posteriors, 1 ./ sum(model_posteriors, 2));
     
-        p_no_c4(quasar_ind, num_c4) = model_posteriors(1);
-        p_c4L1(quasar_ind, num_c4)  = model_posteriors(2);
-        p_c4(quasar_ind, num_c4)    = 1 - p_no_c4(quasar_ind, num_c4) -...
-                                    p_c4L1(quasar_ind, num_c4);
+        % p_no_c4(quasar_ind, num_c4) = model_posteriors(1);
+        % p_c4L1(quasar_ind, num_c4)  = model_posteriors(2);
+        % p_c4(quasar_ind, num_c4)    = 1 - p_no_c4(quasar_ind, num_c4) -...
+        %                             p_c4L1(quasar_ind, num_c4);
 
-        c4_pixel_ind1 = abs(this_wavelengths - (1+map_z_c4L2(quasar_ind, num_c4))*1548.2040)<3;
-        c4_pixel_ind2 = abs(this_wavelengths - (1+map_z_c4L2(quasar_ind, num_c4))*1550.7810)<3;
-        num_pixel_civ(quasar_ind, num_c4, 1) = nnz(c4_pixel_ind1);
-        num_pixel_civ(quasar_ind, num_c4, 2) = nnz(c4_pixel_ind2);
+        % c4_pixel_ind1 = abs(this_wavelengths - (1+map_z_c4L2(quasar_ind, num_c4))*1548.2040)<3;
+        % c4_pixel_ind2 = abs(this_wavelengths - (1+map_z_c4L2(quasar_ind, num_c4))*1550.7810)<3;
+        % num_pixel_civ(quasar_ind, num_c4, 1) = nnz(c4_pixel_ind1);
+        % num_pixel_civ(quasar_ind, num_c4, 2) = nnz(c4_pixel_ind2);
         fprintf('CIV pixels:[%d, %d]\n', num_pixel_civ(quasar_ind, num_c4, :)); 
         if(plotting==1)
             % plotting
-        
-            % this_ID = ID{quasar_ind};
-            % max_log_posteriors = max([log_posteriors_no_c4(quasar_ind, num_c4), log_posteriors_c4L1(quasar_ind, num_c4), log_posteriors_c4L2(quasar_ind,num_c4)], [], 2);
-            % num_lines=1;
+            
+            this_ID = ID{quasar_ind};
+            max_log_posteriors = max([log_posteriors_no_c4(quasar_ind, num_c4), log_posteriors_c4L1(quasar_ind, num_c4), log_posteriors_c4L2(quasar_ind,num_c4)], [], 2);
+            num_lines=1;
             % absorptionL1_fine= voigt_iP(finer(padded_wavelengths, nAVG),...
             %                 map_z_c4L1(quasar_ind, num_c4), 10^map_N_c4L1(quasar_ind, num_c4),...
             %                 num_lines, map_sigma_c4L1(quasar_ind, num_c4), finer(this_sigma_pixel, nAVG));
@@ -424,16 +428,16 @@ for quasar_ind = 1:num_quasars
             % absorptionL1 = absorptionL1(ind);
             % c4_muL1    = this_mu     .* absorptionL1;
 
-            num_lines=2;
-            absorptionL2_fine= voigt_iP(finer(padded_wavelengths, nAVG),...
-                map_z_c4L2(quasar_ind,  num_c4), 10^map_N_c4L2(quasar_ind, num_c4),...
-                num_lines, map_sigma_c4L2(quasar_ind, num_c4), finer(this_sigma_pixel, nAVG));
-            absorptionL2 = Averager(absorptionL2_fine, nAVG, lenW_unmasked);
-            absorptionL2 = absorptionL2(ind);
+            % num_lines=2;
+            % absorptionL2_fine= voigt_iP(finer(padded_wavelengths, nAVG),...
+            %     map_z_c4L2(quasar_ind,  num_c4), 10^map_N_c4L2(quasar_ind, num_c4),...
+            %     num_lines, map_sigma_c4L2(quasar_ind, num_c4), finer(this_sigma_pixel, nAVG));
+            % absorptionL2 = Averager(absorptionL2_fine, nAVG, lenW_unmasked);
+            % absorptionL2 = absorptionL2(ind);
             % c4_muL2    = this_mu     .* absorptionL2;
             
-            % Equivalent width calculation 
-            EW(quasar_ind, num_c4) = trapz(this_wavelengths(ind), 1-absorptionL2);
+            % % Equivalent width calculation 
+            % EW(quasar_ind, num_c4) = trapz(this_wavelengths(ind), 1-absorptionL2);
             
 
             % ttl = sprintf('ID:%s, zQSO:%.2f\n P(CIV)=%.2f, z_{CIV}=%.3f, P(S)=%.2f, z_S =%.3f\nz_{PM}=[%.3f, %.3f, %.3f, %.3f]\nEW=%.3f, N=%.2f, nPix=[%d, %d]', ...
@@ -441,10 +445,13 @@ for quasar_ind = 1:num_quasars
             %     p_c4L1(quasar_ind, num_c4), map_z_c4L1(quasar_ind, num_c4), z_PM_test(quasar_ind,1:4),...
             %     EW(quasar_ind, num_c4), map_N_c4L2(quasar_ind, num_c4),...
             %     num_pixel_civ(quasar_ind, num_c4, 1), num_pixel_civ(quasar_ind, num_c4, 2));
-            % fid = sprintf('plt-dr7-MFprior/ind-%d-c4-%d.png', quasar_ind, num_c4);
+            fid = sprintf('plt-mu/ind-%d-c4-%d.png', quasar_ind, num_c4);
             % ind_zoomL2 = (abs(this_z_1548-map_z_c4L2(quasar_ind, num_c4))<2.5*kms_to_z(dv_mask)*(1+z_qso));
             % ind_zoomL1 = (abs(this_z_1548-map_z_c4L1(quasar_ind, num_c4))<2.5*kms_to_z(dv_mask)*(1+z_qso));
             % pltQSO(this_flux, this_wavelengths, c4_muL2, c4_muL1, ind_zoomL2, ind_zoomL1, ttl, fid)
+
+            ttl = sprintf('ID:%s, zQSO:%.2f',  this_ID, z_qso)
+            plt_mu(this_flux, this_wavelengths, this_mu, z_qso, ttl, fid)
         end
         
 
@@ -470,7 +477,7 @@ variables_to_save = {'release', 'training_set_name', ...
     'model_posteriors', 'p_no_c4', 'p_c4L1' ...
     'map_z_c4L2', 'map_N_c4L2', 'map_sigma_c4L2', 'p_c4', 'EW'};
 
-filename = sprintf('%s/processed_qsos_tst_6%s.mat', ...
+filename = sprintf('%s/processed_qsos_tst_%s.mat', ...
     processed_directory(release), ...
     testing_set_name);
 

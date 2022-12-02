@@ -1,8 +1,9 @@
-% cataloging=0;preloading=0;sampling=0;learning=0;processing=1;plotting=1;
+
 fprintf('Setting paramters ...\n')
-set_parameters_dr7;
+set_parameters_dr7;max_civ=1;
+
 fprintf('testing set name: %s\ntraining set name: %s\n', testing_set_name,...
-        training_set_name);
+      training_set_name);
 
 fprintf('Building catalogs ...\n')
 if cataloging==1
@@ -68,8 +69,7 @@ variables_to_load = {'release', 'train_ind', 'max_noise_variance', ...
                     'initial_M', 'M',  'log_likelihood', 'test_ind',...
                     'prior_ind' };
 
-load(sprintf('%s/learned_model-%s.mat', processed_directory(release), ...
-            training_set_name), variables_to_load{:});
+load(sprintf('%s/learned_model-%s.mat', processed_directory(release), training_set_name), variables_to_load{:});
 
 fprintf('Generating samples for integrating out parameters in the model...\n');
 
@@ -77,14 +77,12 @@ if sampling==1
     generate_c4_samples
 end
 
-variables_to_load = {'uniform_min_log_nciv', 'uniform_max_log_nciv', ...
-                    'fit_min_log_nciv', 'fit_max_log_nciv', 'alpha', ...
-                    'extrapolate_min_log_nciv', 'offset_z_samples',...
+variables_to_load = {'offset_z_samples',...
                     'offset_sigma_samples', 'log_nciv_samples', 'nciv_samples'};
 
-load(sprintf('%s/civ_samples_N_%d_%d_Sigma_%d_%d_num_%d.mat', processed_directory(release),...
-uniform_min_log_nciv*100, uniform_max_log_nciv*100, min_sigma, max_sigma, ...
-num_C4_samples), variables_to_load{:});
+load(sprintf('%s/civ_samples_N_%d_%d_Sigma_%d_%d_num_%d_alpha_%d.mat', processed_directory(release),...
+fit_min_log_nciv*100, fit_max_log_nciv*100, min_sigma, max_sigma, ...
+num_C4_samples, 100*alpha), variables_to_load{:});
 
 fprintf(sprintf('%d Samples are generated\n', num_C4_samples));
 
@@ -93,11 +91,11 @@ variables_to_load = {'all_wavelengths', 'all_flux', 'all_noise_variance', ...
     'all_pixel_mask', 'all_sigma_pixel'};
 load(sprintf('%s/preloaded_qsos_%s.mat', processed_directory(release), training_set_name), ...
     variables_to_load{:});
-
+% 
 
 % % % 
 if processing==1
-    parpool('local', cores);
+    % parpool('local', cores);
 
     %--------------RUN 0 ------------
     % process_qsos_MF_multi_c4_1_single 
@@ -138,7 +136,6 @@ if processing==1
 
     % -------------- RUN 1 --------------
     SingleLineModel = 1;
-    plotting = 0; 
 
     process_qsos_dr7
     % -----Run-2-----------------------

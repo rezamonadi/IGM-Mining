@@ -56,5 +56,5 @@ function [wavelengths, flux, noise_variance, pixel_mask, sigma_pixel] = read_spe
 	wavelengths = 10.^(linspace(coeff0, coeff0 + coeff1*(length + 1), length));
 	
 	pixel_mask =  (and_mask==hex2dec('0x800000')) | (noise == 0); 
-	% resolution = 
+	
 end

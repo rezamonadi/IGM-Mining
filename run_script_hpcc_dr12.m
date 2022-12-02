@@ -38,8 +38,7 @@ test_ind = (filter_flags==0);
 catDR7 = load(sprintf('%s/catalog', processed_directory(releasePrior)));
 filter_flagsDR7 = load(sprintf('%s/filter_flags', processed_directory(releasePrior)), ...
 'filter_flags');
-prior_ind = (ismember(catDR7.all_QSO_ID, catDR7.c4_QSO_ID)) & ...
-            (filter_flagsDR7.filter_flags==0); 
+prior_ind = (filter_flagsDR7.filter_flags==0); 
 all_z_civ_C13 = catDR7.all_z_civ;
 
 
@@ -48,7 +47,7 @@ fprintf('Learning model ...\n')
 preloaded_qsos_cat_name= sprintf('%s/preloaded_qsos_%s',processed_directory(releaseTest),...
                                 training_set_name);
 
-variables_to_load = {'release', 'max_noise_variance', ...
+variables_to_load = { 'max_noise_variance', ...
                    'minFunc_options', 'rest_wavelengths', 'mu', ...
                     'initial_M', 'M',  'log_likelihood', ...
                     };
@@ -57,15 +56,12 @@ load(sprintf('%s/learned_model-%s' , processed_directory(releaseTest),...
                                      training_set_name), variables_to_load{:});
 
 fprintf('Generating samples for integrating out parameters in the model...\n')
-% generate_c4_samples
-variables_to_load = {'uniform_min_log_nciv', 'uniform_max_log_nciv', ...
-                    'fit_min_log_nciv', 'fit_max_log_nciv', 'alpha', ...
-                    'extrapolate_min_log_nciv', 'offset_z_samples',...
-                    'offset_sigma_samples', 'log_nciv_samples', 'nciv_samples'};
-load(sprintf('%s/civ_samples_N_%d_%d_Sigma_%d_%d_num_%d.mat', processed_directory(releasePrior),...
-    uniform_min_log_nciv*100, uniform_max_log_nciv*100, min_sigma, max_sigma, ...
-    num_C4_samples), variables_to_load{:});
-
+variables_to_load = {'offset_z_samples', 'offset_sigma_samples',...
+                     'log_nciv_samples', 'nciv_samples'};
+load(sprintf('%s/civ_samples_N_%d_%d_Sigma_%d_%d_num_%d_alpha_%d.mat', processed_directory(releasePrior),...
+    fit_min_log_nciv*100, fit_max_log_nciv*100, min_sigma, max_sigma, ...
+    num_C4_samples, alpha*100), variables_to_load{:});
+    
 fprintf(sprintf('%d Samples are generated\n', num_C4_samples));
 % load preprocessed QSOs
 variables_to_load = {'all_wavelengths', 'all_flux', 'all_noise_variance', ...
@@ -73,14 +69,31 @@ variables_to_load = {'all_wavelengths', 'all_flux', 'all_noise_variance', ...
 load(sprintf('%s/preloaded_qsos_%s', processed_directory(releaseTest), ...
         training_set_name), variables_to_load{:});
 
-test_ind = true(size(all_wavelengths));
+
 
 
 if processing==1
     parpool('local', cores);
-    process_qsos_dr12
+    % rw = load('REW_1548_DR12.mat');
+    % REW_1548 = rw.REW_1548_DR12_flux;
+    % ci = load('CIs95.mat');
+    % CI_Z = ci.CI_Z;
+    process_qsos_dr12_par
     
 end
 
+if testing==1
+    test_dr12
+end
 
+if EWer==1
+    EWer_dr12
+end
 
+if PostDist  ==1
+    CredInterval
+end
+
+if pltPC4==1
+    pTable;
+end
