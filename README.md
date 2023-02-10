@@ -31,10 +31,15 @@ Relevant parameters in `set_parameters_dr12.m` that can be tweaked if desired:
                                             % observed wavelengths to make the Voigt finer
     num_C4_samples           = 10000;                  % number of parameter samples
     alpha                    = 0.90;                    % weight of KDE component in mixture
+                                                   
+    max_civ = 7;  % maximum number of searches per spectrum for CIV absorbers
+    dv_mask = 350; % In (km/s), the size of masking window 
+
 This process proceeds in three steps, alternating between the shell
 and MATLAB.
 
-First we download the raw catalog data:
+First we download the DR7 catalog from this [DR7 CIV catlog] [
+http://guavanator.uhh.hawaii.edu/~kcooksey/SDSS/CIV/data/sdss_civ_cookseyetal13_update1.fit.gz]
 
     # in shell
     cd data/scripts
