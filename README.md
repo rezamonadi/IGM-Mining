@@ -38,7 +38,7 @@ Relevant parameters in `set_parameters_dr12.m` that can be tweaked if desired:
 This process proceeds in three steps, alternating between the shell
 and MATLAB.
 
-First we download the DR7 catalog from this [DR7 CIV catlog] (
+First we download the DR7 catalog from this [DR7 CIV catlog](
 http://guavanator.uhh.hawaii.edu/~kcooksey/SDSS/CIV/data/sdss_civ_cookseyetal13_update1.fit.gz).
 
     # in shell
