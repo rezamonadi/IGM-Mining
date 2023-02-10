@@ -27,6 +27,10 @@ Relevant parameters in `set_parameters_dr12.m` that can be tweaked if desired:
     % preprocessing parameters
     dlambda            = 0.5;                    % separation of wavelength grid      Å
     k                  = 20;                      % rank of non-diagonal contribution
+    nAVG               = 20;                     % number of points added between two 
+                                            % observed wavelengths to make the Voigt finer
+    num_C4_samples           = 10000;                  % number of parameter samples
+    alpha                    = 0.90;                    % weight of KDE component in mixture
 This process proceeds in three steps, alternating between the shell
 and MATLAB.
 
