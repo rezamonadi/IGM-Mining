@@ -2,16 +2,11 @@ Detecting CIV absorbers in SDSS Spectra
 ==============================================
 
 This code repository contains code to completely reproduce the aborber 
-properties detected 
+properties detected in: 
 
 > Reza Mondai, Ming-Feng Ho, Simeon Bird, Kathy Cooksy 
 > Detecting CIV absorbers in SDSS DR12 using Gaussian Processes. [arXiv:???
 > [astro-ph.GA]](https://arxiv.org/abs/???.???),
-
-including all intermediate data products including the Gaussian
-process null model described therein. The provided parameters should
-exactly reproduce the catalog in that work; however, you may feel free
-to modify these choices as you see fit.
 
 The pipeline has multiple stages, outlined and documented below.
 
@@ -19,18 +14,19 @@ Loading catalogs and downloading spectra
 ----------------------------------------
 
 The first step of the process is to load the DR12Q quasar catalog and
-available DLA catalogs, extract some basic data such as redshift,
+DR7 CIV catalog, extract some basic data such as redshift,
 coordinates, etc., and apply some basic filtering to the spectra:
 
-* spectra with z < 2.15 are filtered
+* spectra with z <  1.7 are filtered
 * spectra identified in a visual survey to have broad absorption line
   (BAL) features are filtered
+ 
 
-Relevant parameters in `set_parameters` that can be tweaked if desired:
+Relevant parameters in `set_parameters_dr12.m` that can be tweaked if desired:
 
     % preprocessing parameters
-    z_qso_cut      = 2.15;                        % filter out QSOs with z less than this threshold
-
+    dlambda            = 0.5;                    % separation of wavelength grid      Å
+    k                  = 20;                      % rank of non-diagonal contribution
 This process proceeds in three steps, alternating between the shell
 and MATLAB.
 
