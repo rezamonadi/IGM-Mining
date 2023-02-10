@@ -1,12 +1,12 @@
-Redshift Estimation for BOSS quasar spectra
+Detecting CIV absorbers in SDSS Spectra 
 ==============================================
 
-This code repository contains code to completely reproduce the quasar redshift
-estimates reported in
+This code repository contains code to completely reproduce the aborber 
+properties detected 
 
-> Leah Fauber, Ming-Feng Ho, Simeon Bird, Christian R. Shelton, Roman Garnett, Ishita Korde
-> Automated Measurement of Quasar Redshift with a Gaussian Process. [arXiv:2006.07343
-> [astro-ph.GA]](https://arxiv.org/abs/2006.07343),
+> Reza Mondai, Ming-Feng Ho, Simeon Bird, Kathy Cooksy 
+> Detecting CIV absorbers in SDSS DR12 using Gaussian Processes. [arXiv:???
+> [astro-ph.GA]](https://arxiv.org/abs/???.???),
 
 including all intermediate data products including the Gaussian
 process null model described therein. The provided parameters should
