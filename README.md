@@ -10,7 +10,7 @@ properties detected in:
 
 The pipeline has multiple stages, outlined and documented below.
 
-Loading catalogs and downloading spectra
+Downloading required data
 ----------------------------------------
 
 The first step of the process is to load the DR12Q quasar catalog and
@@ -38,21 +38,17 @@ Relevant parameters in `set_parameters_dr12.m` that can be tweaked if desired:
 This process proceeds in three steps, alternating between the shell
 and MATLAB.
 
-First we download the DR7 catalog from this [DR7 CIV catlog](
+First we download the DR7 catalog from [DR7 CIV catlog](
 http://guavanator.uhh.hawaii.edu/~kcooksey/SDSS/CIV/data/sdss_civ_cookseyetal13_update1.fit.gz).
-
-    # in shell
-    cd data/scripts
-    ./download_catalogs.sh
 
 Then we load these catalogs into MATLAB:
 
     % in MATLAB
     set_parameters;
-    build_catalogs;
+    build_catalogs_dr7;
 
 The `build_catalogs` script will produce a file called `file_list` in
-the `data/dr12q/spectra` directory containing relative paths to
+the `data/dr7/spectra` directory containing relative paths to
 yet-unfiltered SDSS spectra for download. The `file_list` output is
 available in this repository in the same location. The next step is to
 download the coadded "speclite" SDSS spectra for these observations
