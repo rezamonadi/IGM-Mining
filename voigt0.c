@@ -21,7 +21,7 @@
 
 /* physical constants */
 
-static const double c   = 2.99792458e+10;              /* speed of light          cm s⁻¹        */
+static const double c   = 2.99792458e+10;         /* speed of light          cm s⁻¹        */
 static const double k   = 1.38064852e-16;         /* Boltzmann constant      erg K⁻¹       */
 static const double m_p = 1.672621898e-24;        /* proton mass             g             */
 static const double m_e = 9.10938356e-28;         /* electron mass           g             */
@@ -38,7 +38,6 @@ static const double transition_wavelengths[] =         /* transition wavelengths
 
 static const double oscillator_strengths[] =           /* oscillator strengths    dimensionless */
   {
-    0.189900,
     0.094750
   };
 

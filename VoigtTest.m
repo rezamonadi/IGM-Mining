@@ -1,54 +1,38 @@
 % Testing Voigt Profile
 
-clear
-set_parameters
-% cd minFunc_2012
-% addpath(genpath(pwd))
-% mexAll
-% cd ..
-% mex voigt0.c -lcerf
-% mex voigt1.c -lcerf
-dw = 0.25;
-l1 =1548;
-l2= 1550;
-dl=200;
-w1 = l1-dl:dw:l1+dl;
-w2 = l2-dl:dw:l2+dl;
-width=3;
-padded_wavelengths1 = [linspace(min(w1), min(w1)+width*dw, width)';...
-                      w1'; linspace(max(w1), l1+width*dw, width)']; 
-padded_wavelengths2 = [linspace(min(w2), min(w2)+width*dw, width)';...
-                      w2'; linspace(max(w2), l2+width*dw, width)'];
-% z=0;
-% for N=logspace(13,16,7)
-%     clf()
-%     ylim([-0.1 1])
-%     title(sprintf('N:%.2e',N))
-%     i=0;
-%     c = ['b', 'r', 'g', 'k'];
-%     for sigma=linspace(5e5,30e5,4)
-%         i=i+1;
-%         L1 = voigt0(padded_wavelengths1, z,N, 1, sigma);
-%         L2 = voigt1(padded_wavelengths2, z, N, 1, sigma);
-%         plot(w1, L1, 'Color',c(i))
-%         hold on 
-%         plot(w2, L2, 'Color',c(i))
-%         hold on 
-        
-%         label{i} = sprintf('W1:%.4f, W2:%.4f, S:%.1e', trapz(w1, 1-L1), trapz(w2, 1-L2), sigma);
-%     end
-%     legend(label)
-%     hold off
-%     saveas(gca, sprintf('N-%.2e.png',N))
-% end
-L1 = voigt0(observed_wavelengths(padded_wavelengths1, 2.22),...
- 1.85,10^14.87, 1, 50.80e5);
-L2 = voigt1(observed_wavelengths(padded_wavelengths2, 2.22),...
- 1.85, 10^14.87, 1, 50.80e5);
- figure()
-%  plot(w1, L1)
-%  hold on 
-%  plot(w2, L2)
-%  hold on 
- plot(w1, L1.*L2)
-ylim([-0.1,1.1])
+
+
+fN = 1.2;
+
+
+
+sigma_samples = offset_sigma_samples*(max_sigma-min_sigma)+min_sigma;
+
+EW = nan(num_C4_samples,1);
+iEW=0;
+parfor iSample=1:num_C4_samples
+     L1 = voigt_iP(padded_wavelengths,...
+                    map_z_c4L2(quasar_ind,1), fN*nciv_samples(iSample), 1,...
+                    sigma_samples(iSample), padded_sigma_pixels);
+      EW(iSample) =trapz(this_unmasked_wavelengths, 1-L1)./z_qso;
+
+    
+end
+
+fig = figure();
+p=histogram(EW, 'Normalization','pdf', 'NumBins', 20);
+bins = p.BinEdges;
+% title(sprintf('Center:%.2e, range:%.2e, fN:%.2f, max(EW)=%.3f',...
+    % Center, range, fN, max(EW)))
+hold on
+EW_PM = reshape(all_EW1, 17*26030,1);
+EW_PM = EW_PM(EW_PM>0);
+p=histogram(EW_PM, 'Normalization','pdf', 'NumBins',20);
+p.BinEdges= bins;
+hold on 
+legend('REW_{GP}', 'REW_{PM}')
+xlabel('REW')
+ylabel('pdf')
+exportgraphics(fig, 'REW_Prior.png', 'Resolution', 800)
+% hold on
+% % hold on

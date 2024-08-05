@@ -1,6 +1,6 @@
-function y=plt_mu(this_flux, this_wavelengths, mu, z_qso, ttl, fid)
+function y=plt_mu(this_flux, this_wavelengths, mu, z_qso, M, ttl, fid)
 
-
+    set_parameters_dr7
     % been applied this_pixel_mask.
     
     fig = figure('visible', 'off');
@@ -20,16 +20,43 @@ function y=plt_mu(this_flux, this_wavelengths, mu, z_qso, ttl, fid)
 
     p = plot(this_rest_wavelengths, mu);
     p.Color = [0.900 0.1 0.1, 0.5]; 
-    p.LineWidth=2;
-    
-    % legend( 'Flux', 'Continuumn')
+    p.LineWidth=1;
+        hold on 
+
+
+    DD = diag(M*M');
+    p = plot(this_rest_wavelengths, mu + DD)
+    p.Color = [0.900 0.1 0.1, 0.5]; 
+    p.LineWidth = 0.5;
+    hold on 
+
+
+    p = plot(this_rest_wavelengths, mu - DD)
+    p.Color = [0.900 0.1 0.1, 0.5]; 
+    p.LineWidth = 0.5;
+    % hold on
+    X = [this_rest_wavelengths', fliplr(this_rest_wavelengths')];
+    Y = [mu'+DD', fliplr(mu'-DD')];
+    p = fill(X,Y, 'r');
+    p.FaceAlpha = 0.3;
+    % legend( 'Flux', 'Continuum')
     hold on
+   
+    vl = xline(max(this_rest_wavelengths) - kms_to_z(vCut)*civ_1548_wavelength);
+    vl.LineWidth = 1
+    vl.Color = [1, 0.1, 0.2];
+    hold on
+    % y_points = [min(this_flux)-0.2,max(this_flux), max(this_flux), min(this_flux)-0.2]
+    % color = [1,1,0]
+    % a = fill(x_points, y_points, color)
+    % a.FaceAlpha = 0.1;
+    % hold on
     xlim([min(this_rest_wavelengths), max(this_rest_wavelengths)]+10)
-    % xlabel('(Observed Wavelengths $\lambda$ (\AA) / 1549.48 (\AA)) - 1', 'FontSize', 16, 'Interpreter','latex');
-    xlabel('$\lambda_r$ (\AA)', 'FontSize', 16, 'Interpreter','latex');
-    ylabel('Normalized Flux ',                            'FontSize', 16, 'Interpreter','latex');
-    title(ttl, 'FontSize', 14)
-    
+    xlabel('Rest Wavelengths (\AA)', 'FontSize', 16, 'Interpreter','latex');
+    % xlabel('$\lambda_r$ (\AA)', 'FontSize', 16, 'Interpreter','latex');
+    ylabel('Normalized Flux ', 'FontSize', 16, 'Interpreter','latex');
+    % title(ttl, 'FontSize', 14)
+    ylim([min(this_flux)-0.1, max(mu+DD)+0.1])
     CIV = 1548.2040;
     CII = 1335.31;
     SIV = 1397.61;
@@ -40,7 +67,7 @@ function y=plt_mu(this_flux, this_wavelengths, mu, z_qso, ttl, fid)
     vl = xline(CII, '--',  'CII'); 
     vl.FontSize = 20;
     
-    set(gca,'FontSize',20);
+    set(gca,'FontSize',17);
     
 
 

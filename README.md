@@ -1,54 +1,53 @@
-Detecting CIV absorbers in SDSS Spectra 
+Redshift Estimation for BOSS quasar spectra
 ==============================================
 
-This code repository contains code to completely reproduce the aborber 
-properties detected in: 
+This code repository contains code to completely reproduce the quasar redshift
+estimates reported in
 
-> Reza Mondai, Ming-Feng Ho, Simeon Bird, Kathy Cooksy 
-> Detecting CIV absorbers in SDSS DR12 using Gaussian Processes. [arXiv:???
-> [astro-ph.GA]](https://arxiv.org/abs/???.???),
+> Leah Fauber, Ming-Feng Ho, Simeon Bird, Christian R. Shelton, Roman Garnett, Ishita Korde
+> Automated Measurement of Quasar Redshift with a Gaussian Process. [arXiv:2006.07343
+> [astro-ph.GA]](https://arxiv.org/abs/2006.07343),
+
+including all intermediate data products including the Gaussian
+process null model described therein. The provided parameters should
+exactly reproduce the catalog in that work; however, you may feel free
+to modify these choices as you see fit.
 
 The pipeline has multiple stages, outlined and documented below.
 
-Downloading required data
+Loading catalogs and downloading spectra
 ----------------------------------------
 
 The first step of the process is to load the DR12Q quasar catalog and
-DR7 CIV catalog, extract some basic data such as redshift,
+available DLA catalogs, extract some basic data such as redshift,
 coordinates, etc., and apply some basic filtering to the spectra:
 
-* spectra with z <  1.7 are filtered
+* spectra with z < 2.15 are filtered
 * spectra identified in a visual survey to have broad absorption line
   (BAL) features are filtered
- 
 
-Relevant parameters in `set_parameters_dr12.m` that can be tweaked if desired:
+Relevant parameters in `set_parameters` that can be tweaked if desired:
 
     % preprocessing parameters
-    dlambda            = 0.5;                    % separation of wavelength grid      Å
-    k                  = 20;                      % rank of non-diagonal contribution
-    nAVG               = 20;                     % number of points added between two 
-                                            % observed wavelengths to make the Voigt finer
-    num_C4_samples           = 10000;                  % number of parameter samples
-    alpha                    = 0.90;                    % weight of KDE component in mixture
-                                                   
-    max_civ = 7;  % maximum number of searches per spectrum for CIV absorbers
-    dv_mask = 350; % In (km/s), the size of masking window 
+    z_qso_cut      = 2.15;                        % filter out QSOs with z less than this threshold
 
 This process proceeds in three steps, alternating between the shell
 and MATLAB.
 
-First we download the DR7 catalog from [DR7 CIV catlog](
-http://guavanator.uhh.hawaii.edu/~kcooksey/SDSS/CIV/data/sdss_civ_cookseyetal13_update1.fit.gz).
+First we download the raw catalog data:
+
+    # in shell
+    cd data/scripts
+    ./download_catalogs.sh
 
 Then we load these catalogs into MATLAB:
 
     % in MATLAB
     set_parameters;
-    build_catalogs_dr7;
+    build_catalogs;
 
 The `build_catalogs` script will produce a file called `file_list` in
-the `data/dr7/spectra` directory containing relative paths to
+the `data/dr12q/spectra` directory containing relative paths to
 yet-unfiltered SDSS spectra for download. The `file_list` output is
 available in this repository in the same location. The next step is to
 download the coadded "speclite" SDSS spectra for these observations

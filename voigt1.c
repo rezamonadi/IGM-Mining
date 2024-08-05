@@ -32,23 +32,17 @@ static const double e   = 4.803204672997660e-10;  /* elementary charge       sta
 
 static const double transition_wavelengths[] =         /* transition wavelengths  cm            */
   {
-    1.5507810e-05,
-    1.5482040e-05
-    
+        1.5507810e-05
   };
 
 static const double oscillator_strengths[] =           /* oscillator strengths    dimensionless */
   {
-    0.094750,
-    0.189900
-    
+       0.094750
   };
 
 static const double Gammas[] =                         /* transition rates        s^-1          */
   {
-    2.628e+08,
-    2.643e+08
-   
+        2.628e+08
   };
 
 /* assumed constant */
@@ -70,18 +64,14 @@ static const double Gammas[] =                         /* transition rates      
       // M_PI * e * e * oscillator_strengths[i] * transition_wavelengths[i] / (m_e * c) ;
 // */
 static const double leading_constants[] =              /* leading constants  cm² */
-  
-  {    3.899701297867750e-08,  
-      7.802895118381213e-08
-    
+  {     
+     3.899701297867750e-08
  };
 
 /* gammas[i] = Gammas[i] * transition_wavelengths[i] / (4 * M_PI); */
 static const double gammas[] =                         /* Lorentzian widths       cm s⁻¹        */
   {
-     3.243136695286643e+02,
-     3.255002952981575e+02
-     
+          3.243136695286643e+02
   };
 
 /* BOSS spectrograph instrumental broadening */

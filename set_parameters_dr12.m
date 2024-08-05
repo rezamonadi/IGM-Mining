@@ -8,9 +8,10 @@ integrate          = 1;
 optTag = [num2str(integrate), num2str(extrapolate_subdla), num2str(add_proximity_zone)];
 
 % physical constants
+civ_1548_wavelength = 1548.1949462890625;		 % CIV transition wavelength  Å
+civ_1550_wavelength =  1550.77001953125; ;		 % CIV transition wavelength  Å
 speed_of_light = 299792458;                   % speed of light                     m s⁻¹
-civ_1548_wavelength = 1548.2040;		 % CIV transition wavelength  Å
-civ_1550_wavelength =  1550.77810; 	
+
 % converts relative velocity in km s^-1 to redshift difference
 kms_to_z = @(kms) (kms * 1000) / speed_of_light;
 
@@ -65,16 +66,15 @@ minFunc_options =               ...           % optimization options for model f
            'MaxFunEvals', 10000);
 
 % C4 model parameters: parameter samples (for Quasi-Monte Carlo)
-num_C4_samples           = 50000;                  % number of parameter samples
+% num_C4_samples           = 50000;                  % number of parameter samples
 alpha                    = 0.9;                    % weight of KDE component in mixture
-uniform_min_log_nciv     = 12.88;                   % range of column density samples    [cm⁻²]
-uniform_max_log_nciv     = 14.5;                   % from uniform distribution
+uniform_min_log_nciv     = 12.5;                   % range of column density samples    [cm⁻²]
+uniform_max_log_nciv     = 16.1;                   % from uniform distribution
 fit_min_log_nciv         = uniform_min_log_nciv;                   % range of column density samples    [cm⁻²]
-fit_max_log_nciv         = 15;                   % from fit to log PDF
-extrapolate_min_log_nciv = 18;    
+fit_max_log_nciv         = uniform_max_log_nciv;                   % from fit to log PDF
 
-min_sigma                = 1e6;                   % cm/s -> b/sqrt(2) -> min Doppler par from Cooksey
-max_sigma                = 6e6;                   % cm/s -> b/sqrt(2) -> max Doppler par from Cooksey
+min_sigma                = 35e5;                   % cm/s -> b/sqrt(2) -> min Doppler par from Cooksey
+max_sigma                = 115e5;                   % cm/s -> b/sqrt(2) -> max Doppler par from Cooksey
 vCut                     = 3000;                    % maximum cut velocity for CIV system 
 RejectionSampling        = 0;
 % model prior parameters

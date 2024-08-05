@@ -158,6 +158,7 @@ for quasar_ind = [56891,18366,104956,43192,92413]
         this_p_c4(i) = nnz(less_systems(:,i)>0)/nnz(less_systems(:,i-1)>0); % P(at least n CIV | at least n-1 CIV)
         if (this_p_c4(i-1)==0)
         this_p_c4(i) = 0;
+        max_civ = i-2;
         end
     end
 
@@ -225,7 +226,8 @@ for quasar_ind = [56891,18366,104956,43192,92413]
     % (normalized offset, log(N HI)) pairs
     lenW_unmasked = length(this_unmasked_wavelengths);
     ind_not_remove = true(size(this_flux));
-    for num_c4=1:max_civ
+    
+    for num_c4=1:max_civ_prior
     % for num_c4=1:1
         fprintf('num_civ:%d\n',num_c4);
         this_z_1548 = (this_wavelengths / 1548.2040) - 1;

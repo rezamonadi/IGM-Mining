@@ -25,7 +25,7 @@ def build_correlation_matrix(M):
 from scipy.io import loadmat                                                                            
 import matplotlib.pyplot as plt
 import numpy as np
-M = loadmat("M2.mat")                                                                                   
+M = loadmat("M.mat")                                                                                   
 # M = loadmat("MM-70%-1350-1570.mat")                                                                                   
 C = build_correlation_matrix(M["M"])    
 # min_lambda = 1216
@@ -66,7 +66,7 @@ ax.set_xticklabels(
         [
             r"CII",
             r"SiIV",
-            r"NIV]",
+            r"NIV",
             r"CIV",
         ],
         rotation=45,
@@ -83,7 +83,7 @@ ax.set_yticklabels(
         [
              r"CII",
              r"SiIV",
-            r"NIV]",
+            r"NIV",
             r"CIV",
         ]
     )
