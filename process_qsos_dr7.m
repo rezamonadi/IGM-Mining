@@ -101,43 +101,6 @@ z_PM_test = all_z_civ1(test_ind,:);
 z_PM_prior = all_z_civ1(prior_ind,:);
 j0=0;
 
-load('inMissed.mat');
-for quasar_ind =1:num_quasars
-    % if  ~ismember(quasar_ind, ind_low) & ~ismember(quasar_ind, ind_high)
-        % if  ~ismember(quasar_ind, ind_0(:,1))
-        % continue
-    % end
-
-    % if ismember(quasar_ind, ind_high)
-    %     derr = 'ErrHigh';
-    % end
-    
-    % if ismember(quasar_ind, ind_low)
-    %     derr = 'ErrLow';
-    % end
-    % if ismember(quasar_ind, ind_0(:,1))
-        % derr = 'Err0';
-        % j0=j0+1;
-    % end
-    % if(ind_0(quasar_ind)==0)
-    %     continue
-    % else
-    %     derr = 'Err0';
-    % end
-    if ~all(ID{quasar_ind}=='51608-0267-264')
-        continue
-    else
-        derr = 'Fig6';
-    end
-    
-    % if indPM1GPmissed_inPM(quasar_ind,1)==0
-    %     continue;
-    % else
-    %     derr = 'FigGPMissed'
-    % end
-
-
-
     tic;
     z_qso = z_qsos(quasar_ind);
     fprintf('processing quasar %i/%i (z_QSO = %0.4f) ...', ...
