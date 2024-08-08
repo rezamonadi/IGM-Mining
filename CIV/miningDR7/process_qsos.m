@@ -97,7 +97,7 @@ z_PM_prior = all_z_civ(prior_ind,:);
     % ind_E = 1301;
 % end
 % for quasar_ind = ind_S:ind_E
-for quasar_ind = 1:10
+for quasar_ind = 1:num_quasars
     tic;
     z_qso = z_qsos(quasar_ind);
     fprintf('processing quasar %i/%i (z_QSO = %0.4f) ...', ...
@@ -396,7 +396,7 @@ for quasar_ind = 1:10
                 p_c4L1(quasar_ind, num_c4), map_z_c4L1(quasar_ind, num_c4), z_PM_test(quasar_ind,1:4),...
                 EW(quasar_ind, num_c4), map_N_c4L2(quasar_ind, num_c4),...
                 num_pixel_civ(quasar_ind, num_c4, 1), num_pixel_civ(quasar_ind, num_c4, 2));
-            fid = sprintf('plt-dr7-voigtTest/ind-%d-c4-%d.png', quasar_ind, num_c4);
+            fid = sprintf('plt-vCut-3000-dv-mask-350/ind-%d-c4-%d.png', quasar_ind, num_c4);
             ind_zoomL2 = (abs(this_z_1548-map_z_c4L2(quasar_ind, num_c4))<2.5*kms_to_z(dv_mask)*(1+z_qso));
             ind_zoomL1 = (abs(this_z_1548-map_z_c4L1(quasar_ind, num_c4))<2.5*kms_to_z(dv_mask)*(1+z_qso));
             pltQSO(this_flux, this_wavelengths, c4_muL2, c4_muL1, ind_zoomL2, ind_zoomL1, ttl, fid)
