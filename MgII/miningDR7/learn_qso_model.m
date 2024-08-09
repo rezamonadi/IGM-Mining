@@ -13,16 +13,22 @@ preqsos = matfile(preloaded_qsos_cat_name);
 % determine which spectra to use for training; allow string value for
 % train_ind
 
+
 if learning ~= 2
   if (ischar(train_ind))
     train_ind = eval(train_ind);
   end
 end
+
+
 % select training vectors
 all_wavelengths    =          preqsos.all_wavelengths;
+
+
 if learning ==2 
   train_ind = true(size(all_wavelengths));
 end
+
 all_wavelengths    =    all_wavelengths(train_ind, :);
 all_flux           =                 preqsos.all_flux;
 all_flux           =           all_flux(train_ind, :);
@@ -31,7 +37,10 @@ all_noise_variance = all_noise_variance(train_ind, :);
 all_pixel_mask     =           preqsos.all_pixel_mask;
 all_pixel_mask     =     all_pixel_mask(train_ind, :);
 z_qsos             =        catalog.all_zqso(train_ind);
+
+
 clear preqsos
+
 
 num_quasars = numel(z_qsos);
 
@@ -40,6 +49,7 @@ num_rest_pixels  = numel(rest_wavelengths);
 
 rest_fluxes          = nan(num_quasars, num_rest_pixels);
 rest_noise_variances = nan(num_quasars, num_rest_pixels);
+
 
 % the preload_qsos should fliter out empty spectra;
 % this line is to prevent there is any empty spectra
@@ -86,18 +96,55 @@ for i = 1:num_quasars
 
   % normalizing here
   % following Zhou-Menard-2013
-  if(z_qso<2.5)
+  % if(z_qso<2.5)
+  % 
+  %   ind = (this_rest_wavelengths >= 2150) & ...
+  %         (this_rest_wavelengths <= 2250) & ...
+  %         (~this_pixel_mask);
+  % else
+  %   ind = (this_rest_wavelengths >= normalization_min_lambda) & ...
+  %         (this_rest_wavelengths <= normalization_max_lambda) & ...
+  %         (~this_pixel_mask);
+  % end
 
-    ind = (this_rest_wavelengths >= 2150) & ...
-          (this_rest_wavelengths <= 2250) & ...
-          (~this_pixel_mask);
-  else
-    ind = (this_rest_wavelengths >= normalization_min_lambda) & ...
-          (this_rest_wavelengths <= normalization_max_lambda) & ...
-          (~this_pixel_mask);
+  
+ % Our code 2nd START
+  if (all_zqso(i) <= 0.6)
+ 
+   ind = (this_rest_wavelengths >= normalization_min_lambda_1) & ...
+           (this_rest_wavelengths <= normalization_max_lambda_1) & ...
+           (~this_pixel_mask);
+   % disp('1')
   end
 
+  if (all_zqso(i) > 0.6 && all_zqso(i) <= 1.0)
+ 
+   ind = (this_rest_wavelengths >= normalization_min_lambda_2) & ...
+           (this_rest_wavelengths <= normalization_max_lambda_2) & ...
+           (~this_pixel_mask);
+       % disp('2')
+  end
+
+  if (all_zqso(i) > 1.0 && all_zqso(i) <= 2.5)
+ 
+   ind = (this_rest_wavelengths >= normalization_min_lambda_3) & ...
+           (this_rest_wavelengths <= normalization_max_lambda_3) & ...
+           (~this_pixel_mask);
+       % disp('3')
+  end
+
+  if (all_zqso(i) > 2.5)
+      %took away max z of 4.7 bc max z in z_qso was 5.31....
+ 
+   ind = (this_rest_wavelengths >= normalization_min_lambda_4) & ...
+           (this_rest_wavelengths <= normalization_max_lambda_4) & ...
+           (~this_pixel_mask);
+       % disp('4')
+  end
+ % Our 2nd code FINISH
+
 this_median = nanmedian(this_flux(ind));
+
   rest_fluxes(i, :) = rest_fluxes(i, :) / this_median;
 
   rest_noise_variances(i, :) = ...
@@ -111,7 +158,7 @@ clear('all_wavelengths', 'all_flux', 'all_noise_variance', 'all_pixel_mask');
 z_qsos               = z_qsos(~is_empty);
 rest_fluxes          = rest_fluxes(~is_empty, :);
 rest_noise_variances = rest_noise_variances(~is_empty, :);
-% 
+
 % update num_quasars in consideration
 num_quasars = numel(z_qsos);
 

@@ -97,7 +97,7 @@ z_PM_prior = all_z_civ(prior_ind,:);
     % ind_E = 1301;
 % end
 % for quasar_ind = ind_S:ind_E
-for quasar_ind = 1:10
+for quasar_ind = 1:1000
     tic;
     z_qso = z_qsos(quasar_ind);
     fprintf('processing quasar %i/%i (z_QSO = %0.4f) ...', ...

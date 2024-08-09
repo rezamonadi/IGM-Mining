@@ -1,9 +1,9 @@
 % Build catalogs usable for spectra from dr16
 
 Cooksey_C4_detected = fitsread(...
-'data/C4_catalogs/Cooksey_C4_cat/distfiles/sdss_civ_cookseyetal13_update1.fit',...
+'data/C4_catalogs/Cooksey_C4_cat/distfiles/sdss_mgii_seyffertetal13.fit',...
 'binarytable');
-c4_QSO_ID                   = Cooksey_C4_detected{1};
+c4_QSO_ID                    = Cooksey_C4_detected{1};
 z_qso_system                 = Cooksey_C4_detected{10};
 Z_abs_ORG                    = Cooksey_C4_detected{17};
 EW                           = Cooksey_C4_detected{22};
@@ -15,6 +15,7 @@ NCOLMFLG                     = Cooksey_C4_detected{29};
 dummy                        = Cooksey_C4_detected{30};
 
 RATING                       = dummy(:,1);
+
 % % filtering out those column densities with not good measurements
 EW1                          = EW(:,1);
 errEW1                       = SigmaEW(:,1);
@@ -36,7 +37,7 @@ save('data/C4_catalogs/Cooksey_C4_cat/processed/CIV-cat.mat','c4_QSO_ID','Z_c4',
 % There are some NAN valued c4_NCIV
 % extract basic QSO information from Cookse_all_QSO catalog 
 cooksey_catalog = ...
-fitsread('data/dr7/distfiles/dr7qso_CIV_noBAL.fit', 'binarytable');
+fitsread('data/dr7/distfiles/dr7_QSO_MgII.fits', 'binarytable');
 all_plate_dr7             = cooksey_catalog{48};
 all_mjd_dr7             = cooksey_catalog{47};
 all_fiber_dr7             = cooksey_catalog{49};
