@@ -6,8 +6,8 @@
 
 
 
-c4_catalog = load(sprintf('%s/c4_catalog', c4_catalog_directory('Cooksey_C4_cat')));
-c4_catalog =c4_catalog(c4_catalog(:,3)>0,:); % removing some null column densities
+c4_catalog = load('/home/igm2024/IGM-Mining/MgII/miningDR7/data/C4_catalogs/Cooksey_C4_cat/processed/CIV-cat.mat');
+%c4_catalog = c4_catalog(c4_catalog(:,3)>0,:); % removing some null column densities
 % training_set_name = 'UVES';
 
 % c4_catalog = load(sprintf('%s/c4_catalog', c4_catalog_directory(training_set_name)));
@@ -32,7 +32,7 @@ u = makedist('uniform', ...
              'upper', uniform_max_log_nciv);
 
 % extract observed log₁₀ N_CIV samples directly from CIV catalog
-log_nciv = c4_catalog(:, 3);
+log_nciv = c4_catalog.NCIV;
 % log_nciv = c4_catalog{6};
 
 % make a quadratic fit to the estimated log p(log₁₀ N_CIV) over the
@@ -95,6 +95,7 @@ padded_wavelengths = ...
              linspace(max_lambda + Lpixel_spacing, ...
              max_lambda + width*Lpixel_spacing, ...
              width)' ];
+
 
 for nc=1:num_C4_samples
      absorptionL1_fine_1548= voigt0(padded_wavelengths, 2, nciv_samples(nc),...

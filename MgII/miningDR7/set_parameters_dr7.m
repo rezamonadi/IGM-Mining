@@ -8,8 +8,8 @@ integrate          = 1;
 optTag = [num2str(integrate), num2str(extrapolate_subdla), num2str(add_proximity_zone)];
 
 % physical constants
-civ_1548_wavelength = 1548.1949462890625;		 % CIV transition wavelength  Å
-civ_1550_wavelength =  1550.77001953125; 		 % CIV transition wavelength  Å
+mgii_2796_wavelength = 2796.3543;		 % MgII transition wavelength  Å
+mgii_2803_wavelength =  2803.5315; 		 % MgII transition wavelength  Å
 speed_of_light = 299792458;                   % speed of light                     m s⁻¹
 
 % converts relative velocity in km s^-1 to redshift difference
@@ -34,21 +34,37 @@ file_loader = @(mjd, plate, fiber_id) ...
 
 % % file loading parameters
 loading_min_lambda = 1310;          % range of rest wavelengths to load  Å
-loading_max_lambda = 1555;                    
+loading_max_lambda = 2850;                    
 % The maximum allowed is set so that even if the peak is redshifted off the end, the
 % quasar still has data in the range
 
 % preprocessing parameters
 %z_qso_cut      = 2.15;                   % filter out QSOs with z less than this threshold
-z_qso_cut      = 1.7;                      % according to Cooksey z>1.7                      
-min_num_pixels = 400;                         % minimum number of non-masked pixels
+z_qso_cut      = 1.5;                      % according to Seyffert z>0.36                      
+min_num_pixels = 100;                         % minimum number of non-masked pixels
 
 % normalization parameters
 % I use 1216 is basically because I want integer in my saved filenames%
 % normalization_min_lambda = 1216 - 40;              % range of rest wavelengths to use   Å
-normalization_min_lambda = 1420; 
+%normalization_min_lambda = 1420; 
 %normalization_max_lambda = 1216 + 40;              %   for flux normalization
-normalization_max_lambda = 1475; 
+%normalization_max_lambda = 1475; 
+
+% NEW NORMALIZTION PARAMETERS
+% range of rest wavelengths to use   Å
+                                          % Continuum Fitting Redshift
+                                          % Range
+normalization_min_lambda_1 = 4150;   % Å  z < .6
+normalization_max_lambda_1 = 4250;   % Å  z < .6
+
+normalization_min_lambda_2 = 3020;   % Å  .6 < z < 1.0
+normalization_max_lambda_2 = 3100;   % Å  .6 < z < 1.0
+
+normalization_min_lambda_3 = 2150;   % Å  1.0 < z < 2.5
+normalization_max_lambda_3 = 2250;   % Å  1.0 < z < 2.5
+
+normalization_min_lambda_4 = 1420;   % Å  2.5 < z < 4.7
+normalization_max_lambda_4 = 1500;   % Å  2.5 < z < 4.7
 
 % null model parameters
 min_lambda         =  loading_min_lambda+1;                   % range of rest wavelengths to       Å
@@ -58,28 +74,26 @@ k                  = 20;                      % rank of non-diagonal contributio
 max_noise_variance = 0.5^2;                   % maximum pixel noise allowed during model training
 h                  = 2;                     % masking par to remove CIV region 
 
-
-
 % optimization parameters
 minFunc_options =               ...           % optimization options for model fitting
     struct('MaxIter',     10000, ...
            'MaxFunEvals', 10000);
 
-% C4 model parameters: parameter samples (for Quasi-Monte Carlo)
+% MgII model parameters: parameter samples (for Quasi-Monte Carlo)
 nAVG               = 20;                     % number of points added between two 
                                             % observed wavelengths to make the Voigt finer
-num_C4_samples           = 10000;                  % number of parameter samples
+num_C4_samples         = 10000;                  % number of parameter samples
 alpha                    = 0.90;                    % weight of KDE component in mixture
-uniform_min_log_nciv     = 12.5;                   % range of column density samples    [cm⁻²]
-uniform_max_log_nciv     = 16.1;                   % from uniform distribution
+uniform_min_log_nciv     = 12.0;                   % range of column density samples    [cm⁻²]
+uniform_max_log_nciv     = 15.5;                   % from uniform distribution
 fit_min_log_nciv         = uniform_min_log_nciv;                   % range of column density samples    [cm⁻²]
-fit_max_log_nciv         = 16.1;                   % from fit to log PDF
+fit_max_log_nciv         = 15.5;                   % from fit to log PDF
 
 
-min_sigma                = 35e5;                   % cm/s -> b/sqrt(2) -> min Doppler par from Cooksey
-max_sigma                = 115e5;                   % cm/s -> b/sqrt(2) -> max Doppler par from Cooksey
+min_sigma                = 100e5;                   % cm/s -> b/sqrt(2) -> min Doppler par from Cooksey
+max_sigma                = 400e5;                   % cm/s -> b/sqrt(2) -> max Doppler par from Cooksey
 
-vCut                     = 3000;                    % maximum cut velocity for CIV system 
+vCut                     = 767; %500;                    % maximum cut velocity for MgII system 
 RejectionSampling        = 0;
 % model prior parameters
 prior_z_qso_increase = kms_to_z(30000);       % use QSOs with z < (z_QSO + x) for prior
@@ -98,8 +112,8 @@ max_z_c4 = @(z_qso, max_z_cut) ...         % determines maximum z_DLA to search
      z_qso - max_z_cut*(1+z_qso);
 min_z_cut = kms_to_z(vCut);                   % min z_DLA = z_Ly∞ + min_z_cut
 min_z_c4 = @(wavelengths, z_qso) ...         % determines minimum z_DLA to search
-    max(min(wavelengths) / civ_1548_wavelength - 1,                          ...
-        observed_wavelengths(1310, z_qso) / civ_1548_wavelength - 1);
+    max(min(wavelengths) / mgii_2796_wavelength - 1,                          ...
+        observed_wavelengths(1310, z_qso) / mgii_2796_wavelength - 1);
 % min_z_c4 = @(wavelengths, z_qso) ...         % determines minimum z_DLA to search
 %      min(wavelengths) / civ_1548_wavelength - 1;
 train_ratio =0.95;
@@ -108,7 +122,7 @@ training_set_name = 'L-1310-1555-mnp-400-normL-1420-1475-dlambda-0.50-k-20-mnv-0
 testing_set_name = 'N-1250-1610-S-35-115-civWVL'
                                                 
 max_civ = 7;
-dv_mask = 350; % (km/s)
+dv_mask = 750;%350; % (km/s)
 
                  
 % base directory for all data
