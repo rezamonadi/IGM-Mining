@@ -100,7 +100,7 @@ N_civ_test = all_N_civ(test_ind,:);
 z_PM_test = all_z_civ1(test_ind,:);
 z_PM_prior = all_z_civ1(prior_ind,:);
 j0=0;
-for quasar_ind = 1:1881
+for quasar_ind = 1:1
 
     tic;
     z_qso = z_qsos(quasar_ind);
@@ -370,7 +370,7 @@ for quasar_ind = 1:1881
                                     p_c4L1(quasar_ind, num_c4);
 
         c4_pixel_ind1 = abs(this_wavelengths - (1+map_z_c4L2(quasar_ind, num_c4))*mgii_2796_wavelength)<3;
-         _ind2 = abs(this_wavelengths - (1+map_z_c4L2(quasar_ind, num_c4))*mgii_2803_wavelength)<3;
+        c4_pixel_ind2 = abs(this_wavelengths - (1+map_z_c4L2(quasar_ind, num_c4))*mgii_2803_wavelength)<3;
         num_pixel_civ(quasar_ind, num_c4, 1) = nnz(c4_pixel_ind1);
         num_pixel_civ(quasar_ind, num_c4, 2) = nnz(c4_pixel_ind2);
         fprintf('CIV pixels:[%d, %d]\n', num_pixel_civ(quasar_ind, num_c4, :)); 
