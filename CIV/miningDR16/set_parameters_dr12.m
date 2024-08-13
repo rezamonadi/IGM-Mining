@@ -9,7 +9,7 @@ optTag = [num2str(integrate), num2str(extrapolate_subdla), num2str(add_proximity
 
 % physical constants
 civ_1548_wavelength = 1548.1949462890625;		 % CIV transition wavelength  Å
-civ_1550_wavelength =  1550.77001953125; ;		 % CIV transition wavelength  Å
+civ_1550_wavelength =  1550.77001953125; 		 % CIV transition wavelength  Å
 speed_of_light = 299792458;                   % speed of light                     m s⁻¹
 
 % converts relative velocity in km s^-1 to redshift difference

@@ -14,7 +14,7 @@ variables_to_load = {'all_plate_dr7', 'all_mjd_dr7', 'all_fiber_dr7',...
 load(sprintf('%s/catalog', processed_directory(release)), ...
     variables_to_load{:});
 
-num_quasars = numel(all_zqso);
+num_quasars = 1000;%numel(all_zqso);
 
 all_wavelengths    =  cell(num_quasars, 1);
 all_flux           =  cell(num_quasars, 1);

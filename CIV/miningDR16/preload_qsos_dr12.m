@@ -17,7 +17,7 @@ tic;
 % load(sprintf('%s/catalog', processed_directory(releaseTest)), ...
 %     variables_to_load{:});
 
-num_quasars = numel(all_zqso_dr12);
+num_quasars = 1000;%numel(all_zqso_dr12);
 
 all_wavelengths    =  cell(num_quasars, 1);
 all_flux           =  cell(num_quasars, 1);

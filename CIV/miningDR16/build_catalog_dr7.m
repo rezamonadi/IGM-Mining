@@ -36,14 +36,14 @@ save('data/C4_catalogs/Cooksey_C4_cat/processed/CIV-cat.mat','c4_QSO_ID','Z_c4',
 % There are some NAN valued c4_NCIV
 % extract basic QSO information from Cookse_all_QSO catalog 
 cooksey_catalog = ...
-fitsread('data/dr7/distfiles/dr7qso_CIV_noBAL.fit', 'binarytable');
+fitsread('data/dr16/distfiles/dr16_QSO_noBAL.fit', 'binarytable');
 all_plate_dr7             = cooksey_catalog{48};
 all_mjd_dr7             = cooksey_catalog{47};
 all_fiber_dr7             = cooksey_catalog{49};
 all_RA                = cooksey_catalog{2};
 all_DEC               = cooksey_catalog{3};
 all_zqso                = cooksey_catalog{4};
-num_quasars             = numel(all_zqso);
+num_quasars             = 1000;%numel(all_zqso);
 all_QSO_ID=cell(num_quasars,1);
 
 all_z_civ1 = zeros(num_quasars, 17)-1;
@@ -87,7 +87,7 @@ end
 
 
 % save catalog 
-release = 'dr7';
+release = 'dr16';
 variables_to_save = {'all_plate_dr7', 'all_mjd_dr7', 'all_fiber_dr7', ...
  'all_QSO_ID', 'all_RA', 'all_DEC', 'all_zqso', 'all_EW1', 'all_EW2', 'all_errEW1', 'all_errEW2', ...
  'all_N_civ','all_z_civ1', 'all_z_civ2', 'all_z_civ3' 'all_RATING', 'c4_QSO_ID'};

@@ -1,25 +1,25 @@
 clear
 fprintf('Setting paramters ...\n')
 num_C4_samples = 10000;
-cataloging = 0;
-preloading = 0;
+cataloging = 1;
+preloading = 1;
 learning   = 0;
 sampling   = 0;
 plotting   = 0;
-processing = 0;
+processing = 1;
 merging    = 0;
 EWer       =0;
 pltP       =0;
 CredInt    =1;
 dv_mask    = 300;
 HPCC = 0;
-voigtPrep = 0;
+voigtPrep = 1;
 maskType = 1;
 priorType = 1;
 ind_S=1;
-num_quasars =5000;
-saving=0;
-set_parameters_dr12
+num_quasars =1000;
+saving=1;
+set_parameters_dr16
 training_set_name
 fprintf('Building catalogs ...\n')
 if cataloging == 1

@@ -23,12 +23,12 @@ observed_wavelengths = ...
     @(emitted_wavelengths,  z) ( emitted_wavelengths * (1 + z));
 
 %-------dr7
-release = 'dr7';
+release = 'dr16';
 % download Cooksey's dr7 spectra from this page: 
 % http://www.guavanator.uhh.hawaii.edu/~kcooksey/SDSS/CIV/index.html 
 % go to table: "SDSS spectra of the sightlines surveyed for C IV."
 file_loader = @(mjd, plate, fiber_id) ...
-  (read_spec_dr7(sprintf('data/dr7/spectro/1d_26/%04i/1d/spSpec-%05i-%04i-%03i.fit',...
+  (read_spec_dr7(sprintf('data/dr16/sas/dr16/sdss/spectro/redux/v5_13_0/spectra/lite/%04i/spec-%05i-%04i-%03i.fit',...
   plate, mjd, plate, fiber_id)));
 
 
