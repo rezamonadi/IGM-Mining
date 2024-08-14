@@ -17,7 +17,7 @@ tic;
 % load(sprintf('%s/catalog', processed_directory(releaseTest)), ...
 %     variables_to_load{:});
 
-num_quasars = 2000;%numel(all_zqso_dr12);
+num_quasars = 1000;%numel(all_zqso_dr12);
 
 all_wavelengths    =  cell(num_quasars, 1);
 all_flux           =  cell(num_quasars, 1);
@@ -35,7 +35,7 @@ ind = (all_zqso_dr12 < z_qso_cut);
 filter_flags(ind) = bitset(filter_flags(ind), 1, true);
 
 num_quasars
-for i =1:num_quasars
+for i = 1:1000 %num_quasars
  
   if (filter_flags(i)~=0)
     continue;

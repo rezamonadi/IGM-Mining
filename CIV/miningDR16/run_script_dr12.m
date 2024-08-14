@@ -17,7 +17,7 @@ voigtPrep = 1;
 maskType = 1;
 priorType = 1;
 ind_S=1;
-num_quasars =1000;
+num_quasars =2000;
 saving=1;
 set_parameters_dr16
 training_set_name
