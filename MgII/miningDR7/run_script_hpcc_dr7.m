@@ -5,9 +5,9 @@ num_C4_samples = 10000;
 cataloging = 0;
 preloading = 0;
 learning   = 0;
-sampling   = 1;
+sampling   = 0;
 processing = 1;
-plotting = 0;
+plotting = 1;
 merging = 0;
 EWer = 0;
 pltP = 0;
@@ -132,7 +132,7 @@ load(sprintf('%s/preloaded_qsos_%s.mat', processed_directory(release), training_
 
 % % 
 if processing==1
-    parpool('local', 6);
+    % parpool('local', 6);
     SingleLineModel = 1;
 
     process_qsos_dr7

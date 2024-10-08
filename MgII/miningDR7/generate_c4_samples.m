@@ -6,7 +6,7 @@
 
 
 
-c4_catalog = load('/home/igm2024/IGM-Mining/MgII/miningDR7/data/C4_catalogs/Cooksey_C4_cat/processed/CIV-cat.mat');
+c4_catalog = load('/home/igm2024/IGM-Mining-Jake/MgII/miningDR7/data/C4_catalogs/Cooksey_C4_cat/processed/CIV-cat.mat');
 %c4_catalog = c4_catalog(c4_catalog(:,3)>0,:); % removing some null column densities
 % training_set_name = 'UVES';
 

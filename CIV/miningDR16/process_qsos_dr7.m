@@ -10,7 +10,7 @@
 % load C4 catalog
 
 
-load('EW/REW_DR7_sigma_width_4.mat')
+
 
 
 
@@ -100,6 +100,9 @@ N_civ_test = all_N_civ(test_ind,:);
 z_PM_test = all_z_civ1(test_ind,:);
 z_PM_prior = all_z_civ1(prior_ind,:);
 j0=0;
+
+% load('inMissed.mat');
+for quasar_ind =1:num_quasars
 
     tic;
     z_qso = z_qsos(quasar_ind);
@@ -393,7 +396,7 @@ j0=0;
             fprintf('REW(%d,%d)=%e\n', quasar_ind, num_c4, REW_1548_dr7(quasar_ind, num_c4));
 %         end
 
-        % if(plotting==1) 
+        if(plotting==1) 
             % plotting
             
             this_ID = ID{quasar_ind};
@@ -443,12 +446,12 @@ j0=0;
 
                 z_PM_test_plot = z_PM_test(quasar_ind,:);
                 z_PM_test_plot = z_PM_test_plot(z_PM_test_plot>0);
-                fid = sprintf('%s/ind-%d-c4-%d.png', derr, quasar_ind, num_c4);
+                fid = sprintf('ind-%d-c4-%d.png',  quasar_ind, num_c4);
                 ind_zoomL2 = (abs(this_z_1548-map_z_c4L2(quasar_ind, num_c4))<20*kms_to_z(map_sigma_c4L2(quasar_ind, num_c4)/1e5)*(1+z_qso));
                 ind_zoomL1 = (abs(this_z_1548-map_z_c4L1(quasar_ind, num_c4))<20*kms_to_z(map_sigma_c4L2(quasar_ind, num_c4)/1e5)*(1+z_qso));
                 pltQSO(this_flux, this_wavelengths, c4_muL2, c4_muL1, ind_zoomL2, ind_zoomL1, z_EWhigh, z_EWlow, z_PM_test_plot,...
                         ind_not_remove, ttl, fid)
-            % end
+            end
 
             % fid = sprintf('muPlot/mu-id-%s.png', this_ID)
             % ttl = sprintf('ID:%s, zQSO:%.2f',  this_ID, z_qso)
