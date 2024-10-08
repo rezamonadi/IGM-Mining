@@ -14,7 +14,21 @@ all_QSO_ID_dr12=cell(num_quasars_dr12,1);
 subset_all_zqso_dr12 = all_zqso_dr12(1:num_quasars_dr12);
 all_zqso_dr12 = subset_all_zqso_dr12; 
 % Extract the first 1000 entries (or fewer if less than 1000 entries exist)
+ind = [];
+for i = 1:numel(all_plate_dr12)
+    if all_plate_dr12(i)>=3586
+        ind(end+1) = i;
+    end
+end
+all_plate_dr12 = all_plate_dr12(ind);
+all_mjd_dr12 = all_mjd_dr12(ind)
+all_fiber_dr12 = all_fiber_dr12(ind)
+all_RA_dr12 = all_RA_dr12(ind)
+all_DEC_dr12 = all_DEC_dr12(ind)
+all_zqso_dr12 = all_zqso_dr12(ind)
 
+
+%%
 for i=1:num_quasars_dr12
     all_QSO_ID_dr12{i}=sprintf('%05i-%04i-%03i', (all_mjd_dr12(i)), ...
     (all_plate_dr12(i)), (all_fiber_dr12(i)));

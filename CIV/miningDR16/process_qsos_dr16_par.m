@@ -46,7 +46,7 @@ all_flux           =           all_flux(test_ind);
 all_noise_variance = all_noise_variance(test_ind);
 all_pixel_mask     =     all_pixel_mask(test_ind);
 all_sigma_pixel    =    all_sigma_pixel(test_ind);
-z_qsos             =     all_zqso_dr12(test_ind);
+z_qsos             =     all_zqso_dr16(test_ind);
 all_num_quasars    =                numel(z_qsos)
 
 
@@ -84,7 +84,7 @@ map_sigma_c4L2              = nan(num_quasars, max_civ);
 p_c4                        = nan(num_quasars, max_civ);
 p_c4L1                      = nan(num_quasars, max_civ);
 p_no_c4                     = nan(num_quasars, max_civ);
-REW_1548_dr12                    = nan(num_quasars, max_civ);
+REW_1548_dr16                    = nan(num_quasars, max_civ);
 num_pixel_civ               = nan(num_quasars, max_civ, 2);
 % min_sigma = 5e5;
 sigma_civ_samples = min_sigma + (max_sigma-min_sigma)*offset_sigma_samples;
@@ -433,9 +433,9 @@ for all_quasar_ind = ind_S:ind_E
         padded_sigma_pixels_fine);
 
         aL1 = Averager(aL1_fine, nAVG, lenW_unmasked);
-        REW_1548_dr12(this_quasar_ind, num_c4) = trapz(this_unmasked_wavelengths, 1-aL1)/(1+z_qso);
+        REW_1548_dr16(this_quasar_ind, num_c4) = trapz(this_unmasked_wavelengths, 1-aL1)/(1+z_qso);
 
-        fprintf('REW(%d,%d)=%e\n', this_quasar_ind, num_c4, REW_1548_dr12(this_quasar_ind, num_c4));
+        fprintf('REW(%d,%d)=%e\n', this_quasar_ind, num_c4, REW_1548_dr16(this_quasar_ind, num_c4));
         
         % plotting
         if(plotting==1 & p_c4(this_quasar_ind, num_c4)>0.85) 
@@ -467,8 +467,8 @@ for all_quasar_ind = ind_S:ind_E
             
 
             ttl = sprintf('ID:%s, zQSO:%.2f\n P(CIV)=%.2f, z_{CIV}=%.3f, P(S)=%.2f, REW=%.3f, SN=%.2f', ...
-                all_QSO_ID_dr12{all_quasar_ind}, z_qso, p_c4(this_quasar_ind, num_c4), ...
-                map_z_c4L2(this_quasar_ind, num_c4),p_c4L1(this_quasar_ind, num_c4), REW_1548_dr12(this_quasar_ind, num_c4),... 
+                all_QSO_ID_dr16{all_quasar_ind}, z_qso, p_c4(this_quasar_ind, num_c4), ...
+                map_z_c4L2(this_quasar_ind, num_c4),p_c4L1(this_quasar_ind, num_c4), REW_1548_dr16(this_quasar_ind, num_c4),... 
                 median(this_flux./sqrt(this_noise_variance)))
 
             fid = sprintf('plt-DR12-paper/ind-%d-c4-%d.png', all_quasar_ind, num_c4);
@@ -507,7 +507,7 @@ if saving==1
         'sample_log_likelihoods_c4L2', 'log_likelihoods_c4L2'...
         'log_posteriors_no_c4', 'log_posteriors_c4L1', 'log_posteriors_c4L2',...
         'model_posteriors', 'p_no_c4', 'p_c4L1' ...
-        'map_z_c4L2', 'map_N_c4L2', 'map_sigma_c4L2', 'p_c4', 'REW_1548_dr12',...
+        'map_z_c4L2', 'map_N_c4L2', 'map_sigma_c4L2', 'p_c4', 'REW_1548_dr16',...
         'map_z_c4L1', 'map_N_c4L1', 'map_sigma_c4L1'};
 
     filename = sprintf('%s/processed_qsos_tst_%s_S_%d_E_%d.mat', ...

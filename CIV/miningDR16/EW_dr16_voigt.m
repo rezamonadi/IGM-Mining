@@ -1,5 +1,5 @@
-filename = sprintf('%s/processed_qsos_dr12_N-1250-1610-S-35-115-nc-10k.mat', processed_directory(releaseTest));
-fprintf('loading DR12 ...');
+filename = sprintf('%s/processed_qsos_dr16_N-1250-1610-S-35-115-nc-10k.mat', processed_directory(releaseTest));
+fprintf('loading DR16 ...');
 % load(filename);
 
 % p_c4                        = savingCat.all_p_c4;
@@ -10,14 +10,14 @@ fprintf('loading DR12 ...');
 % test_ind                    = savingCat.test_ind;
 % vs = {'p_c4', 'map_z_c4L2', 'map_N_c4L2', 'map_sigma_c4L2', 'test_ind'}
 % save('Wr/ShortProcessedDR12.mat', vs{:}, '-v7.3')
-load('Wr/ShortProcessedDR12.mat')
+load('Wr/ShortProcessedDR16.mat')
 num_quasars = nnz(test_ind);
 
 all_wavelengths    =    all_wavelengths(test_ind);
 all_flux           =           all_flux(test_ind);
 all_pixel_mask     =     all_pixel_mask(test_ind);
 all_sigma_pixel    =    all_sigma_pixel(test_ind);
-z_qsos             =           all_zqso_dr12(test_ind);
+z_qsos             =           all_zqso_dr16(test_ind);
 num_quasars        =                numel(z_qsos);
 all_noise_variance =   all_noise_variance(test_ind);
 % % preprocess model interpolants
@@ -31,9 +31,9 @@ M_interpolator = ...
     griddedInterpolant({rest_wavelengths, 1:k}, M,         'linear');
 
 % initialize results with nan
-REW_1548_DR12_voigt                        = nan(num_quasars, max_civ);
-REW_1550_DR12_voigt                        = nan(num_quasars, max_civ);
-REW_1548_DR12_flux                        = nan(num_quasars, max_civ);
+REW_1548_DR16_voigt                        = nan(num_quasars, max_civ);
+REW_1550_DR16_voigt                        = nan(num_quasars, max_civ);
+REW_1548_DR16_flux                        = nan(num_quasars, max_civ);
 ErrREW_1548_flux                          = nan(num_quasars, max_civ);
     
 for quasar_ind = 5
@@ -125,19 +125,19 @@ for quasar_ind = 5
         intThisMu   = this_mu(indIntegration);
         
         
-        REW_1548_DR12_voigt(quasar_ind, num_c4) = trapz(emitted_wavelengths(this_wavelengths, z_qso),...
+        REW_1548_DR16_voigt(quasar_ind, num_c4) = trapz(emitted_wavelengths(this_wavelengths, z_qso),...
         1-absorptionL1_1548);
-        REW_1550_DR12_voigt(quasar_ind, num_c4) = trapz(emitted_wavelengths(this_wavelengths, z_qso),...
+        REW_1550_DR16_voigt(quasar_ind, num_c4) = trapz(emitted_wavelengths(this_wavelengths, z_qso),...
         1-absorptionL1_1550);
-        REW_1548_DR12_flux(quasar_ind, num_c4) = trapz(emitted_wavelengths(this_wavelengths(indIntegration),z_qso) ,...
+        REW_1548_DR16_flux(quasar_ind, num_c4) = trapz(emitted_wavelengths(this_wavelengths(indIntegration),z_qso) ,...
         1- intThisFlux./intThisMu);
         ErrREW_1548_flux(quasar_ind, num_c4)  = 10^(pixel_spacing)*sqrt(sum(this_noise_variance(indIntegration)./ ...
                                                             intThisMu.^2));
         
         fprintf('QSO:%d, c4:%d, z_civ:%.2f, p(CIV):%.2f\nREW_1548_flux:%.2f(%.2f), REW_1548_voigt:%.2f\n\n',...
         quasar_ind, num_c4, map_z_c4L2(quasar_ind, num_c4), ...
-        p_c4(quasar_ind, num_c4),  REW_1548_DR12_flux(quasar_ind, num_c4),ErrREW_1548_flux(quasar_ind, num_c4),...
-        REW_1548_DR12_voigt(quasar_ind, num_c4));
+        p_c4(quasar_ind, num_c4),  REW_1548_DR16_flux(quasar_ind, num_c4),ErrREW_1548_flux(quasar_ind, num_c4),...
+        REW_1548_DR16_voigt(quasar_ind, num_c4));
         
     end
     

@@ -1,8 +1,8 @@
 clear
 fprintf('Setting paramters ...\n')
 num_C4_samples = 10000;
-cataloging = 1;
-preloading = 1;
+cataloging = 0;
+preloading = 0;
 learning   = 0;
 sampling   = 0;
 plotting   = 0;
@@ -23,10 +23,10 @@ set_parameters_dr16
 training_set_name
 fprintf('Building catalogs ...\n')
 if cataloging == 1
-    build_catalog_dr12
+    build_catalog_dr16
 end
-variables_to_load= {'all_plate_dr12', 'all_mjd_dr12', 'all_fiber_dr12', ...
-'all_QSO_ID_dr12', 'all_RA_dr12', 'all_DEC_dr12', 'all_zqso_dr12',};
+variables_to_load= {'all_plate_dr16', 'all_mjd_dr16', 'all_fiber_dr16', ...
+'all_QSO_ID_dr16', 'all_RA_dr16', 'all_DEC_dr16', 'all_zqso_dr16',};
 load(sprintf('%s/catalog', processed_directory(releaseTest)), ...
     variables_to_load{:});
 
@@ -78,7 +78,7 @@ fprintf(sprintf('%d Samples are generated\n', num_C4_samples));
 % load preprocessed QSOs
 fprintf('Preloading QSOs ...\n')
 if preloading == 1
-    preload_qsos_dr12
+    preload_qsos_dr16
 end
 load(sprintf('%s/preloaded_qsos_%s', processed_directory(releaseTest), training_set_name));
 
@@ -88,16 +88,16 @@ test_ind = (filter_flags==0);
 if processing==1
     fprintf('processing QSO: %d to %d\n\n', ind_S, ind_S +  num_quasars-1);
     % parpool('local', cores);
-    process_qsos_dr12_par
+    process_qsos_dr16_par
     
 end
 
 if merging==1
-    mergeProcessesDr12
+    mergeProcessesDr16
 end
 
 if EWer==1
-    EW_dr12_voigt
+    EW_dr16_voigt
 end
 
 if pltP  ==1

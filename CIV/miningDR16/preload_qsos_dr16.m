@@ -17,7 +17,7 @@ tic;
 % load(sprintf('%s/catalog', processed_directory(releaseTest)), ...
 %     variables_to_load{:});
 
-num_quasars = 2000;%numel(all_zqso_dr12);
+num_quasars = 2000;%numel(all_zqso_dr16);
 
 all_wavelengths    =  cell(num_quasars, 1);
 all_flux           =  cell(num_quasars, 1);
@@ -31,7 +31,7 @@ all_normalizers    = zeros(num_quasars, 1);
 filter_flags = zeros(num_quasars, 1, 'uint8');
 % 
 % filtering bit 0: z_QSO < 1.5
-ind = (all_zqso_dr12 < z_qso_cut);
+ind = (all_zqso_dr16 < z_qso_cut);
 filter_flags(ind) = bitset(filter_flags(ind), 1, true);
 
 num_quasars
@@ -43,12 +43,12 @@ for i =1:num_quasars
   
   %------dr12-----------
   [this_wavelengths, this_flux, this_noise_variance, this_pixel_mask, this_sigma_pixel] ...
-  = file_loader(all_plate_dr12(i), all_mjd_dr12(i), all_fiber_dr12(i));
+  = file_loader(all_plate_dr16(i), all_mjd_dr16(i), all_fiber_dr16(i));
   
    % % Masking Sky lines 
 
   this_pixel_mask((abs(this_wavelengths-5579)<5) & (abs(this_wavelengths-6302)<5))=1;
-  this_rest_wavelengths = emitted_wavelengths(this_wavelengths, all_zqso_dr12(i));
+  this_rest_wavelengths = emitted_wavelengths(this_wavelengths, all_zqso_dr16(i));
   % normalize flux
   
   ind = (this_rest_wavelengths >= normalization_min_lambda) & ...
@@ -93,7 +93,7 @@ for i =1:num_quasars
 
 
   fprintf('loaded quasar %i of %i (%i/%i/%04i)\n', ...
-          i, num_quasars, all_plate_dr12(i), all_mjd_dr12(i), all_fiber_dr12(i));
+          i, num_quasars, all_plate_dr16(i), all_mjd_dr16(i), all_fiber_dr16(i));
   
 end
 
