@@ -3,7 +3,7 @@
 # http://www.guavanator.uhh.hawaii.edu/~kcooksey/SDSS/CIV/data/dr7qso_CIV_noBAL.list
 
 pushd dr16
-wget -x -nH -i ../dr16_CIV_noBAL.list 
+wget -x -nH -i ../dr16Spec.list 
 
 
 
