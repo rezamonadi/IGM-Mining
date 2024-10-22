@@ -47,7 +47,7 @@ all_noise_variance = all_noise_variance(test_ind);
 all_pixel_mask     =     all_pixel_mask(test_ind);
 all_sigma_pixel    =    all_sigma_pixel(test_ind);
 z_qsos             =     all_zqso_dr16(test_ind);
-all_num_quasars    =                numel(z_qsos)
+all_num_quasars    =                numel(z_qsos);
 
 
 
