@@ -12,7 +12,7 @@ all_BAL_PROB               = dr16q{57};
 
 
 
-num_quasars_dr16 = numel(all_zqso_dr16);%num_quasars_dr16           = 1000;%numel(all_zqso_dr16);
+num_quasars_dr16 = numel(all_zqso_dr16);
 all_QSO_ID_dr16=cell(num_quasars_dr16,1);
 
 
