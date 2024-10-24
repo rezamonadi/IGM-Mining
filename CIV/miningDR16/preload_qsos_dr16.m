@@ -30,16 +30,14 @@ all_normalizers    = zeros(num_quasars, 1);
 % to track reasons for filtering out QSOs
 filter_flags = zeros(num_quasars, 1, 'uint8');
 % 
-% filtering bit 0: z_QSO < 1.5
-ind = (all_zqso_dr16 < z_qso_cut);
-filter_flags(ind) = bitset(filter_flags(ind), 1, true);
+% coverage 
+ind = (1310*(1+all_zqso_dr16)<3650) | (1548*(1+all_zqso_dr16)>10400); 
+filter_flags(ind)  = bitset(filter_flags(ind), 1, true);
 % filtering BALs
 ind = (all_BAL_PROB >= 0.5);
 filter_flags(ind) = bitset(filter_flags(ind), 2, true);
 
-% coverage 
-ind = (1310*(1+all_zqso_dr16)<3650) | (1548*(1+all_zqso_dr16)>10400); 
-filter_flags(ind)  = bitset(filter_flags(ind), 3, true);
+
 
 num_quasars
 for i =1:num_quasars
@@ -68,7 +66,7 @@ for i =1:num_quasars
   % bit 2: cannot normalize (all normalizing pixels are masked)
 
   if (isnan(this_median))
-    filter_flags(i) = bitset(filter_flags(i), 4, true);
+    filter_flags(i) = bitset(filter_flags(i), 3, true);
     continue;
   end
   
@@ -78,7 +76,7 @@ for i =1:num_quasars
   
   % bit 3: not enough pixels available
   if (nnz(ind) < min_num_pixels)
-    filter_flags(i) = bitset(filter_flags(i), 5, true);
+    filter_flags(i) = bitset(filter_flags(i), 4, true);
     continue;
   end
 
