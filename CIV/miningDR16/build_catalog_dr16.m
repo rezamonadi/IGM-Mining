@@ -12,7 +12,7 @@ all_BAL_PROB               = dr16q{57};
 
 
 
-num_quasars_dr16 = numel(all_zqso_dr16);
+num_quasars_dr16 = numel(all_zqso_dr16);%num_quasars_dr16           = 1000;%numel(all_zqso_dr16);
 all_QSO_ID_dr16=cell(num_quasars_dr16,1);
 
 
@@ -25,6 +25,6 @@ end
 
 % save catalog 
 variables_to_save = {'all_plate_dr16', 'all_mjd_dr16', 'all_fiber_dr16', ...
- 'all_QSO_ID_dr16', 'all_RA_dr16', 'all_DEC_dr16', 'all_zqso_dr16' };
+ 'all_QSO_ID_dr16', 'all_RA_dr16', 'all_DEC_dr16', 'all_zqso_dr16' , 'all_BAL_PROB'};
 save(sprintf('%s/catalog', processed_directory(releaseTest)), ...
     variables_to_save{:}, '-v7.3');

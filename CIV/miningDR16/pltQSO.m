@@ -1,8 +1,5 @@
-function y=pltQSO(this_flux, this_wavelengths, c4_muL2, c4_muL1, ind_zoomL2, ind_zoomL1, z_EWlow, z_EWhigh, z_PM_test_plot,...
-                   ind_not_remove, ttl, fid)
-% function y =pltQSO(civ_1548_wavelength, this_flux, this_wavelengths, c4_muL2, c4_muL1, ...
-%     this_sample_log_likelihoods_c4L2, sample_z_c4, log_nciv_samples, ttl,  fid)
-
+function y=pltQSO(this_flux, this_wavelengths, c4_muL2,  ttl, fid)
+          
     % been applied this_pixel_mask.
     
     fig = figure('visible', 'off');
@@ -42,14 +39,14 @@ function y=pltQSO(this_flux, this_wavelengths, c4_muL2, c4_muL1, ind_zoomL2, ind
     ylabel('Normalised Flux');
     % title(ttl, 'FontSize', 5, 'interpreter', 'latex')
 
-    for i=1:length(z_PM_test_plot)
-        p=xline(z_PM_test_plot(i));
-        p.Color = [0.1,0.1,0.1];
-        p.LineStyle = '--';
-        p.LineWidth=1;
-        p.HandleVisibility = 'off';
-        hold on 
-    end
+    % for i=1:length(z_PM_test_plot)
+    %     p=xline(z_PM_test_plot(i));
+    %     p.Color = [0.1,0.1,0.1];
+    %     p.LineStyle = '--';
+    %     p.LineWidth=1;
+    %     p.HandleVisibility = 'off';
+    %     hold on 
+    % end
 % %     
 % %   
 %     subplot('position', [0.05 0.49 0.90 5]);
@@ -82,8 +79,8 @@ function y=pltQSO(this_flux, this_wavelengths, c4_muL2, c4_muL1, ind_zoomL2, ind
     % hold on
     % xline(z_EWlow)
     % hold on
-    % xline(z_EWhigh)
-    % % title(ttl, 'FontSize', 7)
+    % % xline(z_EWhigh)
+    title(ttl, 'FontSize', 7)
 
     % axes('position', [0.45 0.75 0.18 0.15]);
     % box on 
