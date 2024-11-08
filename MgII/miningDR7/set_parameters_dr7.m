@@ -40,7 +40,7 @@ loading_max_lambda = 2850;
 
 % preprocessing parameters
 %z_qso_cut      = 2.15;                   % filter out QSOs with z less than this threshold
-z_qso_cut      = 1.5;                      % according to Seyffert z>0.36                      
+z_qso_cut      = 0.36;                      % according to Seyffert z>0.36                      
 min_num_pixels = 100;                         % minimum number of non-masked pixels
 
 % normalization parameters
@@ -85,13 +85,13 @@ nAVG               = 20;                     % number of points added between tw
 num_C4_samples         = 10000;                  % number of parameter samples
 alpha                    = 0.90;                    % weight of KDE component in mixture
 uniform_min_log_nciv     = 12.0;                   % range of column density samples    [cm⁻²]
-uniform_max_log_nciv     = 17;                   % from uniform distribution
+uniform_max_log_nciv     = 15.5;                   % from uniform distribution
 fit_min_log_nciv         = uniform_min_log_nciv;                   % range of column density samples    [cm⁻²]
-fit_max_log_nciv         = 16.5;                   % from fit to log PDF
+fit_max_log_nciv         = 15.5;                   % from fit to log PDF
 
 
 min_sigma                = 100e5;                   % cm/s -> b/sqrt(2) -> min Doppler par from Cooksey
-max_sigma                = 600e5;                   % cm/s -> b/sqrt(2) -> max Doppler par from Cooksey
+max_sigma                = 400e5;                   % cm/s -> b/sqrt(2) -> max Doppler par from Cooksey
 
 vCut                     = 767; %500;                    % maximum cut velocity for MgII system 
 RejectionSampling        = 0;
@@ -121,7 +121,7 @@ sample_name = sprintf("N-%d-%d-Sigma-%d-%d-Num-%d",floor(fit_min_log_nciv*100),f
 training_set_name = 'L-1310-1555-mnp-400-normL-1420-1475-dlambda-0.50-k-20-mnv-0.25';
 testing_set_name = 'N-1250-1610-S-35-115-civWVL'
                                                 
-max_civ = 1;
+max_civ = 7;
 dv_mask = 750;%350; % (km/s)
 
                  

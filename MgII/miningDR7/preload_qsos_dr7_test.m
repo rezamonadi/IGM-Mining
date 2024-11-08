@@ -1,4 +1,4 @@
-% preload_qsos: loads spectra from SDSS FITS files, applies further
+ % preload_qsos: loads spectra from SDSS FITS files, applies further
 % filters, and applies some basic preprocessing such as normalization
 % and truncation to the region of interest
 
@@ -20,20 +20,20 @@ all_wavelengths    =  cell(num_quasars, 1);
 all_flux           =  cell(num_quasars, 1);
 all_noise_variance =  cell(num_quasars, 1);
 all_pixel_mask     =  cell(num_quasars, 1);
-all_sigma_pixel     =  cell(num_quasars, 1);
+all_sigma_pixel    =  cell(num_quasars, 1);
 all_normalizers    = zeros(num_quasars, 1);
 
 
 % to track reasons for filtering out QSOs
 filter_flags = zeros(num_quasars, 1, 'uint8');
 % 
-% filtering bit 0: z_QSO < 1.5
+% filtering bit 0: z_QSO < 0.36
 ind = (all_zqso < z_qso_cut);
 filter_flags(ind) = bitset(filter_flags(ind), 1, true);
 
-clear ind
 
-for i = 1:num_quasars 
+
+parfor i = 1:num_quasars
 
 
   if (filter_flags(i)~=0)
@@ -57,42 +57,37 @@ for i = 1:num_quasars
   this_rest_wavelengths = emitted_wavelengths(this_wavelengths, all_zqso(i));
   % normalizing here
 
-  if (all_zqso(i) <= 0.6)
+  if (all_zqso(i) < 0.6)
  
    ind = (this_rest_wavelengths >= normalization_min_lambda_1) & ...
            (this_rest_wavelengths <= normalization_max_lambda_1) & ...
            (~this_pixel_mask);
-   % disp('1')
   end
-
-  if (all_zqso(i) > 0.6 && all_zqso(i) <= 1.0)
+  
+  if (all_zqso(i)>= 0.6 && all_zqso(i) < 1.0)
  
    ind = (this_rest_wavelengths >= normalization_min_lambda_2) & ...
            (this_rest_wavelengths <= normalization_max_lambda_2) & ...
            (~this_pixel_mask);
-       % disp('2')
   end
-
-  if (all_zqso(i) > 1.0 && all_zqso(i) <= 2.5)
+  
+  if (all_zqso(i)>= 1.0 && all_zqso(i)< 2.5)
  
    ind = (this_rest_wavelengths >= normalization_min_lambda_3) & ...
            (this_rest_wavelengths <= normalization_max_lambda_3) & ...
            (~this_pixel_mask);
-       % disp('3')
   end
+  
+  % if (all_zqso(i)>= 2.5 && all_zqso(i) > 4.7)
+  if (all_zqso(i)>= 2.5)
 
-  if (all_zqso(i) > 2.5)
-      %took away max z of 4.7 bc max z in z_qso was 5.31....
- 
    ind = (this_rest_wavelengths >= normalization_min_lambda_4) & ...
            (this_rest_wavelengths <= normalization_max_lambda_4) & ...
            (~this_pixel_mask);
-       % disp('4')
+
   end
 
   this_median = nanmedian(this_flux(ind));
-
-  % made an adjustment to number of ind values being used
   
   % bit 2: cannot normalize (all normalizing pixels are masked)
   if (isnan(this_median))
@@ -101,38 +96,30 @@ for i = 1:num_quasars
   end
 
   % if (all_zqso(i) < 0.6)
-  % 
+ 
   %  ind = (this_rest_wavelengths >= normalization_min_lambda_1) & ...
   %          (this_rest_wavelengths <= normalization_max_lambda_1) & ...
   %          (~this_pixel_mask) & (this_sigma_pixel>0);
-  %  % disp('1')
-  % end
-  % 
-  % if (all_zqso(i) > 0.6 && all_zqso(i) < 1.0)
-  % 
+
+  % elseif (0.6 < all_zqso(i) && all_zqso(i) >1.0)
+ 
   %  ind = (this_rest_wavelengths >= normalization_min_lambda_2) & ...
   %          (this_rest_wavelengths <= normalization_max_lambda_2) & ...
   %          (~this_pixel_mask) & (this_sigma_pixel>0);
-  %      % disp('2')
-  % end
-  % 
-  % if (all_zqso(i) > 1.0 && all_zqso(i) < 2.5)
-  % 
+
+  % elseif (1.0 < all_zqso(i) && all_zqso(i) >2.5)
+ 
   %  ind = (this_rest_wavelengths >= normalization_min_lambda_3) & ...
   %          (this_rest_wavelengths <= normalization_max_lambda_3) & ...
   %          (~this_pixel_mask) & (this_sigma_pixel>0);
-  %      % disp('3')
-  % end
-  % 
-  % if (all_zqso(i) > 2.5)
-  %     %took away max z of 4.7 bc max z in z_qso was 5.31....
-  % 
+
+  % elseif (2.5 < all_zqso(i) && all_zqso(i) > 4.7)
+ 
   %  ind = (this_rest_wavelengths >= normalization_min_lambda_4) & ...
   %          (this_rest_wavelengths <= normalization_max_lambda_4) & ...
   %          (~this_pixel_mask) & (this_sigma_pixel>0);
-  %      % disp('4')
-  % end
 
+  % end
         
   % bit 3: not enough pixels available
   if (nnz(ind) < min_num_pixels)
@@ -161,13 +148,16 @@ for i = 1:num_quasars
   
 end
 
-variables_to_save = {'loading_min_lambda', 'loading_max_lambda', ...
-                      'normalization_min_lambda_1', 'normalization_max_lambda_1' ,'normalization_min_lambda_2',...
-                      'normalization_max_lambda_2', 'normalization_min_lambda_3', ...
-                      'normalization_max_lambda_3', 'normalization_min_lambda_4', 'normalization_max_lambda_4', ...
-                      'min_num_pixels', 'all_wavelengths', 'all_flux', ...
-                      'all_noise_variance', 'all_pixel_mask', ...
-                      'all_normalizers', 'all_sigma_pixel', 'filter_flags'};
+variables_to_save = {'loading_min_lambda',...
+                     'loading_max_lambda', ...
+                     'min_num_pixels',...
+                     'all_wavelengths',...
+                     'all_flux', ...
+                     'all_noise_variance',...
+                     'all_pixel_mask', ...
+                     'all_normalizers',...
+                     'all_sigma_pixel',...
+                     'filter_flags'};
 save(sprintf('%s/preloaded_qsos_%s.mat', processed_directory(release), training_set_name), ...
      variables_to_save{:});
 
@@ -176,5 +166,4 @@ save(sprintf('%s/filter_flags', processed_directory(release)), ...
      'filter_flags');
 
 toc;
-
 
