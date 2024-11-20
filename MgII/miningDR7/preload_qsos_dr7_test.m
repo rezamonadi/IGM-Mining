@@ -33,7 +33,7 @@ filter_flags(ind) = bitset(filter_flags(ind), 1, true);
 
 
 
-parfor i = 1:num_quasars
+for i = 1:num_quasars
 
 
   if (filter_flags(i)~=0)
@@ -95,33 +95,14 @@ parfor i = 1:num_quasars
     continue;
   end
 
-  % if (all_zqso(i) < 0.6)
- 
-  %  ind = (this_rest_wavelengths >= normalization_min_lambda_1) & ...
-  %          (this_rest_wavelengths <= normalization_max_lambda_1) & ...
-  %          (~this_pixel_mask) & (this_sigma_pixel>0);
-
-  % elseif (0.6 < all_zqso(i) && all_zqso(i) >1.0)
- 
-  %  ind = (this_rest_wavelengths >= normalization_min_lambda_2) & ...
-  %          (this_rest_wavelengths <= normalization_max_lambda_2) & ...
-  %          (~this_pixel_mask) & (this_sigma_pixel>0);
-
-  % elseif (1.0 < all_zqso(i) && all_zqso(i) >2.5)
- 
-  %  ind = (this_rest_wavelengths >= normalization_min_lambda_3) & ...
-  %          (this_rest_wavelengths <= normalization_max_lambda_3) & ...
-  %          (~this_pixel_mask) & (this_sigma_pixel>0);
-
-  % elseif (2.5 < all_zqso(i) && all_zqso(i) > 4.7)
- 
-  %  ind = (this_rest_wavelengths >= normalization_min_lambda_4) & ...
-  %          (this_rest_wavelengths <= normalization_max_lambda_4) & ...
-  %          (~this_pixel_mask) & (this_sigma_pixel>0);
-
-  % end
-        
+  
   % bit 3: not enough pixels available
+
+  ind = (this_rest_wavelengths >= min_lambda) & ...
+        (this_rest_wavelengths <= max_lambda) & ...
+        (this_sigma_pixel>0) & ...
+        (~this_pixel_mask);
+  
   if (nnz(ind) < min_num_pixels)
     filter_flags(i) = bitset(filter_flags(i), 4, true);
     continue;
@@ -143,8 +124,8 @@ parfor i = 1:num_quasars
   all_pixel_mask{i}     =     this_pixel_mask(ind);
   all_sigma_pixel{i}    =     this_sigma_pixel(ind); 
 
-  fprintf('loaded quasar %i of %i (%i/%i/%04i)\n', ...
-          i, num_quasars, all_plate_dr7(i), all_mjd_dr7(i), all_fiber_dr7(i));
+  fprintf('loaded quasar %i of %i (%i/%i/%04i) %i\n', ...
+          i, num_quasars, all_plate_dr7(i), all_mjd_dr7(i), all_fiber_dr7(i), nnz(ind));
   
 end
 
