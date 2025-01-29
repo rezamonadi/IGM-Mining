@@ -42,10 +42,10 @@ function y=plt_mu(this_flux, this_wavelengths, mu, z_qso, M, ttl, fid)
     % legend( 'Flux', 'Continuum')
     hold on
    
-    vl = xline(max(this_rest_wavelengths) - kms_to_z(vCut)*civ_1548_wavelength);
-    vl.LineWidth = 1
-    vl.Color = [1, 0.1, 0.2];
-    hold on
+    % vl = xline(max(this_rest_wavelengths) - kms_to_z(vCut)*mgii_2796_wavelength);
+    % vl.LineWidth = 1
+    % vl.Color = [1, 0.1, 0.2];
+    % hold on
     % y_points = [min(this_flux)-0.2,max(this_flux), max(this_flux), min(this_flux)-0.2]
     % color = [1,1,0]
     % a = fill(x_points, y_points, color)
@@ -60,13 +60,18 @@ function y=plt_mu(this_flux, this_wavelengths, mu, z_qso, M, ttl, fid)
     CIV = 1548.2040;
     CII = 1335.31;
     SIV = 1397.61;
+    CIIIF = 1908.734;
+    MgII = 2799.117  ;
     vl = xline(CIV, '--',  'CIV'); 
-    vl.FontSize = 20;
+    vl.FontSize = 15;
     vl = xline(SIV, '--',  'SIV'); 
-    vl.FontSize = 20;
+    vl.FontSize = 15;
     vl = xline(CII, '--',  'CII'); 
-    vl.FontSize = 20;
-    
+    vl.FontSize = 15;
+    vl = xline(CIIIF, '--',  'CIII]'); 
+    vl.FontSize = 15;
+    vl = xline(MgII, '--',  'MgII'); 
+    vl.FontSize = 15;
     set(gca,'FontSize',17);
     
 

@@ -46,7 +46,7 @@ prior = rmfield(prior, 'z_MgII');
 if (ischar(test_ind))
     test_ind = eval(test_ind);
 end
-
+fprintf("")
 all_wavelengths    =    all_wavelengths(test_ind);
 all_flux           =           all_flux(test_ind);
 all_noise_variance = all_noise_variance(test_ind);
@@ -100,7 +100,10 @@ N_MgII_test = all_N_MgII(test_ind,:);
 z_PM_test = all_z_MgII1(test_ind,:);
 z_PM_prior = all_z_MgII1(prior_ind,:);
 j0=0;
-for quasar_ind = 1:100
+for quasar_ind = 11
+    if z_PM_test(quasar_ind,1)==-1
+        continue
+    end
 
     tic;
     z_qso = z_qsos(quasar_ind);
@@ -444,18 +447,18 @@ for quasar_ind = 1:100
 
                 z_PM_test_plot = z_PM_test(quasar_ind,:);
                 z_PM_test_plot = z_PM_test_plot(z_PM_test_plot>0);
-                fid = sprintf('ind-%d-c4-%d.png',  quasar_ind, num_MgII);
+                fid = sprintf('flux/ind-%d-MgII-%d.png',  quasar_ind, num_MgII);
                 ind_zoomL2 = (abs(this_z_2796-map_z_MgIIL2(quasar_ind, num_MgII))<20*kms_to_z(map_sigma_MgIIL2(quasar_ind, num_MgII)/1e5)*(1+z_qso));
                 ind_zoomL1 = (abs(this_z_2796-map_z_MgIIL1(quasar_ind, num_MgII))<20*kms_to_z(map_sigma_MgIIL2(quasar_ind, num_MgII)/1e5)*(1+z_qso));
                 pltQSO(this_flux, this_wavelengths, MgII_muL2, c4_muL1, ind_zoomL2, ind_zoomL1, z_EWhigh, z_EWlow, z_PM_test_plot,...
                         ind_not_remove, ttl, fid)
-         end
+         % end
 
-            % fid = sprintf('muPlot/mu-id-%s.png', this_ID)
-            % ttl = sprintf('ID:%s, zQSO:%.2f',  this_ID, z_qso)
-            % plt_mu(this_flux, this_wavelengths, this_mu, z_qso, this_M, ttl, fid)
-            % ttl
-        % end
+            fid = sprintf('muPlot/mu-id-%s.png', this_ID)
+            ttl = sprintf('ID:%s, zQSO:%.2f',  this_ID, z_qso)
+            plt_mu(this_flux, this_wavelengths, this_mu, z_qso, this_M, ttl, fid)
+            ttl
+        end
 
 
 

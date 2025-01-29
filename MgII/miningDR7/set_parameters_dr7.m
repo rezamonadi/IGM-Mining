@@ -111,12 +111,12 @@ min_z_cut = kms_to_z(vCut);                   % min z_DLA = z_Ly∞ + min_z_cut
 min_z_MgII = @(wavelengths, z_qso) ...         % determines minimum z_DLA to search
     max(min(wavelengths) / mgii_2796_wavelength - 1,                          ...
         observed_wavelengths(1310, z_qso) / mgii_2796_wavelength - 1);
-train_ratio =0.95;
+train_ratio =0.99;
 sample_name = sprintf("N-%d-%d-Sigma-%d-%d-Num-%d",floor(fit_min_log_nMgII*100),floor(100*fit_max_log_nMgII), min_sigma,max_sigma, num_MgII_samples);
 training_set_name = 'Seyfert';
-testing_set_name = '5%'
+testing_set_name = '1%'
                                                 
-max_MgII = 2;
+max_MgII = 10;
 dv_mask = 750;%350; % (km/s)
 
                  

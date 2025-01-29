@@ -2,10 +2,10 @@
 fprintf('Setting paramters ...\n')
 
 cataloging = 0;
-preloading = 1;
-learning   = 1;
+preloading = 0;
+learning   = 0;
 sampling   = 0;
-processing = 1;
+processing = 0;
 plotting = 0;
 merging = 0;
 EWer = 0;
@@ -55,6 +55,7 @@ if voigtPrep == 1
     addpath(genpath(pwd))
     mexAll
     cd ..
+    
     if HPCC == 1
         mex voigt_iP.c -lcerf -I/rhome/rmona003/bin/include/ -L/rhome/rmona003/bin/lib64/ 
         mex voigt_iP_fixS.c -lcerf -I/rhome/rmona003/bin/include/ -L/rhome/rmona003/bin/lib64/ 
@@ -70,6 +71,7 @@ end
 fprintf('preparing testing, training, and prior indeces ...\n')
 
 if learning==1
+  
     half_ID = randsample(all_QSO_ID, int32(train_ratio*numel(all_QSO_ID)));
     test_ind = (~ismember(all_QSO_ID, half_ID)) & (filter_flags==0);
     prior_ind = ismember(all_QSO_ID, half_ID) & (filter_flags==0);
@@ -124,7 +126,7 @@ load(sprintf('%s/preloaded_qsos_%s.mat', processed_directory(release), training_
 
 % % 
 if processing==1
-   % parpool('local', 4);
+   % parpool('local', 10);
     SingleLineModel = 1;
 
     process_qsos_dr7

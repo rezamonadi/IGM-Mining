@@ -22,30 +22,30 @@
 /* physical constants */
 
 static const double c   = 2.99792458e+10;              /* speed of light          cm s⁻¹        */
-static const double k   = 1.38064852e-16;         /* Boltzmann constant      erg K⁻¹       */
-static const double m_p = 1.672621898e-24;        /* proton mass             g             */
-static const double m_e = 9.10938356e-28;         /* electron mass           g             */
+// static const double k   = 1.38064852e-16;         /* Boltzmann constant      erg K⁻¹       */
+// static const double m_p = 1.672621898e-24;        /* proton mass             g             */
+// static const double m_e = 9.10938356e-28;         /* electron mass           g             */
 // double e = 1.6021766208e-19 * c / 10; */
-static const double e   = 4.803204672997660e-10;  /* elementary charge       statC         */
+// static const double e   = 4.803204672997660e-10;  /* elementary charge       statC         */
 
 /* CIV doublet */
 
 static const double transition_wavelengths[] =         /* transition wavelengths  cm            */
   {
-    1.5482040e-05,
-    1.5507810e-05
-  };
+    2.796354300000000e-5,
+    2.803531500000000e-5   
+      };
 
 static const double oscillator_strengths[] =           /* oscillator strengths    dimensionless */
   {
-    0.189900,
-    0.094750
+    0.608,
+    0.303
   };
 
 static const double Gammas[] =                         /* transition rates        s^-1          */
   {
-    2.643e+08,
-    2.628e+08
+    2.60e+08,
+    2.57e+08
   };
 
 /* assumed constant */
@@ -67,47 +67,18 @@ static const double Gammas[] =                         /* transition rates      
       // M_PI * e * e * oscillator_strengths[i] * transition_wavelengths[i] / (m_e * c) ;
 // */
 static const double leading_constants[] =              /* leading constants  cm² */
-  {     7.802895118381213e-08,
-     3.899701297867750e-08
+  {     4.51229812059199e-07, 
+    2.2545006155878428e-07
  };
 
 /* gammas[i] = Gammas[i] * transition_wavelengths[i] / (4 * M_PI); */
 static const double gammas[] =                         /* Lorentzian widths       cm s⁻¹        */
   {
-     3.255002952981575e+02,
-     3.243136695286643e+02
+     578.56921645238,
+    573.3616245383533
   };
 
-/* BOSS spectrograph instrumental broadening */
-/* R = 2000; */                                  /* resolving power          dimensionless */
-
-/* width of instrument broadening in pixels */
-/* pixel_spacing = 1e-4; */
-/* pixel_sigma = 1 / (R * 2 * sqrt(2 * M_LN2) * (pow(10, pixel_spacing) - 1)); */
-
 static const int width = 3;                      /* width of convolution     dimensionless */
-
-/*
-  total = 0;
-  for (i = -width, j = 0; i <= width; i++, j++) {
-    instrument_profile[j] = exp(-0.5 * i * i / (pixel_sigma * pixel_sigma));
-    total += instrument_profile[j];
-  }
-
-  for (i = 0; i < 2 * width + 1; i++)
-    instrument_profile[i] /= total;
-*/
-
-// static const double instrument_profile[] =
-//   {
-//    0.002174609921381,
-//    0.041162305958045,
-//    0.240309364651847,
-//    0.432707438937454,
-//    0.240309364651847,
-//    0.041162305958045,
-//    0.002174609921381
-//   };
 
 void mexFunction(int nlhs,       mxArray *plhs[],
 		 int nrhs, const mxArray *prhs[]) {
@@ -130,7 +101,7 @@ void mexFunction(int nlhs,       mxArray *plhs[],
   lambdas     = mxGetPr(LAMBDAS_ARG);                /* wavelengths             Å             */
   z           = mxGetScalar(Z_ARG);                  /* redshift                dimensionless */
   N           = mxGetScalar(N_ARG);                  /* column density          cm⁻²          */
-  sigma       = mxGetScalar(sigma_ARG);              /* Doppler broadening  paramberter   km/s*/
+  sigma       = mxGetScalar(sigma_ARG);              /* Doppler broadening  paramberter   cm/s*/
   pixel_sigma = mxGetPr(pixel_sigma_ARG);             /* pixel sigma from spSpec                */
 
   num_lines = (nrhs > 3) ? (int)(mxGetScalar(NUM_LINES_ARG)) : NUM_LINES;
@@ -164,26 +135,24 @@ void mexFunction(int nlhs,       mxArray *plhs[],
 
   /* instrumental broadening */
   for (i = 0; i < num_points; i++){
-    if (i>=width && i<=num_points-width ){
+    if ((i>=width) && (i<=num_points-width)){
       total = 0;
       for (ii = -width, jj = 0; ii <= width; ii++, jj++) {
-      
-        instrument_profile[jj] = exp(-0.5 * ii * ii / (pixel_sigma[i] * pixel_sigma[i]));
+        
+        instrument_profile[jj] = exp(-0.5 * ii * ii / (pixel_sigma[i] * pixel_sigma[i]))/pixel_sigma[i];
         total += instrument_profile[jj];
-      }
-    
+        }
+      
       for (ii = 0; ii < 2 * width + 1; ii++)
         instrument_profile[ii] /= total;
-    
 
       for (j = i, k = 0; j <= i + 2 * width; j++, k++){
         profile[i] += raw_profile[j] * instrument_profile[k];
       }
     }
     else {
-       profile[i] = raw_profile[i];
+      profile[i] = raw_profile[i];
     }
-
   }
   mxFree(raw_profile);
   mxFree(multipliers);

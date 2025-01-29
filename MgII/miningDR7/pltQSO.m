@@ -9,8 +9,8 @@ function y=pltQSO(this_flux, this_wavelengths, c4_muL2, c4_muL1, ind_zoomL2, ind
     clf();
     % subplot('position', [0.05 0.49 0.90 5]);
     % construct dla_mu_map
-    civ_1548_wavelength = 1548.1949462890625; 
-    this_z_c4 = (this_wavelengths / civ_1548_wavelength) - 1;
+    mgii_2796_wavelength= 2.7964e+03; 
+    this_z_c4 = (this_wavelengths / mgii_2796_wavelength) - 1;
 
     % % subplot(2,1,1);
     
@@ -25,10 +25,10 @@ function y=pltQSO(this_flux, this_wavelengths, c4_muL2, c4_muL1, ind_zoomL2, ind
     p.LineWidth=1.5;
     hold on
 
-    % p = plot(this_z_c4, c4_muL1);
-    % p.Color = [0.500 0.8250 0.0980, 0.6]; 
-    % p.LineWidth=1.5;
-    % hold on 
+    p = plot(this_z_c4, c4_muL1);
+    p.Color = [0.500 0.8250 0.0980, 0.6]; 
+    p.LineWidth=1.5;
+    hold on 
     
     legend({'Flux', 'M$_D$', 'M$_S$'}, 'interpreter', 'latex')
     % legend({'Flux', 'M$_D$'}, 'interpreter', 'latex')
@@ -38,7 +38,7 @@ function y=pltQSO(this_flux, this_wavelengths, c4_muL2, c4_muL1, ind_zoomL2, ind
     % xline(z_EWhigh)
     % legend({'Flux', 'CIV', 'Singlet'}, 'interpreter', 'latex')
     xlim([min(this_z_c4), max(this_z_c4)])
-    xlabel('$\lambda$/1548 (\AA) - 1', 'Interpreter','latex');
+    xlabel('$\lambda$/2796 (\AA) - 1', 'Interpreter','latex');
     ylabel('Normalised Flux');
     % title(ttl, 'FontSize', 5, 'interpreter', 'latex')
 
@@ -83,7 +83,7 @@ function y=pltQSO(this_flux, this_wavelengths, c4_muL2, c4_muL1, ind_zoomL2, ind
     % xline(z_EWlow)
     % hold on
     % xline(z_EWhigh)
-    % % title(ttl, 'FontSize', 7)
+    title(ttl, 'FontSize', 7)
 
     % axes('position', [0.45 0.75 0.18 0.15]);
     % box on 
