@@ -57,35 +57,35 @@ for i = 1:num_quasars
   this_rest_wavelengths = emitted_wavelengths(this_wavelengths, all_zqso(i));
   % normalizing here
 
-  if (all_zqso(i) < 0.6)
- 
-   ind = (this_rest_wavelengths >= normalization_min_lambda_1) & ...
-           (this_rest_wavelengths <= normalization_max_lambda_1) & ...
-           (~this_pixel_mask);
-  end
+  % if (all_zqso(i) < 0.6)
+  % 
+  %  ind = (this_rest_wavelengths >= normalization_min_lambda_1) & ...
+  %          (this_rest_wavelengths <= normalization_max_lambda_1) & ...
+  %          (~this_pixel_mask);
+  % end
+  % 
+  % if (all_zqso(i)>= 0.6 && all_zqso(i) < 1.0)
+  % 
+  %  ind = (this_rest_wavelengths >= normalization_min_lambda_2) & ...
+  %          (this_rest_wavelengths <= normalization_max_lambda_2) & ...
+  %          (~this_pixel_mask);
+  % end
   
-  if (all_zqso(i)>= 0.6 && all_zqso(i) < 1.0)
- 
-   ind = (this_rest_wavelengths >= normalization_min_lambda_2) & ...
-           (this_rest_wavelengths <= normalization_max_lambda_2) & ...
-           (~this_pixel_mask);
-  end
-  
-  if (all_zqso(i)>= 1.0 && all_zqso(i)< 2.5)
+  % if (all_zqso(i)>= 1.0 && all_zqso(i)< 2.5)
  
    ind = (this_rest_wavelengths >= normalization_min_lambda_3) & ...
            (this_rest_wavelengths <= normalization_max_lambda_3) & ...
            (~this_pixel_mask);
-  end
+  % end
   
-  % if (all_zqso(i)>= 2.5 && all_zqso(i) > 4.7)
-  if (all_zqso(i)>= 2.5)
+  % % if (all_zqso(i)>= 2.5 && all_zqso(i) > 4.7)
+  % if (all_zqso(i)>= 2.5)
+  % 
+  %  ind = (this_rest_wavelengths >= normalization_min_lambda_4) & ...
+  %          (this_rest_wavelengths <= normalization_max_lambda_4) & ...
+  %          (~this_pixel_mask);
 
-   ind = (this_rest_wavelengths >= normalization_min_lambda_4) & ...
-           (this_rest_wavelengths <= normalization_max_lambda_4) & ...
-           (~this_pixel_mask);
-
-  end
+  % end
 
   this_median = nanmedian(this_flux(ind));
   

@@ -24,7 +24,9 @@
 % load(sprintf('%s/catalog', processed_directory(release)), ...
 %     variables_to_load{:});
 % % load('data/dr7/processed/processed_qsos_tst_OCCAML1-Sigma-4000000-nSamp-10000.mat');
-load('data/dr7/processed/processed_qsos_tst_1%-max-MgII-10.mat');
+% load('data/dr7/processed/processed_qsos_tst_1%-max-MgII-10.mat');
+% load('data/dr7/processed/processed_qsos_tst_1%-norm2.mat');
+load('data/dr7/processed/processed_qsos_tst_1%-norm4-20k.mat');
 
 
 ind_has_MgII =ismember(all_QSO_ID, MgII_QSO_ID);
@@ -59,7 +61,7 @@ for quasar_ind=1:nTest
      end
 end
 fig = figure();
-y_score = log(p_MgII_best./p_no_MgII_best); 
+y_score = log(p_MgII_best./p_no_MgII_best);
 y_true = ind_has_MgII(test_ind);
 [X,Y,T,AUC] =perfcurve(y_true, y_score, 'true');
 p=plot(X,Y, 'lineWidth',3);
