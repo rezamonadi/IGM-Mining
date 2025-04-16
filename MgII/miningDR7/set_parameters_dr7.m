@@ -114,13 +114,13 @@ min_z_MgII = @(wavelengths, z_qso) ...         % determines minimum z_DLA to sea
 train_ratio =0.99;
 sample_name = sprintf("N-%d-%d-Sigma-%d-%d-Num-%d",floor(fit_min_log_nMgII*100),floor(100*fit_max_log_nMgII), min_sigma,max_sigma, num_MgII_samples);
 training_set_name = 'Seyfert';
-testing_set_name = '1%-CIV-Mask-30A-samp-20k'
+testing_set_name = '1%-Masking-20-CIV-samp-20k'
                                                 
 max_MgII = 10;
 dv_mask = 750;%350; % (km/s)
 
                  
-% base directory for all data
+% base directory for all data   
 
 base_directory = 'data';
 % utility functions for identifying various directories

@@ -87,7 +87,7 @@ for i = 1:num_quasars
 
   % end
 
-  this_median = nanmedian(this_flux(ind));
+  this_median = median(this_flux(ind));
   
   % bit 2: cannot normalize (all normalizing pixels are masked)
   if (isnan(this_median))
