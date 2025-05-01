@@ -3,7 +3,7 @@
 > Use this checklist to ensure high-quality, maintainable, and collaborative code.
 
 ### 🧠 Code Clarity
-- [ ] Use descriptive and consistent variable/function names
+- [.] Use descriptive and consistent variable/function names
 - [ ] Write modular functions that do one thing well
 - [ ] Maintain consistent indentation and formatting
 - [ ] Write comments that explain **why**, not just **what**
