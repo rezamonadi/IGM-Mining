@@ -3,14 +3,14 @@
 > Use this checklist to ensure high-quality, maintainable, and collaborative code.
 
 ### 🧠 Code Clarity
-- [x] Use descriptive and consistent variable/function names
+- [ ] Use descriptive and consistent variable/function names
 - [ ] Write modular functions that do one thing well
 - [ ] Maintain consistent indentation and formatting
 - [ ] Write comments that explain **why**, not just **what**
 - [ ] Remove dead or commented-out code before committing
 
 ### 🧪 Testing & Validation
-- [x] Write unit tests for each core function or module
+- [ ] Write unit tests for each core function or module
 - [ ] Include edge-case tests (e.g., empty input, max input size)
 - [ ] Use `assert` or equivalent to check critical assumptions
 - [ ] Run all tests before committing
