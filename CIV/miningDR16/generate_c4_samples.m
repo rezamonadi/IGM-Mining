@@ -85,10 +85,11 @@ nciv_samples = 10.^log_nciv_samples;
 
 variables_to_save = {'offset_z_samples', 'offset_sigma_samples', 'log_nciv_samples', 'nciv_samples'};
              
- save(sprintf('%s/civ_samples_%s.mat', processed_directory(release), sample_name),  variables_to_save{:}, '-v7.3');
+ save(sprintf('%s/civ_samples_N-%d-%d-Sigma-%d-%d-Num-%d.mat', processed_directory(releaseTest),...
+     floor(uniform_min_log_nciv*100),floor(uniform_max_log_nciv*100), floor(min_sigma/1e5), floor(max_sigma/1e5), num_C4_samples),  variables_to_save{:}, '-v7.3');
 
 fig = figure();
 
 histogram(log_nciv_samples)
-exportgraphics(fig, sprintf('%s-hist2D.png', sample_name), 'Resolution', 800)
+exportgraphics(fig, sprintf('%s-hist2D.png', training_set_name), 'Resolution', 800)
 

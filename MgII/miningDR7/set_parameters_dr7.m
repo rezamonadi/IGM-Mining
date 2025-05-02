@@ -40,7 +40,7 @@ loading_max_lambda = 2850;
 
 % preprocessing parameters
 %z_qso_cut      = 2.15;                   % filter out QSOs with z less than this threshold
-z_qso_cut      = 1.5;                      % according to Seyffert z>0.36                      
+z_qso_cut      = 0.36;                      % according to Seyffert z>0.36                      
 min_num_pixels = 100;                         % minimum number of non-masked pixels
 
 % normalization parameters
@@ -82,19 +82,18 @@ minFunc_options =               ...           % optimization options for model f
 % MgII model parameters: parameter samples (for Quasi-Monte Carlo)
 nAVG               = 20;                     % number of points added between two 
                                             % observed wavelengths to make the Voigt finer
-num_C4_samples         = 10000;                  % number of parameter samples
+num_MgII_samples         = 20000;                  % number of parameter samples
 alpha                    = 0.90;                    % weight of KDE component in mixture
-uniform_min_log_nciv     = 12.0;                   % range of column density samples    [cm⁻²]
-uniform_max_log_nciv     = 17;                   % from uniform distribution
-fit_min_log_nciv         = uniform_min_log_nciv;                   % range of column density samples    [cm⁻²]
-fit_max_log_nciv         = 16.5;                   % from fit to log PDF
+uniform_min_log_nMgII     = 12.0;                   % range of column density samples    [cm⁻²]
+uniform_max_log_nMgII     = 15.5;                   % from uniform distribution
+fit_min_log_nMgII         = uniform_min_log_nMgII;                   % range of column density samples    [cm⁻²]
+fit_max_log_nMgII         = 15.5;                   % from fit to log PDF
 
 
-min_sigma                = 100e5;                   % cm/s -> b/sqrt(2) -> min Doppler par from Cooksey
-max_sigma                = 600e5;                   % cm/s -> b/sqrt(2) -> max Doppler par from Cooksey
+min_sigma                = 10e5;                   % cm/s -> b/sqrt(2) -> min Doppler par from Cooksey
+max_sigma                = 400e5;                   % cm/s -> b/sqrt(2) -> max Doppler par from Cooksey
 
 vCut                     = 767; %500;                    % maximum cut velocity for MgII system 
-RejectionSampling        = 0;
 % model prior parameters
 prior_z_qso_increase = kms_to_z(30000);       % use QSOs with z < (z_QSO + x) for prior
 
@@ -106,22 +105,18 @@ pixel_spacing = 1e-4;                         % wavelength spacing of pixels in 
 num_lines = 2;                                % number of members of CIV series to use
 
 max_z_cut = kms_to_z(vCut);                   % max z_DLA = z_QSO - max_z_cut
-% max_z_c4 = @(wavelengths, z_qso) ...         % determines maximum z_DLA to search
-%     (max(wavelengths)/civ_1548_wavelength - 1) - max_z_cut;
-max_z_c4 = @(z_qso, max_z_cut) ...         % determines maximum z_DLA to search
+max_z_MgII = @(z_qso, max_z_cut) ...         % determines maximum z_DLA to search
      z_qso - max_z_cut*(1+z_qso);
 min_z_cut = kms_to_z(vCut);                   % min z_DLA = z_Ly∞ + min_z_cut
-min_z_c4 = @(wavelengths, z_qso) ...         % determines minimum z_DLA to search
+min_z_MgII = @(wavelengths, z_qso) ...         % determines minimum z_DLA to search
     max(min(wavelengths) / mgii_2796_wavelength - 1,                          ...
         observed_wavelengths(1310, z_qso) / mgii_2796_wavelength - 1);
-% min_z_c4 = @(wavelengths, z_qso) ...         % determines minimum z_DLA to search
-%      min(wavelengths) / civ_1548_wavelength - 1;
-train_ratio =0.95;
-sample_name = sprintf("N-%d-%d-Sigma-%d-%d-Num-%d",floor(fit_min_log_nciv*100),floor(100*fit_max_log_nciv), min_sigma,max_sigma, num_C4_samples);
-training_set_name = 'L-1310-1555-mnp-400-normL-1420-1475-dlambda-0.50-k-20-mnv-0.25';
-testing_set_name = 'N-1250-1610-S-35-115-civWVL'
+train_ratio =0.99;
+sample_name = sprintf("N-%d-%d-Sigma-%d-%d-Num-%d",floor(fit_min_log_nMgII*100),floor(100*fit_max_log_nMgII), min_sigma,max_sigma, num_MgII_samples);
+training_set_name = 'Seyfert';
+testing_set_name = '1%-CIV-Mask-30A-samp-20k'
                                                 
-max_civ = 1;
+max_MgII = 10;
 dv_mask = 750;%350; % (km/s)
 
                  
@@ -138,5 +133,5 @@ spectra_directory   = @(release)...
 processed_directory = @(release) ...
    sprintf('%s/%s/processed', base_directory, release);
 
-c4_catalog_directory = @(name) ...
-   sprintf('%s/C4_catalogs/%s/processed', base_directory, name);
+MgII_catalog_directory = @(name) ...
+   sprintf('%s/MgII_catalogs/%s/processed', base_directory, name);

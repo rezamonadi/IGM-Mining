@@ -1,13 +1,12 @@
 
 fprintf('Setting paramters ...\n')
 
-num_C4_samples = 10000;
 cataloging = 0;
 preloading = 0;
 learning   = 0;
 sampling   = 0;
-processing = 1;
-plotting = 1;
+processing = 0;
+plotting = 0;
 merging = 0;
 EWer = 0;
 pltP = 0;
@@ -36,7 +35,7 @@ if cataloging==1
 end
 variables_to_load= {'all_plate_dr7', 'all_mjd_dr7', 'all_fiber_dr7', ...
 'all_QSO_ID', 'all_RA', 'all_DEC', 'all_zqso', 'all_EW1', 'all_errEW1', ...
-'all_N_civ','all_z_civ1', 'all_z_civ2', 'all_z_civ3', 'all_RATING', 'c4_QSO_ID'};
+'all_N_MgII','all_z_MgII1', 'all_z_MgII2', 'all_z_MgII3', 'all_RATING', 'MgII_QSO_ID'};
 load(sprintf('%s/catalog', processed_directory(release)), ...
     variables_to_load{:});
 fprintf('Preloading QSOs ...\n')
@@ -56,6 +55,7 @@ if voigtPrep == 1
     addpath(genpath(pwd))
     mexAll
     cd ..
+    
     if HPCC == 1
         mex voigt_iP.c -lcerf -I/rhome/rmona003/bin/include/ -L/rhome/rmona003/bin/lib64/ 
         mex voigt_iP_fixS.c -lcerf -I/rhome/rmona003/bin/include/ -L/rhome/rmona003/bin/lib64/ 
@@ -71,6 +71,7 @@ end
 fprintf('preparing testing, training, and prior indeces ...\n')
 
 if learning==1
+  
     half_ID = randsample(all_QSO_ID, int32(train_ratio*numel(all_QSO_ID)));
     test_ind = (~ismember(all_QSO_ID, half_ID)) & (filter_flags==0);
     prior_ind = ismember(all_QSO_ID, half_ID) & (filter_flags==0);
@@ -82,7 +83,7 @@ if learning==1
         % end
     % end
 
-    train_ind = (~ismember(all_QSO_ID, c4_QSO_ID) & (filter_flags==0) & ...
+    train_ind = (~ismember(all_QSO_ID, MgII_QSO_ID) & (filter_flags==0) & ...
     ismember(all_QSO_ID, half_ID) );
 
     fprintf('Learning model ...\n')
@@ -93,13 +94,6 @@ if learning==1
     learn_qso_model
 end
 
-
-if learning == 2 % --> full learning 
-    fprintf('Learning model on the full catalog ...\n')
-    preloaded_qsos_cat_name= sprintf('%s/preloaded_qsos_%s.mat',... 
-                               processed_directory(release), training_set_name);
-    learn_qso_model
-end
 
 variables_to_load = {'release', 'train_ind', 'max_noise_variance', ...
                    'minFunc_options', 'rest_wavelengths', 'mu', ...
@@ -113,15 +107,15 @@ fprintf('Generating samples for integrating out parameters in the model...\n');
 
 
 if sampling==1
-    generate_c4_samples
+    generate_MgII_samples
 end
 
 variables_to_load = {'offset_z_samples', 'offset_sigma_samples'
-                     'log_nciv_samples', 'nciv_samples'};
+                     'log_nMgII_samples', 'nMgII_samples'};
 
-load(sprintf('%s/civ_samples_%s.mat', processed_directory(release), sample_name), variables_to_load{:});
+load(sprintf('%s/MgII_samples_%s.mat', processed_directory(release), sample_name), variables_to_load{:});
 
-fprintf(sprintf('%d Samples are generated\n', num_C4_samples));
+fprintf(sprintf('%d Samples are generated\n', num_MgII_samples));
 
 %load preprocessed QSOs
 variables_to_load = {'all_wavelengths', 'all_flux', 'all_noise_variance', ...
@@ -132,7 +126,7 @@ load(sprintf('%s/preloaded_qsos_%s.mat', processed_directory(release), training_
 
 % % 
 if processing==1
-    % parpool('local', 6);
+   % parpool('local', 10);
     SingleLineModel = 1;
 
     process_qsos_dr7
