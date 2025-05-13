@@ -13,7 +13,7 @@ pthr  = 0.85;           % or 0.95 if you prefer
 % --- find grouping of absorbers into quasars -------------------
 % assume savingCat gives you the number of c4 absorbers per quasar:
 % (if your field is named differently, swap in the right one)
-nAbsPerQSO = savingCat.all_n_c4s(:);
+nAbsPerQSO = savingCat.all_map_N_c4L2(:);
 
 % compute the global indices of each absorber
 startIdx = [1; cumsum(nAbsPerQSO(1:end-1))+1];
