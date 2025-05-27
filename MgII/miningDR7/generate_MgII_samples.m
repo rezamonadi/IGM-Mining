@@ -14,7 +14,7 @@ sequence = scramble(haltonset(3), 'rr2');
 % the first dimension can be used directly for the uniform prior over
 % offsets
 offset_z_samples  = sequence(1:num_MgII_samples, 1)';
-offset_sigma_samples = sequence(1:num_MgII_samples, 1)';
+offset_sigma_samples = sequence(1:num_MgII_samples, 2)';
 % we must transform the second dimension to have the correct marginal
 % distribution for our chosen prior over column density, which is a
 % mixture of a uniform distribution on log₁₀ N_CIV and a distribution

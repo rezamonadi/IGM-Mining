@@ -1,12 +1,12 @@
-
+tic
 fprintf('Setting paramters ...\n')
 
 cataloging = 0;
 preloading = 0;
-learning   = 0;
-sampling   = 0;
-processing = 0;
-plotting = 0;
+learning   = 1;
+sampling   = 1;
+processing = 1;
+plotting = 1;
 merging = 0;
 EWer = 0;
 pltP = 0;
@@ -14,7 +14,7 @@ CredInt = 0;
 statTesting =0;
 dv_mask    = 750; %350
 HPCC = 0;
-voigtPrep = 0;
+voigtPrep = 1;
 maskType = 0;
 priorType = 0;
 ind_S = 0;
@@ -33,15 +33,17 @@ fprintf('Building catalogs ...\n')
 if cataloging==1
     build_catalog_dr7
 end
-variables_to_load= {'all_plate_dr7', 'all_mjd_dr7', 'all_fiber_dr7', ...
-'all_QSO_ID', 'all_RA', 'all_DEC', 'all_zqso', 'all_EW1', 'all_errEW1', ...
+variables_to_load= {'all_plate_dr7', 'all_mjd_dr7', 'all_fiber_dr7','all_EW2', ...
+'all_QSO_ID', 'all_RA', 'all_DEC', 'all_zqso', 'all_EW1', 'all_errEW1','all_errEW2' ...
 'all_N_MgII','all_z_MgII1', 'all_z_MgII2', 'all_z_MgII3', 'all_RATING', 'MgII_QSO_ID'};
+
+
 load(sprintf('%s/catalog', processed_directory(release)), ...
     variables_to_load{:});
 fprintf('Preloading QSOs ...\n')
 
 
-if preloading==1
+if preloading == 1 
     preload_qsos_dr7_test
 end
 
@@ -49,12 +51,13 @@ end
 load(sprintf('%s/preloaded_qsos_%s.mat', processed_directory(release), training_set_name));
 
 fprintf('preparing voigt.c ...\n')
-
+cd minFunc_2012
+addpath(genpath(pwd))
+mexAll
+cd ..
 if voigtPrep == 1 
-    cd minFunc_2012
-    addpath(genpath(pwd))
-    mexAll
-    cd ..
+  
+    
     
     if HPCC == 1
         mex voigt_iP.c -lcerf -I/rhome/rmona003/bin/include/ -L/rhome/rmona003/bin/lib64/ 
@@ -91,7 +94,8 @@ if learning==1
 % load preprocessed QSOs
     preloaded_qsos_cat_name= sprintf('%s/preloaded_qsos_%s.mat',... 
                                processed_directory(release), training_set_name);
-    learn_qso_model
+    %learn_qso_model
+    learning_gannon2
 end
 
 
@@ -128,14 +132,17 @@ load(sprintf('%s/preloaded_qsos_%s.mat', processed_directory(release), training_
 if processing==1
    % parpool('local', 10);
     SingleLineModel = 1;
-
+    %TestProcess
     process_qsos_dr7
 end
 
 if statTesting==1
-	statTest
+    ROCtest
+	statTestGannon
+    
 end
 
 if EWer==1
     EWer_dr7
 end
+toc

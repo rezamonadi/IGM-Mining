@@ -9,8 +9,6 @@ tic;
 variables_to_load = {'all_plate_dr7', 'all_mjd_dr7', 'all_fiber_dr7',...
 'all_QSO_ID','all_zqso'};
 
-
-
 load(sprintf('%s/catalog', processed_directory(release)), ...
     variables_to_load{:});
 
@@ -22,7 +20,6 @@ all_noise_variance =  cell(num_quasars, 1);
 all_pixel_mask     =  cell(num_quasars, 1);
 all_sigma_pixel    =  cell(num_quasars, 1);
 all_normalizers    = zeros(num_quasars, 1);
-
 
 % to track reasons for filtering out QSOs
 filter_flags = zeros(num_quasars, 1, 'uint8');
@@ -43,9 +40,6 @@ for i = 1:num_quasars
   %------dr7-----------
   [this_wavelengths, this_flux, this_noise_variance, this_pixel_mask, this_sigma_pixel] ...
       = file_loader(all_mjd_dr7(i), all_plate_dr7(i),all_fiber_dr7(i));
-
-
-  
   this_sigma_pixel = this_sigma_pixel';
 	% Here file_loader uses dr7 spectrum reader function and given mpf to read
 	% spectrum 
@@ -55,39 +49,15 @@ for i = 1:num_quasars
   this_pixel_mask((abs(this_wavelengths-5579)<5) | (abs(this_wavelengths-6302)<5))=1;
  
   this_rest_wavelengths = emitted_wavelengths(this_wavelengths, all_zqso(i));
-  % normalizing here
 
-  % if (all_zqso(i) < 0.6)
-  % 
-  %  ind = (this_rest_wavelengths >= normalization_min_lambda_1) & ...
-  %          (this_rest_wavelengths <= normalization_max_lambda_1) & ...
-  %          (~this_pixel_mask);
-  % end
-  % 
-  % if (all_zqso(i)>= 0.6 && all_zqso(i) < 1.0)
-  % 
-  %  ind = (this_rest_wavelengths >= normalization_min_lambda_2) & ...
-  %          (this_rest_wavelengths <= normalization_max_lambda_2) & ...
-  %          (~this_pixel_mask);
-  % end
-  
-  % if (all_zqso(i)>= 1.0 && all_zqso(i)< 2.5)
+
+  % normalizing here
  
    ind = (this_rest_wavelengths >= normalization_min_lambda_3) & ...
            (this_rest_wavelengths <= normalization_max_lambda_3) & ...
            (~this_pixel_mask);
-  % end
-  
-  % % if (all_zqso(i)>= 2.5 && all_zqso(i) > 4.7)
-  % if (all_zqso(i)>= 2.5)
-  % 
-  %  ind = (this_rest_wavelengths >= normalization_min_lambda_4) & ...
-  %          (this_rest_wavelengths <= normalization_max_lambda_4) & ...
-  %          (~this_pixel_mask);
-
-  % end
-
-  this_median = nanmedian(this_flux(ind));
+ 
+  this_median = median(this_flux(ind));
   
   % bit 2: cannot normalize (all normalizing pixels are masked)
   if (isnan(this_median))

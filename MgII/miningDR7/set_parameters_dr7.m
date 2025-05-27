@@ -60,7 +60,7 @@ normalization_max_lambda_1 = 4250;   % Å  z < .6
 normalization_min_lambda_2 = 3020;   % Å  .6 < z < 1.0
 normalization_max_lambda_2 = 3100;   % Å  .6 < z < 1.0
 
-normalization_min_lambda_3 = 2150;   % Å  1.0 < z < 2.5
+normalization_min_lambda_3 = 2180;   % Å  1.0 < z < 2.5   was 2150-2250
 normalization_max_lambda_3 = 2250;   % Å  1.0 < z < 2.5
 
 normalization_min_lambda_4 = 1420;   % Å  2.5 < z < 4.7
@@ -91,7 +91,7 @@ fit_max_log_nMgII         = 15.5;                   % from fit to log PDF
 
 
 min_sigma                = 10e5;                   % cm/s -> b/sqrt(2) -> min Doppler par from Cooksey
-max_sigma                = 400e5;                   % cm/s -> b/sqrt(2) -> max Doppler par from Cooksey
+max_sigma                = 125e5;                   % cm/s -> b/sqrt(2) -> max Doppler par from Cooksey
 
 vCut                     = 767; %500;                    % maximum cut velocity for MgII system 
 % model prior parameters
@@ -114,13 +114,13 @@ min_z_MgII = @(wavelengths, z_qso) ...         % determines minimum z_DLA to sea
 train_ratio =0.99;
 sample_name = sprintf("N-%d-%d-Sigma-%d-%d-Num-%d",floor(fit_min_log_nMgII*100),floor(100*fit_max_log_nMgII), min_sigma,max_sigma, num_MgII_samples);
 training_set_name = 'Seyfert';
-testing_set_name = '1%-CIV-Mask-30A-samp-20k'
+testing_set_name = '1%-Masking-All-samp-20k'
                                                 
 max_MgII = 10;
 dv_mask = 750;%350; % (km/s)
 
                  
-% base directory for all data
+% base directory for all data   
 
 base_directory = 'data';
 % utility functions for identifying various directories
