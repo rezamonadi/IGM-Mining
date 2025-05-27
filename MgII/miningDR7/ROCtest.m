@@ -27,7 +27,7 @@
 % load('data/dr7/processed/processed_qsos_tst_1%-max-MgII-10.mat');
 % load('data/dr7/processed/processed_qsos_tst_1%-norm2.mat');
 % load('data/dr7/processed/processed_qsos_tst_1%-norm4-20k.mat');
-load('data/dr7/processed/processed_qsos_tst_1_Masking_CIV-20A1%-Masking-20-CIV-samp-20k.mat');
+load('data/dr7/processed/processed_sigma_125_binednorm_1%-Masking-All-samp-20k.mat');
 
 
 ind_has_MgII =ismember(all_QSO_ID, MgII_QSO_ID);

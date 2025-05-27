@@ -5,7 +5,7 @@
 % load(filename);
 % 
 % load('EW/REW_DR7_sigma_width_4.mat')
-% num_quasars = nnz(test_ind);
+
 % % Saving Kathy's data      
 % variables_to_load= {'all_plate_dr7', 'all_mjd_dr7', 'all_fiber_dr7', ...
 % 'all_QSO_ID', 'all_RA', 'all_DEC', 'all_zqso',...
@@ -15,7 +15,8 @@
 % 
 % load('data/dr7/processed/preloaded_qsos_L-1310-1555-mnp-400-normL-1420-1475-dlambda-0.50-k-20-mnv-0.25.mat')
 
-load('data/dr7/processed/processed_qsos_tst_1%-CIV-Mask-30A-samp-20k.mat');
+load('data/dr7/processed/processed_qsos_tst_1_Masking_CIV-20A1%-Masking-20-CIV-samp-20k.mat');
+num_quasars = nnz(test_ind);
 all_wavelengths    =    all_wavelengths;   %G(test_ind);
 all_flux           =           all_flux;   %G(test_ind);
 % all_noise_variance = all_noise_variance(test_ind);
@@ -26,6 +27,7 @@ EW_C13_2796             =       all_EW1(test_ind,:);
 errEW_C13_2796         =       all_errEW1(test_ind,:);
 EW_C13_2803             =       all_EW2(test_ind,:);
 errEW_C13_2803         =       all_errEW2(test_ind,:);
+
 % % comparing Z and N
 Z_C13_1 = all_z_MgII1(test_ind,:);
 Z_C13_2 = all_z_MgII2(test_ind,:);
@@ -33,7 +35,7 @@ Z_C13_3 = all_z_MgII3(test_ind,:);
 N_C13 = all_N_MgII(test_ind,:);
 Rate_test = all_RATING(test_ind, :);
 testID = all_QSO_ID(test_ind);
-dv=350;
+dv=10000000000000000000000000;
 ind_low = zeros([num_quasars,1]);
 ind_low_numMgII = zeros([num_quasars,1]);
 ind_high = zeros([num_quasars,1]);
@@ -51,7 +53,8 @@ ind_EW_large_PM1GP0 = nan([num_quasars, 1]);
 DV_EW_large_PM1GP0 = nan([num_quasars, 1]);
 ind_PM1GP0 = nan([num_quasars, 1]);
 ii=0;
-for tr=0.95
+PM1GP0_QSO_ID = [];
+for tr=0.85
     ii=ii+1;
     PM=0;
     GP=0;
@@ -95,19 +98,30 @@ for tr=0.95
     nn=0;mm=0;
     clear highTPID indPM0GP1
  
+    PM_ind = [];
+    GP_ind = [];
     for quasar_ind=1:num_quasars
         for i=1:17
             if(Rate_test(quasar_ind,i)>=2)
                 PM = PM+1;
+                PM_ind(end+1) = quasar_ind;
             end
         end
+
+       
+
+       
         for j=1:max_MgII
             if (p_MgII(quasar_ind, j)>=tr)
                 GP = GP+1;
                 N_MgII_GP1(quasar_ind, j) = map_N_MgIIL2(quasar_ind, j);
 %                 s_MgII_GP1(quasar_ind, j) = map_sigma_MgIIL2(quasar_ind, j);
+                GP_ind(end+1) = quasar_ind;
             end
         end
+
+        
+       
         thisTP=0;
         for i=1:17
             % if(Rate_test(quasar_ind,i)>=2)
@@ -121,7 +135,7 @@ for tr=0.95
                 
                     j = indMin;
                     if (p_MgII(quasar_ind, j)>=tr)  % PM1GP1
-                        if DZ_min_abs<kms_to_z(dv)*(1+Z_C13_1(quasar_ind, i))
+                        %if DZ_min_abs<kms_to_z(dv)*(1+Z_C13_1(quasar_ind, i))
                             thisTP = thisTP+1;
                             % DZ_min = DZ_abs;
                             PM1GP1 = PM1GP1 + 1;
@@ -198,13 +212,16 @@ for tr=0.95
     %                            
     %                            
     %                         end
-                        else
+                        %else
                                 PM1GP1dv0 =PM1GP1dv0+1;
 
-                        end
+                        %end
                     else
-                        if (p_MgII(quasar_ind,i)>=0.50) % try >= 0 
+                        if (p_MgII(quasar_ind,i)>=0) % try >= 0 
                         PM1GP0 = PM1GP0 +1;
+                       PM1GP0_QSO_ID(end+1) = quasar_ind;
+                        PM1GP0_QSO_ID = testID(PM1GP0_QSO_ID) %%%%
+
                         %G   endmax_MgII
                         end
                      end
@@ -217,6 +234,7 @@ for tr=0.95
             nn=nn+1;
             highTPID(nn) = testID(quasar_ind);
         end
+
 
         
         
@@ -240,9 +258,18 @@ for tr=0.95
 
     
 
-    P(ii) = PM1GP1/GP; 
-    C(ii) = PM1GP1/PM;
+    P(ii) = PM1GP1/GP 
+    C(ii) = PM1GP1/PM
 end
+ PM_QSO_ID = testID(PM_ind);
+
+commonQSO_IDs = intersect(PM_QSO_ID, GP_QSO_ID);
+uncommonQSO_IDs = setxor(PM_QSO_ID, GP_QSO_ID);
+size(commonQSO_IDs)
+size(uncommonQSO_IDs)
+% for ii2 = 1:length(testID)
+%     for jj2 = 1:length(commonQSO_IDs)
+%         if testID(ii2) == commonQSO_IDs(jj2)
 
 
 % %% velocity  comparison for different zciv_PM

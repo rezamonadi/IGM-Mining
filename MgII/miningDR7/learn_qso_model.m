@@ -94,54 +94,7 @@ for i = 1:num_quasars
   rest_fluxes(i, :) = ...
       interp1(this_rest_wavelengths, this_flux,           rest_wavelengths);
 
-%   normalizing here
-%   following Zhou-Menard-2013
-%   if(z_qso<2.5)
-  
-%     ind = (this_rest_wavelengths >= 2150) & ...
-%           (this_rest_wavelengths <= 2250) & ...
-%           (~this_pixel_mask);
-%   else
-%     ind = (this_rest_wavelengths >= normalization_min_lambda) & ...
-%           (this_rest_wavelengths <= normalization_max_lambda) & ...
-%           (~this_pixel_mask);
-%   end
 
-  
-%  % Our code 2nd START
-%   if (all_zqso(i) <= 0.6)
- 
-%    ind = (this_rest_wavelengths >= normalization_min_lambda_1) & ...
-%            (this_rest_wavelengths <= normalization_max_lambda_1) & ...
-%            (~this_pixel_mask);
-%    % disp('1')
-%   end
- 
-%   if (all_zqso(i) > 0.6 && all_zqso(i) <= 1.0)
- 
-%    ind = (this_rest_wavelengths >= normalization_min_lambda_2) & ...
-%            (this_rest_wavelengths <= normalization_max_lambda_2) & ...
-%            (~this_pixel_mask);
-%        % disp('2')
-%   end
- 
-%   if (all_zqso(i) > 1.0 && all_zqso(i) <= 2.5)
- 
-%    ind = (this_rest_wavelengths >= normalization_min_lambda_3) & ...
-%            (this_rest_wavelengths <= normalization_max_lambda_3) & ...
-%            (~this_pixel_mask);
-%        disp('3')
-%   end
-
-%   if (all_zqso(i) > 2.5)
-%       %took away max z of 4.7 bc max z in z_qso was 5.31....
-  
-%    ind = (this_rest_wavelengths >= normalization_min_lambda_4) & ...
-%            (this_rest_wavelengths <= normalization_max_lambda_4) & ...
-%            (~this_pixel_mask);
-%        % disp('4')
-%   end
-%  Our 2nd code FINISH
 
 % this_median = nanmedian(this_flux(ind));
 

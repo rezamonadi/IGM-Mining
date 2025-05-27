@@ -3,18 +3,18 @@ fprintf('Setting paramters ...\n')
 
 cataloging = 0;
 preloading = 0;
-learning   = 0;
+learning   = 1;
 sampling   = 1;
 processing = 1;
-plotting = 0;
+plotting = 1;
 merging = 0;
 EWer = 0;
 pltP = 0;
 CredInt = 0;
-statTesting =1;
+statTesting =0;
 dv_mask    = 750; %350
 HPCC = 0;
-voigtPrep = 0;
+voigtPrep = 1;
 maskType = 0;
 priorType = 0;
 ind_S = 0;
@@ -94,7 +94,8 @@ if learning==1
 % load preprocessed QSOs
     preloaded_qsos_cat_name= sprintf('%s/preloaded_qsos_%s.mat',... 
                                processed_directory(release), training_set_name);
-    learn_qso_model
+    %learn_qso_model
+    learning_gannon2
 end
 
 
@@ -131,13 +132,13 @@ load(sprintf('%s/preloaded_qsos_%s.mat', processed_directory(release), training_
 if processing==1
    % parpool('local', 10);
     SingleLineModel = 1;
-
+    %TestProcess
     process_qsos_dr7
 end
 
 if statTesting==1
     ROCtest
-	statTest
+	statTestGannon
     
 end
 

@@ -12,7 +12,7 @@
 
 %load('EW/REW_DR7_sigma_width_4.mat')
 
-
+tic
 
 Full_catalog = ...
     load(sprintf('%s/catalog', processed_directory(release)));
@@ -89,7 +89,7 @@ map_sigma_MgIIL2              = nan(num_quasars, max_MgII);
 p_MgII                        = nan(num_quasars, max_MgII);
 p_MgIIL1                      = nan(num_quasars, max_MgII);
 p_no_MgII                     = nan(num_quasars, max_MgII);
-REW_1548_dr7                = nan(num_quasars, max_MgII);
+REW_2796_dr7                = nan(num_quasars, max_MgII);
 num_pixel_MgII               = nan(num_quasars, max_MgII, 2);
 sigma_MgII_samples = (max_sigma-min_sigma)*offset_sigma_samples + min_sigma;
 ID = all_QSO_ID(test_ind);
@@ -100,7 +100,9 @@ N_MgII_test = all_N_MgII(test_ind,:);
 z_PM_test = all_z_MgII1(test_ind,:);
 z_PM_prior = all_z_MgII1(prior_ind,:);
 j0=0;
-for quasar_ind = 1:num_quasars
+
+for quasar_ind = missed_abs(:,2)' %num_quasars
+
     % if z_PM_test(quasar_ind,1)==-1
     %     continue
     % end
@@ -125,10 +127,10 @@ for quasar_ind = 1:num_quasars
     this_rest_wavelengths = emitted_wavelengths(this_wavelengths, z_qso);
 
     unmasked_ind = (this_rest_wavelengths >= min_lambda) & ...
-       (this_rest_wavelengths <= max_lambda) & (this_sigma_pixel>0) & ...
-        ~(abs(this_rest_wavelengths- 1549.48)< 30) & ... % CIV emission line masking --> 30A comes from typical FWHM of CIV emission in SDSS Cite{Monadi & Bird-2022}
-        ~(abs(this_rest_wavelengths- 1393.8)< 25);% & ...% SIV emission line masking --> A is FWHM according to
-        %~(abs(this_rest_wavelengths- 1908.8)< 35);% CIII masking here
+       (this_rest_wavelengths <= max_lambda) & (this_sigma_pixel>0) &...
+         ~(abs(this_rest_wavelengths- 1549.48)< 15) & ... % CIV emission line masking --> 30A comes from typical FWHM of CIV emission in SDSS Cite{Monadi & Bird-2022}
+         ~(abs(this_rest_wavelengths- 1908.8)< 8) & ... CIII masking here
+         ~(abs(this_rest_wavelengths- 1393.8)< 6); % SIV emission line masking --> A is FWHM according to
 
 
     this_unmasked_wavelengths = this_wavelengths(unmasked_ind);
@@ -395,11 +397,11 @@ for quasar_ind = 1:num_quasars
 
             aL1 = Averager(aL1_fine, nAVG, lenW_unmasked);
 
-            REW_1548_dr7(quasar_ind, num_MgII) = trapz(this_unmasked_wavelengths, 1-aL1)/(1+z_qso);
+            REW_2796_dr7(quasar_ind, num_MgII) = trapz(this_unmasked_wavelengths, 1-aL1)/(1+z_qso);
 %          
-            fprintf('REW(%d,%d)=%e\n', quasar_ind, num_MgII, REW_1548_dr7(quasar_ind, num_MgII));
+            fprintf('REW(%d,%d)=%e\n', quasar_ind, num_MgII, REW_2796_dr7(quasar_ind, num_MgII));
 %         end
-
+      
          if(plotting==1) 
             % plotting
 
@@ -433,7 +435,7 @@ for quasar_ind = 1:num_quasars
                 %     this_ID, z_qso, p_MgII(quasar_ind, num_MgII), p_MgIIL1(quasar_ind, num_MgII),  map_z_MgIIL2(quasar_ind, num_MgII), ...
                 %     z_PM_test(quasar_ind,1:4),...
                 %     REW_PM(quasar_ind,1:4), errREW_PM(quasar_ind,1:4),...
-                %     REW_1548_DR7_flux(quasar_ind, num_MgII), ErrREW_1548_flux(quasar_ind, num_MgII));
+                %     REW_2796_dr7_flux(quasar_ind, num_MgII), ErrREW_1548_flux(quasar_ind, num_MgII));
                 DZ = abs(z_PM_test(quasar_ind, 1:4) - map_z_MgIIL2(quasar_ind,num_MgII));
 
                 dv = DZ./(1+z_PM_test(quasar_ind, 1:4))*speed_of_light/1e3;
@@ -441,7 +443,7 @@ for quasar_ind = 1:num_quasars
                 ttl = sprintf('ID:%s, zQSO:%.2f, P(MgII)=%.2f, P(S)=%.2f, z_{MgII}=%.6f\nz_{PM}=[%.4f,%.4f,%.4f,%.4f], dv = [%.0f,%.0f, %.0f, %.0f]',  ...
                     this_ID, z_qso, p_MgII(quasar_ind, num_MgII), p_MgIIL1(quasar_ind, num_MgII),  map_z_MgIIL2(quasar_ind, num_MgII), ...
                     z_PM_test(quasar_ind,1:4), dv);    
-                ttl
+                ttl;
 
                 dz_Doppler = kms_to_z(sqrt(2)*4*map_sigma_MgIIL2(quasar_ind, num_MgII)/1e5); % in km to z
                 dz_mid = (mgii_2803_wavelength - mgii_2796_wavelength)*0.5/mgii_2796_wavelength; % cm/s
@@ -450,17 +452,17 @@ for quasar_ind = 1:num_quasars
 
                 z_PM_test_plot = z_PM_test(quasar_ind,:);
                 z_PM_test_plot = z_PM_test_plot(z_PM_test_plot>0);
-                fid = sprintf('flux/ind-%d-MgII-%d.png',  quasar_ind, num_MgII);
+                fid = sprintf('flux/ind-%d-MgII-%s-%d.png',  quasar_ind,this_ID, num_MgII);
                 ind_zoomL2 = (abs(this_z_2796-map_z_MgIIL2(quasar_ind, num_MgII))<20*kms_to_z(map_sigma_MgIIL2(quasar_ind, num_MgII)/1e5)*(1+z_qso));
                 ind_zoomL1 = (abs(this_z_2796-map_z_MgIIL1(quasar_ind, num_MgII))<20*kms_to_z(map_sigma_MgIIL2(quasar_ind, num_MgII)/1e5)*(1+z_qso));
                 pltQSO(this_flux, this_wavelengths, MgII_muL2, c4_muL1, ind_zoomL2, ind_zoomL1, z_EWhigh, z_EWlow, z_PM_test_plot,...
                         ind_not_remove, ttl, fid)
          % end
 
-            fid = sprintf('muPlot/mu-id-%s.png', this_ID)
-            ttl = sprintf('ID:%s, zQSO:%.2f',  this_ID, z_qso)
+            fid = sprintf('muPlot/mu-id-%s.png', this_ID);
+            ttl = sprintf('ID:%s, zQSO:%.2f',  this_ID, z_qso);
             plt_mu(this_flux, this_wavelengths, this_mu, z_qso, this_M, ttl, fid)
-            ttl
+            ttl;
         end
 
 
@@ -484,10 +486,12 @@ variables_to_save = {'release', 'training_set_name', ...
     'sample_log_likelihoods_MgIIL2', 'log_likelihoods_MgIIL2'...
     'log_posteriors_no_MgII', 'log_posteriors_MgIIL1', 'log_posteriors_MgIIL2',...
     'model_posteriors', 'p_no_MgII', 'p_MgIIL1' ...
-    'map_z_MgIIL2', 'map_N_MgIIL2', 'map_sigma_MgIIL2' ,'p_MgII', 'REW_1548_dr7'};
+    'map_z_MgIIL2', 'map_N_MgIIL2', 'map_sigma_MgIIL2' ,'p_MgII', 'REW_2796_dr7'};
 
-filename = sprintf('%s/processed_qsos_tst_1_masked%s.mat', ...
+filename = sprintf('%s/processed_sigma_125_binednorm_PM1GP0_%s.mat', ...
     processed_directory(release), ...
     testing_set_name);
 
 save(filename, variables_to_save{:}, '-v7.3');
+
+toc

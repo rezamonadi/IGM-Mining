@@ -25,13 +25,15 @@ function y=plt_mu(this_flux, this_wavelengths, mu, z_qso, M, ttl, fid)
 
 
     DD = diag(M*M');
-    p = plot(this_rest_wavelengths, mu + DD)
+    p = plot(this_rest_wavelengths, mu + DD);
     p.Color = [0.900 0.1 0.1, 0.5]; 
     p.LineWidth = 0.5;
     hold on 
 
 
-    p = plot(this_rest_wavelengths, mu - DD)
+    p = plot(this_rest_wavelengths, mu - DD);
+    
+
     p.Color = [0.900 0.1 0.1, 0.5]; 
     p.LineWidth = 0.5;
     % hold on
@@ -79,10 +81,3 @@ function y=plt_mu(this_flux, this_wavelengths, mu, z_qso, M, ttl, fid)
     exportgraphics(fig, fid,'Resolution', 800)
     
 end
-
-
-
-
-
-
-
