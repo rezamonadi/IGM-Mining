@@ -1,6 +1,6 @@
 %% StatTesting - Gannon Hughes
 % Loading Data
-        load('data/dr7/processed/processed_sigma_125_binednorm_1%-Masking-All-samp-20k.mat');
+        load('data/dr7/processed/processed_sigma_125_Spline_2200-2300_1%-Masking-All-samp-20k.mat');
 
 
 % Indicies of Randomly selected quasars

@@ -42,7 +42,7 @@ rest_fluxes          = nan(num_quasars, num_rest_pixels);
 rest_noise_variances = nan(num_quasars, num_rest_pixels);
 is_empty             = false(num_quasars, 1);
 
-norm_window = (rest_wavelengths > 2180 & rest_wavelengths < 2250);
+norm_window = (rest_wavelengths > 2200 & rest_wavelengths < 2300);
 
 for i = 1:num_quasars
   z_qso = z_qsos(i);

@@ -1,8 +1,8 @@
 tic
 fprintf('Setting paramters ...\n')
 
-cataloging = 0;
-preloading = 0;
+cataloging = 1;
+preloading = 1;
 learning   = 1;
 sampling   = 1;
 processing = 1;
@@ -95,7 +95,7 @@ if learning==1
     preloaded_qsos_cat_name= sprintf('%s/preloaded_qsos_%s.mat',... 
                                processed_directory(release), training_set_name);
     %learn_qso_model
-    learning_gannon2
+    learning_gannon
 end
 
 
