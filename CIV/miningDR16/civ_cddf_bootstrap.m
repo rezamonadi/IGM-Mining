@@ -9,7 +9,7 @@ info = h5info(m.Properties.Source, '/LikelihoodCat/all_sample_log_likelihoods_c4
 [~, nweights, ~] = deal(info.Dataspace.Size(1), info.Dataspace.Size(2), info.Dataspace.Size(3));
 
 %% Define the column density grid range explicitly
-logN_grid = linspace(12, 17, nweights);  % Full grid: 10000 values from logN = 12 to 17
+logN_grid = linspace(12.5, 16.5, nweights);  % Full grid: 10000 values from logN = 12 to 17
 
 %% Save the grid to .mat file
 save('logN_grid.mat', 'logN_grid');
