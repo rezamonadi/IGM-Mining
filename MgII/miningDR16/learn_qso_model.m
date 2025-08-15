@@ -8,21 +8,26 @@ catalog = load(sprintf('%s/catalog', processed_directory(release)));
 % load preprocessed QSOs
 variables_to_load = {'all_wavelengths', 'all_flux', 'all_noise_variance', ...
                      'all_pixel_mask', 'all_num_c4'};
-preqsos = matfile(preloaded_qsos_cat_name);
+% preqsos = matfile(preloaded_qsos_cat_name);
 
 % determine which spectra to use for training; allow string value for
 % train_ind
 
-if learning ~= 2
-  if (ischar(train_ind))
+
+if (ischar(train_ind))
     train_ind = eval(train_ind);
-  end
 end
+
+
+
 % select training vectors
 all_wavelengths    =          preqsos.all_wavelengths;
-if learning ==2 
-  train_ind = true(size(all_wavelengths));
-end
+
+% 
+% if learning ==2 
+%   train_ind = true(size(all_wavelengths));
+% end
+
 all_wavelengths    =    all_wavelengths(train_ind, :);
 all_flux           =                 preqsos.all_flux;
 all_flux           =           all_flux(train_ind, :);
@@ -31,7 +36,10 @@ all_noise_variance = all_noise_variance(train_ind, :);
 all_pixel_mask     =           preqsos.all_pixel_mask;
 all_pixel_mask     =     all_pixel_mask(train_ind, :);
 z_qsos             =        catalog.all_zqso(train_ind);
+
+
 clear preqsos
+
 
 num_quasars = numel(z_qsos);
 
@@ -40,6 +48,7 @@ num_rest_pixels  = numel(rest_wavelengths);
 
 rest_fluxes          = nan(num_quasars, num_rest_pixels);
 rest_noise_variances = nan(num_quasars, num_rest_pixels);
+
 
 % the preload_qsos should fliter out empty spectra;
 % this line is to prevent there is any empty spectra
@@ -84,25 +93,15 @@ for i = 1:num_quasars
   rest_fluxes(i, :) = ...
       interp1(this_rest_wavelengths, this_flux,           rest_wavelengths);
 
-  % normalizing here
-  % following Zhou-Menard-2013
-  if(z_qso<2.5)
 
-    ind = (this_rest_wavelengths >= 2150) & ...
-          (this_rest_wavelengths <= 2250) & ...
-          (~this_pixel_mask);
-  else
-    ind = (this_rest_wavelengths >= normalization_min_lambda) & ...
-          (this_rest_wavelengths <= normalization_max_lambda) & ...
-          (~this_pixel_mask);
-  end
 
-this_median = nanmedian(this_flux(ind));
-  rest_fluxes(i, :) = rest_fluxes(i, :) / this_median;
+% this_median = nanmedian(this_flux(ind));
+
+  % rest_fluxes(i, :) = rest_fluxes(i, :) / this_median;
 
   rest_noise_variances(i, :) = ...
       interp1(this_rest_wavelengths, this_noise_variance, rest_wavelengths);
-  rest_noise_variances(i, :) = rest_noise_variances(i, :) / this_median .^ 2;
+  % rest_noise_variances(i, :) = rest_noise_variances(i, :) / this_median .^ 2;
 end
 clear('all_wavelengths', 'all_flux', 'all_noise_variance', 'all_pixel_mask');
 
@@ -111,7 +110,7 @@ clear('all_wavelengths', 'all_flux', 'all_noise_variance', 'all_pixel_mask');
 z_qsos               = z_qsos(~is_empty);
 rest_fluxes          = rest_fluxes(~is_empty, :);
 rest_noise_variances = rest_noise_variances(~is_empty, :);
-% 
+
 % update num_quasars in consideration
 num_quasars = numel(z_qsos);
 

@@ -1,5 +1,5 @@
-function y=pltQSO(this_flux, this_wavelengths, c4_muL2, c4_muL1, ind_zoomL2, ind_zoomL1, z_EWlow, z_EWhigh, z_PM_test_plot,...
-                   ind_not_remove, ttl, fid)
+
+function pltQSO(this_flux, this_wavelengths, c4_muL2, c4_muL1,  ttl, fid)
 % function y =pltQSO(civ_1548_wavelength, this_flux, this_wavelengths, c4_muL2, c4_muL1, ...
 %     this_sample_log_likelihoods_c4L2, sample_z_c4, log_nciv_samples, ttl,  fid)
 
@@ -9,28 +9,30 @@ function y=pltQSO(this_flux, this_wavelengths, c4_muL2, c4_muL1, ind_zoomL2, ind
     clf();
     % subplot('position', [0.05 0.49 0.90 5]);
     % construct dla_mu_map
-    civ_1548_wavelength = 1548.1949462890625; 
-    this_z_c4 = (this_wavelengths / civ_1548_wavelength) - 1;
+    mgii_2796_wavelength= 2.7964e+03; 
+    this_z_c4 = (this_wavelengths / mgii_2796_wavelength) - 1;
 
     % % subplot(2,1,1);
     
-    % p = stairs(this_z_c4(ind_not_remove), this_flux(ind_not_remove));
     p = stairs(this_z_c4, this_flux);
-    p.LineWidth = .5;
+    % p = stairs(this_z_c4, this_flux);
+    p.LineWidth = .3;
     p.Color = [0.3010 0.7450 0.9330, 0.8];
+    hold on
+
+    p = plot(this_z_c4, c4_muL1);
+    p.Color = [0.500 0.8250 0.0980, 0.6]; 
+    p.LineWidth=0.7;
     hold on
 
     p = plot(this_z_c4, c4_muL2);
     p.Color = [0.8500 0.3250 0.0980, 0.6]; 
-    p.LineWidth=1.5;
+    p.LineWidth=0.7;
     hold on
 
-    % p = plot(this_z_c4, c4_muL1);
-    % p.Color = [0.500 0.8250 0.0980, 0.6]; 
-    % p.LineWidth=1.5;
-    % hold on 
+   
     
-    legend({'Flux', 'M$_D$', 'M$_S$'}, 'interpreter', 'latex')
+    legend({'Flux', 'M$_S$', 'M$_D$'}, 'interpreter', 'latex')
     % legend({'Flux', 'M$_D$'}, 'interpreter', 'latex')
     hold on
     % xline(z_EWlow)
@@ -38,18 +40,18 @@ function y=pltQSO(this_flux, this_wavelengths, c4_muL2, c4_muL1, ind_zoomL2, ind
     % xline(z_EWhigh)
     % legend({'Flux', 'CIV', 'Singlet'}, 'interpreter', 'latex')
     xlim([min(this_z_c4), max(this_z_c4)])
-    xlabel('$\lambda$/1548 (\AA) - 1', 'Interpreter','latex');
+    xlabel('$\lambda$/2796 (\AA) - 1', 'Interpreter','latex');
     ylabel('Normalised Flux');
     % title(ttl, 'FontSize', 5, 'interpreter', 'latex')
-
-    for i=1:length(z_PM_test_plot)
-        p=xline(z_PM_test_plot(i));
-        p.Color = [0.1,0.1,0.1];
-        p.LineStyle = '--';
-        p.LineWidth=1;
-        p.HandleVisibility = 'off';
-        hold on 
-    end
+    % 
+    % for i=1:length(z_PM_test_plot)
+    %     p=xline(z_PM_test_plot(i));
+    %     p.Color = [0.1,0.1,0.1];
+    %     p.LineStyle = '--';
+    %     p.LineWidth=1;
+    %     p.HandleVisibility = 'off';
+    %     hold on 
+    % end
 % %     
 % %   
 %     subplot('position', [0.05 0.49 0.90 5]);
@@ -83,7 +85,7 @@ function y=pltQSO(this_flux, this_wavelengths, c4_muL2, c4_muL1, ind_zoomL2, ind
     % xline(z_EWlow)
     % hold on
     % xline(z_EWhigh)
-    % % title(ttl, 'FontSize', 7)
+    title(ttl, 'FontSize', 7)
 
     % axes('position', [0.45 0.75 0.18 0.15]);
     % box on 
@@ -95,7 +97,9 @@ function y=pltQSO(this_flux, this_wavelengths, c4_muL2, c4_muL1, ind_zoomL2, ind
     % p.Color = [0.3010 0.7450 0.9330];
 
     % set(gca, 'FontSize', 15);
-    exportgraphics(fig, fid,'Resolution', 800)
+    ax = gca; % Get current axes
+    ax.PlotBoxAspectRatio = [10 1 1]; % Stretch x-axis by a factor of 2
+    exportgraphics(fig, fid,'Resolution', 1000)
     
 end
 

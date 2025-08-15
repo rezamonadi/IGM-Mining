@@ -32,20 +32,20 @@ static const double c   = 2.99792458e+10;              /* speed of light        
 
 static const double transition_wavelengths[] =         /* transition wavelengths  cm            */
   {
-    1.5481949462890625e-5,
-    1.55077001953125e-5   
+    2.796354300000000e-5,
+    2.803531500000000e-5   
       };
 
 static const double oscillator_strengths[] =           /* oscillator strengths    dimensionless */
   {
-    0.189900,
-    0.094750
+    0.608,
+    0.303
   };
 
 static const double Gammas[] =                         /* transition rates        s^-1          */
   {
-    2.643e+08,
-    2.628e+08
+    2.60e+08,
+    2.57e+08
   };
 
 /* assumed constant */
@@ -67,15 +67,15 @@ static const double Gammas[] =                         /* transition rates      
       // M_PI * e * e * oscillator_strengths[i] * transition_wavelengths[i] / (m_e * c) ;
 // */
 static const double leading_constants[] =              /* leading constants  cm² */
-  {     7.802895118381213e-08,
-     3.899701297867750e-08
+  {     4.51229812059199e-07, 
+    2.2545006155878428e-07
  };
 
 /* gammas[i] = Gammas[i] * transition_wavelengths[i] / (4 * M_PI); */
 static const double gammas[] =                         /* Lorentzian widths       cm s⁻¹        */
   {
-     3.255002952981575e+02,
-     3.243136695286643e+02
+     578.56921645238,
+    573.3616245383533
   };
 
 static const int width = 3;                      /* width of convolution     dimensionless */
