@@ -6,6 +6,7 @@ __pycache__/
 *.fit
 *.csv
 *.mexa64
+*.asv
 
 
 # C extensions
