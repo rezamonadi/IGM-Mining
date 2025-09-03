@@ -29,7 +29,7 @@ sampledAbsorbers(size(logN_matrix,1)*7) = struct('qso_idx', [], 'SNR',[], 'abs_i
 
 fprintf('Sampling logN values for each absorber...\n');
 count = 0;
-nSamples =1000;
+nSamples =10;
 %%
 for qso_idx = 1:size(logN_matrix, 1)
     logN_row = logN_matrix(qso_idx, :);
@@ -79,4 +79,4 @@ for qso_idx = 1:size(logN_matrix, 1)
 end
 
 %% Save results
-save('sampled_logN_per_absorber_Smp1000.mat', 'sampledAbsorbers', '-v7.3');
+save('sampled_logN_per_absorber_Smp10.mat', 'sampledAbsorbers', '-v7.3');
