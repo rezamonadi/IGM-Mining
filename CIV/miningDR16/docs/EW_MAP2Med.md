@@ -10,10 +10,9 @@ For each absorber:
 - [ ] Generate transmission profile A(λ) using MAP parameters
 - [ ] Generate transmission profile A(λ) using median parameters
 - [ ] Generate transmission profile A(λ) using mean parameters
-- [ ] Apply same LSF convolution and same pixel grid in all cases
+
 
 ## 3. Recompute REW consistently
-- [ ] Use the same wavelength/velocity integration window for all cases
 - [ ] Compute:
   - REW_MAP
   - REW_median
