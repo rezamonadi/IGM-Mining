@@ -104,6 +104,7 @@ for quasar_ind = 5
             map_z_c4L2(quasar_ind,  num_c4), 10^map_N_c4L2(quasar_ind, num_c4),...
             num_lines, map_sigma_c4L2(quasar_ind, num_c4), padded_sigma_pixels_fine);
         absorptionL1 = Averager(absorptionL1_fine, nAVG, lenW_unmasked);
+        absorptionL1_1548_full = absorptionL1;     % on this_unmasked_wavelengths (no gaps)
         absorptionL1_1548 = absorptionL1(ind);
         absorptionL1_1548(isnan(absorptionL1_1548)) = 1;
         
@@ -113,6 +114,7 @@ for quasar_ind = 5
             map_z_c4L2(quasar_ind,  num_c4), 10^map_N_c4L2(quasar_ind, num_c4),...
             num_lines, map_sigma_c4L2(quasar_ind, num_c4), padded_sigma_pixels_fine);
         absorptionL1 = Averager(absorptionL1_fine, nAVG, lenW_unmasked);
+        absorptionL1_1550_full = absorptionL1;     % on this_unmasked_wavelengths (no gaps)
         absorptionL1_1550 = absorptionL1(ind);
         absorptionL1_1550(isnan(absorptionL1_1550)) = 1;
 
@@ -128,10 +130,16 @@ for quasar_ind = 5
         intThisMu   = this_mu(indIntegration);
         
         
-        REW_1548_DR16_voigt(quasar_ind, num_c4) = trapz(emitted_wavelengths(this_wavelengths, z_qso),...
-        1-absorptionL1_1548);
-        REW_1550_DR16_voigt(quasar_ind, num_c4) = trapz(emitted_wavelengths(this_wavelengths, z_qso),...
-        1-absorptionL1_1550);
+        % Voigt (model) REWs: integrate the model on the full grid, masked pixels
+        % included.  On the masked grid (this_wavelengths after masking) trapz
+        % bridges a masked stretch with a straight line, so a masked core of one
+        % line lowers that line's REW and W1548/W1550 can leave 1-2.
+        % (Both still divide by (1+z_qso) instead of (1+z_abs): the ratio is
+        % unaffected, the REWs are low by (1+z_abs)/(1+z_qso).)
+        REW_1548_DR16_voigt(quasar_ind, num_c4) = trapz(emitted_wavelengths(this_unmasked_wavelengths, z_qso),...
+        1-absorptionL1_1548_full);
+        REW_1550_DR16_voigt(quasar_ind, num_c4) = trapz(emitted_wavelengths(this_unmasked_wavelengths, z_qso),...
+        1-absorptionL1_1550_full);
         REW_1548_DR16_flux(quasar_ind, num_c4) = trapz(emitted_wavelengths(this_wavelengths(indIntegration),z_qso) ,...
         1- intThisFlux./intThisMu);
         ErrREW_1548_flux(quasar_ind, num_c4)  = 10^(pixel_spacing)*sqrt(sum(this_noise_variance(indIntegration)./ ...
