@@ -72,7 +72,10 @@ for i = 1:num_quasars
   end
    % % Masking Sky lines 
 
-  this_pixel_mask((abs(this_wavelengths-5579)<5) & (abs(this_wavelengths-6302)<5))=1;
+  % '|' (or): mask pixels within 5 A of either night-sky line.  With '&' (and)
+  % nothing was masked, since no pixel is near both 5579 and 6302 A.
+  % (preload_qsos_dr7.m already uses '|'.)
+  this_pixel_mask((abs(this_wavelengths-5579)<5) | (abs(this_wavelengths-6302)<5))=1;
   this_rest_wavelengths = emitted_wavelengths(this_wavelengths, all_zqso_dr16(i));
   % normalize flux
 

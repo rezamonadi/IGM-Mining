@@ -47,6 +47,9 @@ all_noise_variance = all_noise_variance(test_ind);
 all_pixel_mask     =     all_pixel_mask(test_ind);
 all_sigma_pixel    =    all_sigma_pixel(test_ind);
 z_qsos             =     all_zqso_dr16(test_ind);
+% catalog index of each test sightline: all_quasar_ind below counts test
+% sightlines, while all_QSO_ID_dr16 (and plate/mjd/fiber) are per catalog entry
+test_catalog_ind   =     find(test_ind);
 all_num_quasars    =                numel(z_qsos);
 
 
@@ -244,10 +247,15 @@ for all_quasar_ind = 1:num_quasars
     width)'...
     ];
 
+    % LSF widths of exactly the pixels in this_unmasked_wavelengths.  (It used
+    % this_sigma_pixel, which has the masked pixels removed: with any masked
+    % pixel in the window it was shorter than padded_wavelengths_fine, the
+    % widths were paired with the wrong wavelengths, and voigt_iP read past
+    % the end of the array.)
     padded_sigma_pixels_fine = ...
-    [this_sigma_pixel(1)*ones(width,1);...
-    finer(this_sigma_pixel, nAVG)';...
-    this_sigma_pixel(end)*ones(width,1)];
+    [this_unmasked_sigma_pixel(1)*ones(width,1);...
+    finer(this_unmasked_sigma_pixel, nAVG)';...
+    this_unmasked_sigma_pixel(end)*ones(width,1)];
 
        
     % [mask_ind] to retain only unmasked pixels from computed absorption profile
@@ -480,7 +488,7 @@ for all_quasar_ind = 1:num_quasars
             
 
             ttl = sprintf('ID:%s, zQSO:%.2f\n P(CIV)=%.2f, z_{CIV}=%.3f, P(S)=%.2f, REW=%.3f, SN=%.2f', ...
-                all_QSO_ID_dr16{all_quasar_ind}, z_qso, p_c4(this_quasar_ind, num_c4), ...
+                all_QSO_ID_dr16{test_catalog_ind(all_quasar_ind)}, z_qso, p_c4(this_quasar_ind, num_c4), ...
                 map_z_c4L2(this_quasar_ind, num_c4),p_c4L1(this_quasar_ind, num_c4), REW_1548_dr16(this_quasar_ind, num_c4),... 
                 median(this_flux./sqrt(this_noise_variance)))
 
