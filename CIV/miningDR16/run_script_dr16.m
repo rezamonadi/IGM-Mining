@@ -1,23 +1,20 @@
-clear
+
 fprintf('Setting paramters ...\n')
 num_quasars = 100;
-cataloging = 0;
-preloading = 0;
-sampling   = 0;
-plotting   = 1;
-processing = 1;
-merging    = 0;
-EWer       =0;
-pltP       =0;
-CredInt    =0;
-dv_mask    = 250;
-HPCC = 0;
+cataloging  = 0;
+preloading  = 0;
+sampling    = 0;
+plotting    = 0;
+processing  = 1;
+merging     = 0;
+EWer        = 0;
+pltP        = 0;
+CredInt     = 0;
+dv_mask     = 250;
 voigtPrep = 0;
 maskType = 1;
 priorType = 1;
-ind_S=1;
 saving=1;
-cores = 6;
 set_parameters_dr16
 training_set_name
 fprintf('Building catalogs ...\n')
@@ -38,7 +35,7 @@ if voigtPrep == 1
     mexAll
     cd ..
     
-    mex voigt_iP.c -lcerf
+    mex voigt_iP.c -lcerf -I/rhome/rmona003/bin/include/ -L/rhome/rmona003/bin/lib64
       
 end
 
@@ -85,6 +82,7 @@ load(sprintf('%s/preloaded_qsos_%s', processed_directory(releaseTest), testing_s
 
 fprintf('preparing testing and prior indeces ...\n')
 test_ind = (filter_flags==0);
+
 if processing==1
     fprintf('processing QSO: %d to %d\n\n', ind_S, ind_S +  num_quasars-1);
     parpool('local', cores);
@@ -93,7 +91,8 @@ if processing==1
 end
 
 if merging==1
-    mergeProcessesDr16
+    mergeProcessedDR16
+
 end
 
 if EWer==1

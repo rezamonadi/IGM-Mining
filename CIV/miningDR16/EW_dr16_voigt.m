@@ -142,10 +142,10 @@ for quasar_ind = 5
     end
     
 end
-% vs = {'REW_1548_DR12_flux', 'REW_1548_DR12_voigt',...
-% 'ErrREW_1548_flux1'};
-% save('REW_1548_DR12.mat',vs{:} , '-v7.3');
-% % DR =REW_1548_DR12_voigt./ REW_1550_DR12_voigt;
+vs = {'REW_1548_DR12_flux', 'REW_1548_DR12_voigt',...
+'ErrREW_1548_flux1'};
+save('REW_1548_DR12.mat',vs{:} , '-v7.3');
+% DR =REW_1548_DR12_voigt./ REW_1550_DR12_voigt;
 
 
 

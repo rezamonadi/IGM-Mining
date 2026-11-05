@@ -26,5 +26,4 @@ end
 % save catalog 
 variables_to_save = {'all_plate_dr16', 'all_mjd_dr16', 'all_fiber_dr16', ...
  'all_QSO_ID_dr16', 'all_RA_dr16', 'all_DEC_dr16', 'all_zqso_dr16' , 'all_BAL_PROB'};
-save(sprintf('%s/catalog', processed_directory(releaseTest)), ...
-    variables_to_save{:}, '-v7.3');
+save('data/dr16/processed/catalogDR16.mat',    variables_to_save{:}, '-v7.3');

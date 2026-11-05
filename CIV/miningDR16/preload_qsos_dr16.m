@@ -50,7 +50,6 @@ filter_flags(all_plate_dr16==2516) = bitset(filter_flags(all_plate_dr16==2516), 
 filter_flags(all_plate_dr16==1962) = bitset(filter_flags(all_plate_dr16==1962), 5, true);
 filter_flags(all_plate_dr16==2812) = bitset(filter_flags(all_plate_dr16==2812), 5, true);
 
-num_quasars=100
 for i = 1:num_quasars
 
   if (filter_flags(i)~=0)

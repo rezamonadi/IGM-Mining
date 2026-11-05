@@ -58,15 +58,15 @@ dlambda            = 0.5;                    % separation of wavelength grid    
 k                  = 20;                      % rank of non-diagonal contribution
 max_noise_variance = 0.5^2;                   % maximum pixel noise allowed during model training
 h                  = 2;                     % masking par to remove CIV region 
-nAVG               = 20;                     % number of points added between two 
-                                            % observed wavelengths to make the Voigt finer
+nAVG               = 8;                     % number of fine-grid points inserted between native pixels
+fine_factor         = nAVG + 1;              % fine-grid samples per native-pixel interval
 % optimization parameters
 minFunc_options =               ...           % optimization options for model fitting
     struct('MaxIter',     10000, ...
            'MaxFunEvals', 10000);
 
 % C4 model parameters: parameter samples (for Quasi-Monte Carlo)
-num_C4_samples           = 50000;                  % number of parameter samples
+num_C4_samples           = 10000;                  % number of parameter samples
 alpha                    = 0.9;                    % weight of KDE component in mixture
 uniform_min_log_nciv     = 12.5;                   % range of column density samples    [cm⁻²]
 uniform_max_log_nciv     = 16.1;                   % from uniform distribution
@@ -101,7 +101,7 @@ min_z_c4 = @(wavelengths, z_qso) ...         % determines minimum z_DLA to searc
 %      min(wavelengths) / civ_1548_wavelength - 1;
 train_ratio =1;
 training_set_name = 'C13-full';
-testing_set_name = 'DR16';
+testing_set_name = 'posterior_corrected';
 max_civ = 7; 
 % base directory for all data
 base_directory = 'data';
@@ -138,9 +138,7 @@ file_loader_sdss= @(plate, mjd, fiber_id) ...
             mjd,                                         ...
             fiber_id)));
 
-   file_loader_sdss_2256 =  @(plate, mjd, fiber_id) ...
-              (read_spec(sprintf("data/dr16/sas/dr16/sdss/spectro/redux/103/%04i/spec-%04i-%i-%04i.fits", ...
-            plate,                                       ...
-            plate,                                       ...
-            mjd,                                         ...
-            fiber_id)));
+   file_loader_sdss_2256 = @(plate,mjd,fiber_id) ...
+    read_spec(sprintf(['data/dr16/sas/dr16/sdss/spectro/redux/103/' ...
+                       'spectra/lite/%04i/spec-%04i-%i-%04i.fits'], ...
+                      plate, plate, mjd, fiber_id));

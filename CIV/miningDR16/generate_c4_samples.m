@@ -20,7 +20,7 @@ sequence = scramble(haltonset(3), 'rr2');
 % the first dimension can be used directly for the uniform prior over
 % offsets
 offset_z_samples  = sequence(1:num_C4_samples, 1)';
-offset_sigma_samples = sequence(1:num_C4_samples, 1)';
+offset_sigma_samples = sequence(1:num_C4_samples, 2)';
 % we must transform the second dimension to have the correct marginal
 % distribution for our chosen prior over column density, which is a
 % mixture of a uniform distribution on log₁₀ N_CIV and a distribution
@@ -68,8 +68,8 @@ cdf = @(nciv) (integral(normalized_pdf, fit_min_log_nciv, nciv));
 % use inverse transform sampling to convert the quasirandom samples on
 % [0, 1] to appropriate values
 log_nciv_samples = zeros(1, num_C4_samples);
-W_r_1548_samples = nan([num_C4_samples,1]);
-W_r_1550_samples = nan([num_C4_samples,1]);
+
+
 
 f = waitbar(0, 'Starting');
 for i = 1:num_C4_samples
@@ -83,13 +83,57 @@ end
 nciv_samples = 10.^log_nciv_samples;
 
 
+c_kms = 299792.458;
+
+z_reference = 2.0;
+velocity = linspace(-2000, 2000, 4001)';
+lambda_rest = civ_1548_wavelength .* exp(velocity ./ c_kms);
+lambda_observed = lambda_rest .* (1 + z_reference);
+
+dummy_sigma_pixels = ones(size(lambda_observed));
+
+W_r_1548_samples = nan([num_C4_samples,1]);
+W_r_1550_samples = nan([num_C4_samples,1]);
+sigma_civ_samples = min_sigma + (max_sigma-min_sigma)*offset_sigma_samples;
+
+% for i = 1:num_C4_samples
+
+%     absorption_fine = voigt_iP_transition( ...
+%         finer(lambda_observed, nAVG), ...
+%         z_reference, ...
+%         nciv_samples(i), ...
+%         1, ...                          % C IV lambda 1548 only
+%         sigma_civ_samples(i), ...
+%         fine_factor, ...
+%         finer(dummy_sigma_pixels, nAVG));
+
+%     transmission = Averager( ...
+%         absorption_fine, nAVG, numel(lambda_observed));
+
+%     W_r_1548_samples(i) = trapz(lambda_rest, 1 - transmission);
+
+%     absorption_fine = voigt_iP( ...
+%         finer(lambda_observed, nAVG), ...
+%         z_reference, ...
+%         nciv_samples(i), ...
+%         2, ...                          % both lines 
+%         sigma_civ_samples(i), ...
+%         finer(dummy_sigma_pixels, nAVG));
+
+%     transmission = Averager( ...
+%         absorption_fine, nAVG, numel(lambda_observed));
+
+%     W_r_1550_samples(i) = trapz(lambda_rest, 1 - transmission) - W_r_1548_samples(i);
+% end
+
 variables_to_save = {'offset_z_samples', 'offset_sigma_samples', 'log_nciv_samples', 'nciv_samples'};
              
- save(sprintf('%s/civ_samples_N-%d-%d-Sigma-%d-%d-Num-%d.mat', processed_directory(releaseTest),...
-     floor(uniform_min_log_nciv*100),floor(uniform_max_log_nciv*100), floor(min_sigma/1e5), floor(max_sigma/1e5), num_C4_samples),  variables_to_save{:}, '-v7.3');
+ save(sprintf('data/dr16/processed/civ_samples_N-%d-%d-Sigma-%d-%d-Num-%d.mat',...
+                             floor(uniform_min_log_nciv*100), ...
+                             floor(uniform_max_log_nciv*100), ...
+                             floor(min_sigma/1e5), ...
+                             floor(max_sigma/1e5), ...
+                             num_C4_samples),  ...
+                             variables_to_save{:}, '-v7.3');
 
-fig = figure();
-
-histogram(log_nciv_samples)
-exportgraphics(fig, sprintf('%s-hist2D.png', training_set_name), 'Resolution', 800)
 

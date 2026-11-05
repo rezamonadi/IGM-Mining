@@ -1,0 +1,20 @@
+--- original
++++ corrected
+@@ -290,7 +290,16 @@
+     qi = q0:min(q0+opt.BlockQSOs-1,nq); block = m.(sample_name)(qi,:,:);
+     for j = 1:numel(qi), for c = 1:nc
+         if ~active(qi(j),c), continue; end
+-        x = squeeze(block(j,:,c)); mx = max(x, [], 'omitnan'); expected = mx + log(mean(exp(x(isfinite(x))-mx)));
++        x = squeeze(block(j,:,c));
++        % Coverage-rejected proposals have log likelihood -Inf. Their zero
++        % contributions must remain in the mean's proposal denominator.
++        % NaN/+Inf in an active cell are invalid, rather than omitted samples.
++        if any(isnan(x) | x == Inf)
++            r.mismatch = r.mismatch + 1;
++            continue;
++        end
++        mx = max(x);
++        expected = mx + log(mean(exp(x-mx)));
+         if ~isfinite(expected) || ~close_enough(stored(qi(j),c), expected), r.mismatch = r.mismatch + 1; end
+     end, end
+     if block_number == num_blocks || mod(block_number, 10) == 0

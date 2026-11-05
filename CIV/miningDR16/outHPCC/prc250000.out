@@ -1,0 +1,23 @@
+
+                            < M A T L A B (R) >
+                  Copyright 1984-2024 The MathWorks, Inc.
+                  R2025a (25.1.0.2943329) 64-bit (glnxa64)
+                               April 16, 2025
+
+ 
+To get started, type doc.
+For product information, visit www.mathworks.com.
+ 
+Setting parameters ...
+
+training_set_name =
+
+    'C13-full'
+
+Building catalogs ...
+preparing voigt.c ...
+Learning model ...
+Generating samples for integrating out parameters in the model...
+10000 Samples are generated
+Preloading QSOs ...
+slurmstepd-i35: error: *** JOB 31645472 ON i35 CANCELLED AT 2026-11-03T16:08:35 ***
